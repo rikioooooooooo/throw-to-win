@@ -71,6 +71,7 @@ export default function PlayPage() {
   } = useCamera();
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const finishingRef = useRef(false);
+  const finishTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const overlayStateRef = useRef<{
     mode: "idle" | "countdown" | "height";
     countdownText: string;
@@ -235,17 +236,19 @@ export default function PlayPage() {
         height: result.heightMeters,
         isAtPeak: true,
       };
-      let completed = false;
-      const complete = () => {
-        if (completed) return;
-        completed = true;
+      // Wait 800ms after landing to keep recording the catch.
+      // Camera stays visible with frozen peak height overlay during this window.
+      finishTimeoutRef.current = setTimeout(() => {
+        finishTimeoutRef.current = null;
         handleThrowComplete(result);
-      };
-      requestAnimationFrame(() => {
-        requestAnimationFrame(complete);
-      });
-      setTimeout(complete, 250);
+      }, 800);
     }
+    return () => {
+      if (finishTimeoutRef.current) {
+        clearTimeout(finishTimeoutRef.current);
+        finishTimeoutRef.current = null;
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result, gameState]);
 
@@ -343,6 +346,10 @@ export default function PlayPage() {
   const handleTryAgain = useCallback(async () => {
     wakeLockRef.current?.release().catch(() => {});
     wakeLockRef.current = null;
+    if (finishTimeoutRef.current) {
+      clearTimeout(finishTimeoutRef.current);
+      finishTimeoutRef.current = null;
+    }
     finishingRef.current = false;
     setResultData(null);
     setVideoUrl(null);
@@ -543,9 +550,9 @@ export default function PlayPage() {
             {t("result.airtime")}: <span className="text-white hud-number">{resultData.airtime.toFixed(2)}s</span>
           </p>
 
-          {/* Video player with HUD corner brackets */}
+          {/* Video player */}
           {videoUrl && (
-            <div className="w-full max-w-[280px] mb-8 bg-surface border border-border relative overflow-hidden animate-fade-in-up delay-300">
+            <div className="w-full max-w-[280px] mb-8 relative overflow-hidden animate-fade-in-up delay-300">
               {resultData.ffmpegProcessed ? (
                 <video
                   src={videoUrl}
@@ -564,11 +571,6 @@ export default function PlayPage() {
                   className="w-full aspect-[9/16] object-cover"
                 />
               )}
-              {/* HUD corner brackets */}
-              <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-accent pointer-events-none" />
-              <div className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-accent pointer-events-none" />
-              <div className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-accent pointer-events-none" />
-              <div className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-accent pointer-events-none" />
             </div>
           )}
 
