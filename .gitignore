@@ -49,3 +49,4 @@ data/*.mjs
 
 # test scripts
 test-*.mjs
+data/model-stderr.log
