@@ -72,6 +72,8 @@ export default function PlayPage() {
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const finishingRef = useRef(false);
   const finishTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const descentAnimRef = useRef<number>(0);
+  const isDescentAnimatingRef = useRef(false);
   const overlayStateRef = useRef<{
     mode: "idle" | "countdown" | "height";
     countdownText: string;
@@ -158,8 +160,9 @@ export default function PlayPage() {
     }
   }, []);
 
-  // ---- Overlay state sync ----
+  // ---- Overlay state sync (skipped during descent animation) ----
   useEffect(() => {
+    if (isDescentAnimatingRef.current) return;
     if (peakResult) {
       overlayStateRef.current = {
         mode: "height",
@@ -226,28 +229,68 @@ export default function PlayPage() {
   }, [router, locale]);
 
   // ---- Handle throw result ----
+  // After landing: hold peak briefly, then animate descent from peak→0 on the
+  // canvas overlay so the baked video shows height going up AND coming down.
+  // Recording continues for 2 seconds after landing to capture the catch.
   useEffect(() => {
     if (result && gameState === "active" && !finishingRef.current) {
       finishingRef.current = true;
       setPeakResult(result);
+
+      // Phase 1: Flash peak height in red
       overlayStateRef.current = {
         mode: "height",
         countdownText: "",
         height: result.heightMeters,
         isAtPeak: true,
       };
-      // Wait 800ms after landing to keep recording the catch.
-      // Camera stays visible with frozen peak height overlay during this window.
+
+      // Phase 2: Descent animation — height drops from peak to 0
+      const PEAK_HOLD_MS = 400;
+      const descentMs = Math.max(300, Math.min((result.airtimeSeconds * 1000) / 2, 1200));
+      const descentStart = performance.now() + PEAK_HOLD_MS;
+      isDescentAnimatingRef.current = true;
+
+      const animateDescent = () => {
+        const elapsed = performance.now() - descentStart;
+        if (elapsed < 0) {
+          descentAnimRef.current = requestAnimationFrame(animateDescent);
+          return;
+        }
+        const progress = Math.min(elapsed / descentMs, 1);
+        // easeIn (quadratic) matches gravitational acceleration
+        const eased = progress * progress;
+        overlayStateRef.current = {
+          mode: "height",
+          countdownText: "",
+          height: Math.max(0, result.heightMeters * (1 - eased)),
+          isAtPeak: false,
+        };
+        if (progress < 1) {
+          descentAnimRef.current = requestAnimationFrame(animateDescent);
+        }
+        // Keep isDescentAnimatingRef true until handleThrowComplete transitions away
+      };
+      descentAnimRef.current = requestAnimationFrame(animateDescent);
+
+      // Phase 3: After 2 seconds, stop recording and process video
       finishTimeoutRef.current = setTimeout(() => {
+        if (descentAnimRef.current) cancelAnimationFrame(descentAnimRef.current);
+        descentAnimRef.current = 0;
         finishTimeoutRef.current = null;
         handleThrowComplete(result);
-      }, 800);
+      }, 2000);
     }
     return () => {
       if (finishTimeoutRef.current) {
         clearTimeout(finishTimeoutRef.current);
         finishTimeoutRef.current = null;
       }
+      if (descentAnimRef.current) {
+        cancelAnimationFrame(descentAnimRef.current);
+        descentAnimRef.current = 0;
+      }
+      isDescentAnimatingRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result, gameState]);
@@ -350,6 +393,11 @@ export default function PlayPage() {
       clearTimeout(finishTimeoutRef.current);
       finishTimeoutRef.current = null;
     }
+    if (descentAnimRef.current) {
+      cancelAnimationFrame(descentAnimRef.current);
+      descentAnimRef.current = 0;
+    }
+    isDescentAnimatingRef.current = false;
     finishingRef.current = false;
     setResultData(null);
     setVideoUrl(null);
