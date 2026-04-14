@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "title": "Throw To Win",
+    "description": "Lanza tu teléfono. El que más alto llegue, gana."
+  },
+  "landing": {
+    "subtitle": "El lanzamiento más alto gana.",
+    "worldRecord": "World Record",
+    "todaysBest": "Today's Best",
+    "totalThrows": "Total Throws",
+    "start": "START",
+    "myPage": "Mi perfil"
+  },
+  "consent": {
+    "heading": "Antes de lanzar.",
+    "line1": "Se puede romper. Probablemente.",
+    "line2": "Puede darte en la cara.",
+    "line3": "Tu tele cara, la ventana, la lámpara del techo — todo en riesgo.",
+    "line4": "No vamos a detenerte.",
+    "line5": "Pero lo que pase, es tu problema.",
+    "detailsLink": "Términos completos aquí",
+    "agree": "THROW",
+    "disagree": "Mejor no"
+  },
+  "permissions": {
+    "heading": "Necesitamos acceso.",
+    "motionSensor": "Sensor de movimiento — para medir tu lanzamiento",
+    "camera": "Cámara — para grabar el vuelo",
+    "grantButton": "Conceder acceso",
+    "denied": "Sin permisos no hay juego.",
+    "retryButton": "Intentar de nuevo",
+    "unsupported": "Tu dispositivo no soporta los sensores necesarios.",
+    "unsupportedDetail": "Throw To Win necesita sensores de movimiento y cámara."
+  },
+  "prepare": {
+    "heading": "¿Listo?",
+    "cameraLabel": "Cámara",
+    "rearCamera": "Trasera",
+    "frontCamera": "Frontal",
+    "instruction": "Sostén el teléfono y pulsa el botón cuando estés listo.",
+    "startButton": "START COUNTDOWN"
+  },
+  "game": {
+    "throwNow": "¡LANZA!",
+    "detecting": "Esperando el lanzamiento...",
+    "freefall": "Volando...",
+    "landed": "¡Atrapado!"
+  },
+  "processing": {
+    "heading": "Procesando tu lanzamiento...",
+    "loadingFfmpeg": "Cargando motor de video...",
+    "applyingSlowmo": "Creando cámara lenta...",
+    "addingOverlay": "Añadiendo altura...",
+    "encoding": "Codificando video...",
+    "almostDone": "Casi listo..."
+  },
+  "result": {
+    "height": "Altura",
+    "airtime": "Tiempo en el aire",
+    "newRecord": "¡NUEVO RÉCORD PERSONAL!",
+    "downloadVideo": "Descargar video",
+    "tryAgain": "Intentar de nuevo",
+    "shareOn": "Compartir en",
+    "noVideo": "Video no disponible para este lanzamiento."
+  },
+  "mypage": {
+    "heading": "My Throws",
+    "personalBest": "Mejor marca personal",
+    "totalThrows": "Total Throws",
+    "totalAirtime": "Tiempo total en el aire",
+    "sortByDate": "Por fecha",
+    "sortByHeight": "Por altura",
+    "noThrows": "Aún no hay lanzamientos. ¡Ve a lanzar tu teléfono!",
+    "back": "Volver",
+    "meters": "m",
+    "seconds": "s",
+    "throws": "lanzamientos"
+  },
+  "terms": {
+    "heading": "Términos de uso",
+    "lastUpdated": "Última actualización",
+    "sections": {
+      "deviceDamage": {
+        "title": "Daños al dispositivo",
+        "content": "Throw To Win implica lanzar tu dispositivo móvil al aire. Al usar este servicio, reconoces que esta actividad conlleva un riesgo inherente de daño a tu dispositivo. Kosukuma Inc. no es responsable de ningún daño al dispositivo derivado del uso de este servicio."
+      },
+      "personalInjury": {
+        "title": "Lesiones personales",
+        "content": "Lanzar un dispositivo móvil puede resultar en lesiones personales. Los usuarios asumen todos los riesgos de lesiones para sí mismos o para otros. Kosukuma Inc. no se hace responsable de las lesiones sufridas durante el uso de este servicio."
+      },
+      "propertyDamage": {
+        "title": "Daños materiales",
+        "content": "El uso de este servicio puede causar daños a propiedades cercanas. Los usuarios son los únicos responsables de garantizar un entorno seguro antes de lanzar su dispositivo."
+      },
+      "thirdParty": {
+        "title": "Impacto en terceros",
+        "content": "Los usuarios deben asegurarse de que sus lanzamientos no pongan en peligro ni molesten a otras personas. Cualquier responsabilidad por el impacto en terceros recae completamente en el usuario."
+      },
+      "accuracy": {
+        "title": "Precisión de los registros",
+        "content": "Las mediciones de altura son estimaciones basadas en datos del acelerómetro. Kosukuma Inc. no garantiza la precisión de ninguna medición o registro."
+      },
+      "dataLoss": {
+        "title": "Pérdida de datos",
+        "content": "Todos los datos se almacenan localmente en tu dispositivo. Cambiar de dispositivo, borrar datos del navegador u otras acciones pueden resultar en la pérdida permanente de tus registros. Kosukuma Inc. no es responsable de ninguna pérdida de datos."
+      }
+    },
+    "back": "Volver"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Algo salió mal. ¡Inténtalo de nuevo!",
+    "retry": "Intentar de nuevo",
+    "practice": "Eso fue solo un calentamiento. ¡Una más!",
+    "unit": {
+      "meters": "m",
+      "seconds": "s"
+    }
+  }
+}

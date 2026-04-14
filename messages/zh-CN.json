@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "title": "Throw To Win",
+    "description": "把手机扔出去。扔得最高的赢。"
+  },
+  "landing": {
+    "subtitle": "扔得最高的赢。",
+    "worldRecord": "World Record",
+    "todaysBest": "Today's Best",
+    "totalThrows": "Total Throws",
+    "start": "START",
+    "myPage": "我的主页"
+  },
+  "consent": {
+    "heading": "扔之前，想清楚。",
+    "line1": "可能会摔碎。大概率。",
+    "line2": "可能会砸到你自己的脸。",
+    "line3": "你那台贵电视、窗户、吊灯——都在危险范围内。",
+    "line4": "我们不会拦你。",
+    "line5": "但出了什么事，跟我们没关系。",
+    "detailsLink": "查看完整条款",
+    "agree": "THROW",
+    "disagree": "算了"
+  },
+  "permissions": {
+    "heading": "我们需要权限。",
+    "motionSensor": "运动传感器 — 用来测量你的投掷高度",
+    "camera": "摄像头 — 用来拍摄飞行过程",
+    "grantButton": "授予权限",
+    "denied": "没有权限就没法玩。",
+    "retryButton": "重试",
+    "unsupported": "你的设备不支持所需传感器。",
+    "unsupportedDetail": "Throw To Win 需要运动传感器和摄像头。"
+  },
+  "prepare": {
+    "heading": "准备好了？",
+    "cameraLabel": "摄像头",
+    "rearCamera": "后置",
+    "frontCamera": "前置",
+    "instruction": "握住手机，准备好后按下按钮。",
+    "startButton": "START COUNTDOWN"
+  },
+  "game": {
+    "throwNow": "扔！",
+    "detecting": "等待投掷...",
+    "freefall": "飞行中...",
+    "landed": "接住了！"
+  },
+  "processing": {
+    "heading": "正在处理你的投掷...",
+    "loadingFfmpeg": "加载视频引擎...",
+    "applyingSlowmo": "生成慢动作...",
+    "addingOverlay": "添加高度叠加层...",
+    "encoding": "视频编码中...",
+    "almostDone": "马上就好..."
+  },
+  "result": {
+    "height": "高度",
+    "airtime": "飞行时间",
+    "newRecord": "新个人纪录！",
+    "downloadVideo": "下载视频",
+    "tryAgain": "再试一次",
+    "shareOn": "分享到",
+    "noVideo": "本次投掷视频不可用。"
+  },
+  "mypage": {
+    "heading": "My Throws",
+    "personalBest": "个人最佳",
+    "totalThrows": "Total Throws",
+    "totalAirtime": "总飞行时间",
+    "sortByDate": "按日期",
+    "sortByHeight": "按高度",
+    "noThrows": "还没有记录。去扔手机吧！",
+    "back": "返回",
+    "meters": "m",
+    "seconds": "秒",
+    "throws": "次"
+  },
+  "terms": {
+    "heading": "使用条款",
+    "lastUpdated": "最后更新",
+    "sections": {
+      "deviceDamage": {
+        "title": "设备损坏",
+        "content": "Throw To Win 涉及将移动设备抛向空中。使用本服务即表示您承认此活动存在损坏设备的固有风险。Kosukuma Inc. 对因使用本服务而导致的设备损坏不承担任何责任。"
+      },
+      "personalInjury": {
+        "title": "人身伤害",
+        "content": "投掷移动设备可能导致人身伤害。用户自行承担对自身或他人造成伤害的所有风险。Kosukuma Inc. 对使用本服务期间发生的任何伤害不承担责任。"
+      },
+      "propertyDamage": {
+        "title": "财产损失",
+        "content": "使用本服务可能导致周围财产受损。用户在投掷设备前有责任确保环境安全。"
+      },
+      "thirdParty": {
+        "title": "第三方影响",
+        "content": "用户必须确保投掷行为不危及或干扰他人。因影响第三方而产生的任何责任完全由用户自行承担。"
+      },
+      "accuracy": {
+        "title": "记录准确性",
+        "content": "高度测量值是基于加速度计数据的估算值。Kosukuma Inc. 不保证任何测量或记录的准确性。"
+      },
+      "dataLoss": {
+        "title": "数据丢失",
+        "content": "所有数据均存储在您的本地设备上。更换设备、清除浏览器数据或其他操作可能导致记录永久丢失。Kosukuma Inc. 对任何数据丢失不承担责任。"
+      }
+    },
+    "back": "返回"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "出了点问题。再试一次吧！",
+    "retry": "重试",
+    "practice": "那只是热身。再来一次！",
+    "unit": {
+      "meters": "m",
+      "seconds": "秒"
+    }
+  }
+}

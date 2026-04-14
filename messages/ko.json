@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "title": "Throw To Win",
+    "description": "폰을 던져라. 가장 높이 던진 사람이 이긴다."
+  },
+  "landing": {
+    "subtitle": "가장 높이 던진 사람이 이긴다.",
+    "worldRecord": "World Record",
+    "todaysBest": "Today's Best",
+    "totalThrows": "Total Throws",
+    "start": "START",
+    "myPage": "마이페이지"
+  },
+  "consent": {
+    "heading": "던지기 전에, 잠깐.",
+    "line1": "박살날 수 있어요. 아마도.",
+    "line2": "얼굴에 맞을 수도 있고요.",
+    "line3": "비싼 TV, 창문, 천장 조명 — 전부 위험 지대입니다.",
+    "line4": "막을 생각은 없어요.",
+    "line5": "하지만 무슨 일이 생겨도, 책임은 본인에게 있습니다.",
+    "detailsLink": "전체 약관 보기",
+    "agree": "THROW",
+    "disagree": "아니요"
+  },
+  "permissions": {
+    "heading": "권한이 필요합니다.",
+    "motionSensor": "모션 센서 — 던지기 높이 측정용",
+    "camera": "카메라 — 비행 영상 촬영용",
+    "grantButton": "권한 허용",
+    "denied": "권한 없이는 플레이할 수 없습니다.",
+    "retryButton": "다시 시도",
+    "unsupported": "이 기기는 필요한 센서를 지원하지 않습니다.",
+    "unsupportedDetail": "Throw To Win 은 모션 센서와 카메라가 필요합니다."
+  },
+  "prepare": {
+    "heading": "준비됐나요?",
+    "cameraLabel": "카메라",
+    "rearCamera": "후면",
+    "frontCamera": "전면",
+    "instruction": "폰을 잡고 준비가 되면 버튼을 누르세요.",
+    "startButton": "START COUNTDOWN"
+  },
+  "game": {
+    "throwNow": "던져!",
+    "detecting": "던지기 대기 중...",
+    "freefall": "비행 중...",
+    "landed": "잡았다!"
+  },
+  "processing": {
+    "heading": "던지기 처리 중...",
+    "loadingFfmpeg": "비디오 엔진 로딩...",
+    "applyingSlowmo": "슬로모션 생성 중...",
+    "addingOverlay": "높이 오버레이 추가 중...",
+    "encoding": "비디오 인코딩 중...",
+    "almostDone": "거의 다 됐어요..."
+  },
+  "result": {
+    "height": "높이",
+    "airtime": "체공 시간",
+    "newRecord": "신기록 달성!",
+    "downloadVideo": "영상 다운로드",
+    "tryAgain": "다시 하기",
+    "shareOn": "공유하기",
+    "noVideo": "이번 던지기 영상을 사용할 수 없습니다."
+  },
+  "mypage": {
+    "heading": "My Throws",
+    "personalBest": "개인 최고",
+    "totalThrows": "Total Throws",
+    "totalAirtime": "총 체공 시간",
+    "sortByDate": "날짜순",
+    "sortByHeight": "높이순",
+    "noThrows": "아직 기록이 없어요. 폰을 던져보세요!",
+    "back": "뒤로",
+    "meters": "m",
+    "seconds": "초",
+    "throws": "회"
+  },
+  "terms": {
+    "heading": "이용약관",
+    "lastUpdated": "최종 업데이트",
+    "sections": {
+      "deviceDamage": {
+        "title": "기기 손상",
+        "content": "Throw To Win 은 모바일 기기를 공중으로 던지는 행위를 포함합니다. 본 서비스를 이용함으로써 귀하는 이 활동이 기기 손상의 고유한 위험을 수반함을 인정합니다. Kosukuma Inc. 는 본 서비스 이용으로 인한 기기 손상에 대해 어떠한 책임도 지지 않습니다."
+      },
+      "personalInjury": {
+        "title": "신체 상해",
+        "content": "모바일 기기를 던지면 신체 상해가 발생할 수 있습니다. 사용자는 본인 및 타인에 대한 부상 위험을 전적으로 부담합니다. Kosukuma Inc. 는 본 서비스 이용 중 발생한 부상에 대해 책임을 지지 않습니다."
+      },
+      "propertyDamage": {
+        "title": "재산 피해",
+        "content": "본 서비스 이용으로 인해 주변 재산이 손상될 수 있습니다. 사용자는 기기를 던지기 전에 안전한 환경을 확보할 책임이 있습니다."
+      },
+      "thirdParty": {
+        "title": "제3자 영향",
+        "content": "사용자는 자신의 던지기가 다른 사람을 위험에 빠뜨리거나 방해하지 않도록 해야 합니다. 제3자에 대한 영향으로 인한 모든 책임은 전적으로 사용자에게 있습니다."
+      },
+      "accuracy": {
+        "title": "기록 정확도",
+        "content": "높이 측정값은 가속도계 데이터를 기반으로 한 추정치입니다. Kosukuma Inc. 는 측정값이나 기록의 정확성을 보장하지 않습니다."
+      },
+      "dataLoss": {
+        "title": "데이터 손실",
+        "content": "모든 데이터는 귀하의 기기에 로컬로 저장됩니다. 기기 변경, 브라우저 데이터 삭제 또는 기타 작업으로 인해 기록이 영구적으로 손실될 수 있습니다. Kosukuma Inc. 는 데이터 손실에 대해 책임을 지지 않습니다."
+      }
+    },
+    "back": "뒤로"
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "error": "뭔가 잘못됐어요. 다시 해봅시다!",
+    "retry": "다시 시도",
+    "practice": "그건 연습이었어요. 한 번 더!",
+    "unit": {
+      "meters": "m",
+      "seconds": "초"
+    }
+  }
+}

@@ -1,0 +1,275 @@
+// ============================================================
+// Accelerometer sensor — robust throw detection
+//
+// Algorithm:
+//   calibrating → waiting-throw → launched → freefall → landed
+//
+// Key design decisions:
+//   - Phase transitions happen INLINE in devicemotion handler (zero latency)
+//   - No cascading moving average (raw magnitude for phase detection)
+//   - Launch spike required before freefall (prevents false triggers)
+//   - Time-based freefall confirmation (not sample-count based)
+//   - Generous freefall threshold (accommodates phone spinning)
+//   - Distinct landing threshold (clear catch detection)
+// ============================================================
+
+import type { AccelSample, ThrowPhase, ThrowResult } from "./types";
+import { calculateHeight, estimatePeakTime } from "./physics";
+
+// ---- Thresholds (absolute, in m/s²) ----
+const LAUNCH_THRESHOLD = 15.0; // above = throw detected (~1.5G)
+const LAUNCH_CONFIRM_COUNT = 2; // consecutive samples above threshold to confirm launch
+const FREEFALL_THRESHOLD = 5.5; // below = freefall (tolerates spinning at ~2 rev/s adding ~9.5 m/s² centripetal)
+const LANDING_THRESHOLD = 15.0; // above after freefall = caught (~1.5G, avoids false triggers from hand movements)
+const FREEFALL_CONFIRM_MS = 40; // sustained low-G to confirm freefall (filters brief dips during hand movement)
+const LAUNCH_TIMEOUT_MS = 1000; // reset if no freefall within 1s of launch
+const MIN_FREEFALL_MS = 60; // minimum valid freefall duration
+const MAX_FREEFALL_MS = 4000; // safety cap — 4s freefall ≈ 20m throw (physically impossible)
+const CALIBRATION_SAMPLES = 50; // ~0.5s at 100Hz
+
+export type SensorCallback = (
+  phase: ThrowPhase,
+  result?: ThrowResult,
+) => void;
+
+export class ThrowDetector {
+  private samples: AccelSample[] = [];
+  private phase: ThrowPhase = "idle";
+  private calibrationBaseline = 9.81;
+  private freefallStartTime = 0;
+  private freefallCandidateStart = 0;
+  private launchTime = 0;
+  private handler: ((event: DeviceMotionEvent) => void) | null = null;
+  private callback: SensorCallback;
+  private calibrationSamples: number[] = [];
+  private launchConfirmCount = 0;
+
+  constructor(callback: SensorCallback) {
+    this.callback = callback;
+  }
+
+  static async requestPermission(): Promise<boolean> {
+    if (
+      typeof DeviceMotionEvent !== "undefined" &&
+      "requestPermission" in DeviceMotionEvent &&
+      typeof (
+        DeviceMotionEvent as unknown as {
+          requestPermission: () => Promise<string>;
+        }
+      ).requestPermission === "function"
+    ) {
+      try {
+        const state = await (
+          DeviceMotionEvent as unknown as {
+            requestPermission: () => Promise<string>;
+          }
+        ).requestPermission();
+        return state === "granted";
+      } catch {
+        return false;
+      }
+    }
+    return typeof DeviceMotionEvent !== "undefined";
+  }
+
+  static isAvailable(): boolean {
+    return typeof DeviceMotionEvent !== "undefined";
+  }
+
+  startCalibration(): void {
+    this.phase = "calibrating";
+    this.calibrationSamples = [];
+    this.samples = [];
+    this.freefallCandidateStart = 0;
+    this.launchTime = 0;
+    this.callback(this.phase);
+
+    this.handler = (event: DeviceMotionEvent) => {
+      const accel = event.accelerationIncludingGravity;
+      if (!accel || accel.x === null || accel.y === null || accel.z === null)
+        return;
+
+      const x = accel.x ?? 0;
+      const y = accel.y ?? 0;
+      const z = accel.z ?? 0;
+      const magnitude = Math.sqrt(x * x + y * y + z * z);
+      const now = performance.now();
+
+      this.samples.push({ t: now, x, y, z, magnitude });
+
+      // Keep buffer bounded
+      if (this.samples.length > 500) {
+        this.samples = this.samples.slice(-250);
+      }
+
+      this.processPhase(magnitude, now);
+    };
+
+    window.addEventListener("devicemotion", this.handler, { passive: true });
+  }
+
+  private processPhase(magnitude: number, now: number): void {
+    switch (this.phase) {
+      case "calibrating": {
+        this.calibrationSamples.push(magnitude);
+        if (this.calibrationSamples.length >= CALIBRATION_SAMPLES) {
+          this.calibrationBaseline =
+            this.calibrationSamples.reduce((a, b) => a + b, 0) /
+            this.calibrationSamples.length;
+          // Auto-transition: start listening for throws immediately after calibration
+          // This prevents the bug where throwing right at countdown=0 is missed
+          // because the phase was still "calibrating"
+          this.phase = "waiting-throw";
+          this.launchConfirmCount = 0;
+          this.callback(this.phase);
+        }
+        break;
+      }
+
+      case "waiting-throw": {
+        // Detect launch spike — require consecutive samples above threshold
+        // to filter noise spikes from triggering false launches
+        if (magnitude > LAUNCH_THRESHOLD) {
+          this.launchConfirmCount++;
+          if (this.launchConfirmCount >= LAUNCH_CONFIRM_COUNT) {
+            this.launchTime = now;
+            this.freefallCandidateStart = 0;
+            this.launchConfirmCount = 0;
+            this.phase = "launched";
+            this.callback(this.phase);
+          }
+        } else {
+          this.launchConfirmCount = 0;
+        }
+        break;
+      }
+
+      case "launched": {
+        // After launch spike, look for sustained low-G (freefall)
+        if (magnitude < FREEFALL_THRESHOLD) {
+          if (this.freefallCandidateStart === 0) {
+            this.freefallCandidateStart = now;
+          }
+          if (now - this.freefallCandidateStart >= FREEFALL_CONFIRM_MS) {
+            this.freefallStartTime = this.freefallCandidateStart;
+            this.phase = "freefall";
+            this.callback(this.phase);
+          }
+        } else {
+          this.freefallCandidateStart = 0;
+        }
+
+        // Timeout: if no freefall detected within 1s, it was a false launch
+        if (now - this.launchTime > LAUNCH_TIMEOUT_MS) {
+          this.phase = "waiting-throw";
+          this.freefallCandidateStart = 0;
+          this.callback(this.phase);
+        }
+        break;
+      }
+
+      case "freefall": {
+        const freefallElapsed = now - this.freefallStartTime;
+
+        // Detect landing: magnitude rises above threshold, OR freefall timeout
+        // Timeout handles soft catches where deceleration never spikes above threshold
+        const isLanding =
+          magnitude > LANDING_THRESHOLD ||
+          freefallElapsed > MAX_FREEFALL_MS;
+
+        if (isLanding) {
+          const landingTime = now;
+          const freefallDuration = freefallElapsed;
+
+          if (freefallDuration < MIN_FREEFALL_MS) {
+            // Too short — noise, reset to waiting
+            this.phase = "waiting-throw";
+            this.freefallCandidateStart = 0;
+            this.callback(this.phase);
+            return;
+          }
+
+          // Cap freefall at timeout to prevent absurd height values
+          const clampedDuration = Math.min(freefallDuration, MAX_FREEFALL_MS);
+          const airtimeSeconds = clampedDuration / 1000;
+          const heightMeters = calculateHeight(airtimeSeconds);
+          const peakTime = estimatePeakTime(
+            this.freefallStartTime,
+            this.freefallStartTime + clampedDuration,
+          );
+
+          this.phase = "landed";
+          this.callback(this.phase, {
+            airtimeSeconds,
+            heightMeters,
+            freefallStartTime: this.freefallStartTime,
+            landingTime,
+            peakTime,
+          });
+        }
+        break;
+      }
+
+      default:
+        break;
+    }
+  }
+
+  startWaitingForThrow(): void {
+    // Skip if already in an active detection phase (prevents resetting mid-throw)
+    if (
+      this.phase === "waiting-throw" ||
+      this.phase === "launched" ||
+      this.phase === "freefall"
+    ) {
+      return;
+    }
+    this.phase = "waiting-throw";
+    this.freefallCandidateStart = 0;
+    this.launchTime = 0;
+    this.launchConfirmCount = 0;
+    this.callback(this.phase);
+  }
+
+  /** Animation frame tick — only for realtime height polling */
+  tick(): void {
+    // Phase detection is inline in devicemotion handler.
+  }
+
+  getPhase(): ThrowPhase {
+    return this.phase;
+  }
+
+  getBaseline(): number {
+    return this.calibrationBaseline;
+  }
+
+  isCalibrated(): boolean {
+    return this.calibrationSamples.length >= CALIBRATION_SAMPLES;
+  }
+
+  getRealtimeHeight(): number {
+    if (this.phase !== "freefall") return 0;
+    const elapsed = (performance.now() - this.freefallStartTime) / 1000;
+    return calculateHeight(elapsed);
+  }
+
+  stop(): void {
+    if (this.handler) {
+      window.removeEventListener("devicemotion", this.handler);
+      this.handler = null;
+    }
+    this.phase = "idle";
+  }
+
+  reset(): void {
+    this.stop();
+    this.samples = [];
+    this.calibrationSamples = [];
+    this.freefallCandidateStart = 0;
+    this.freefallStartTime = 0;
+    this.launchTime = 0;
+    this.launchConfirmCount = 0;
+    this.phase = "idle";
+  }
+}

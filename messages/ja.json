@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "title": "Throw To Win",
+    "description": "スマホを投げろ。一番高く投げたやつの勝ち。"
+  },
+  "landing": {
+    "subtitle": "一番高く投げたやつの勝ち。",
+    "worldRecord": "World Record",
+    "todaysBest": "Today's Best",
+    "totalThrows": "Total Throws",
+    "start": "START",
+    "myPage": "My Page"
+  },
+  "consent": {
+    "heading": "投げる前に。",
+    "line1": "壊れます。たぶん。",
+    "line2": "あなたの顔にも当たるかもしれません。",
+    "line3": "高価なテレビも、窓も、天井のライトも、危険です。",
+    "line4": "それでも投げるあなたを、僕たちは止めません。",
+    "line5": "ただ、何が起きても、自己責任でお願いします。",
+    "detailsLink": "詳しい規約はこちら",
+    "agree": "投げる",
+    "disagree": "やめる"
+  },
+  "permissions": {
+    "heading": "許可が必要です。",
+    "motionSensor": "モーションセンサー — 投擲の高さを計測します",
+    "camera": "カメラ — 飛行中を撮影します",
+    "grantButton": "許可する",
+    "denied": "許可がないと遊べません。",
+    "retryButton": "もう一度",
+    "unsupported": "お使いの端末はセンサーに対応していません。",
+    "unsupportedDetail": "Throw To Win にはモーションセンサーとカメラが必要です。"
+  },
+  "prepare": {
+    "heading": "準備はいい？",
+    "cameraLabel": "カメラ",
+    "rearCamera": "背面",
+    "frontCamera": "前面",
+    "instruction": "スマホを持って、準備ができたらボタンを押してください。",
+    "startButton": "カウントダウン開始"
+  },
+  "game": {
+    "throwNow": "投げろ！",
+    "detecting": "投擲待機中...",
+    "freefall": "飛行中...",
+    "landed": "キャッチ！"
+  },
+  "processing": {
+    "heading": "動画を生成中...",
+    "loadingFfmpeg": "動画エンジン読み込み中...",
+    "applyingSlowmo": "スローモーション作成中...",
+    "addingOverlay": "高度オーバーレイ追加中...",
+    "encoding": "エンコード中...",
+    "almostDone": "もうすぐ..."
+  },
+  "result": {
+    "height": "高度",
+    "airtime": "滞空時間",
+    "newRecord": "自己ベスト更新！",
+    "downloadVideo": "動画をダウンロード",
+    "tryAgain": "もう一度",
+    "shareOn": "シェア",
+    "noVideo": "この投擲の動画は利用できません。"
+  },
+  "mypage": {
+    "heading": "My Throws",
+    "personalBest": "自己ベスト",
+    "totalThrows": "累計投擲回数",
+    "totalAirtime": "累計滞空時間",
+    "sortByDate": "日付順",
+    "sortByHeight": "高度順",
+    "noThrows": "まだ記録がありません。投げに行こう！",
+    "back": "戻る",
+    "meters": "m",
+    "seconds": "秒",
+    "throws": "回"
+  },
+  "terms": {
+    "heading": "利用規約",
+    "lastUpdated": "最終更新",
+    "sections": {
+      "deviceDamage": {
+        "title": "端末の破損について",
+        "content": "Throw To Win はモバイル端末を空中に投げるサービスです。本サービスの利用により端末が破損するリスクがあることをご了承ください。こすくま株式会社は、本サービスの利用に起因する端末の破損について一切の責任を負いません。"
+      },
+      "personalInjury": {
+        "title": "人身事故について",
+        "content": "モバイル端末の投擲は人身事故につながる可能性があります。ご自身または他者への傷害のリスクはすべてユーザーが負うものとします。こすくま株式会社は本サービスの利用中に発生した傷害について一切の責任を負いません。"
+      },
+      "propertyDamage": {
+        "title": "物損について",
+        "content": "本サービスの利用により周囲の物品が破損する可能性があります。端末を投げる前に安全な環境を確保する責任はすべてユーザーにあります。"
+      },
+      "thirdParty": {
+        "title": "第三者への影響",
+        "content": "ユーザーは投擲が他者に危険を及ぼさないようにしなければなりません。第三者への影響に関する責任はすべてユーザーが負うものとします。"
+      },
+      "accuracy": {
+        "title": "記録の正確性",
+        "content": "高度の測定値は加速度センサーのデータに基づく推定値です。こすくま株式会社は測定値や記録の正確性を保証しません。"
+      },
+      "dataLoss": {
+        "title": "データの消失",
+        "content": "すべてのデータは端末のローカルストレージに保存されます。端末の変更、ブラウザデータの消去等により記録が永久に失われる可能性があります。こすくま株式会社はデータの消失について一切の責任を負いません。"
+      }
+    },
+    "back": "戻る"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "error": "今のは練習。もう一度！",
+    "retry": "もう一度",
+    "practice": "今のは練習。もう一度！",
+    "unit": {
+      "meters": "m",
+      "seconds": "秒"
+    }
+  }
+}

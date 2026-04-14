@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "title": "Throw To Win",
+    "description": "Throw your phone. The highest wins."
+  },
+  "landing": {
+    "subtitle": "The highest throw wins.",
+    "worldRecord": "World Record",
+    "todaysBest": "Today's Best",
+    "totalThrows": "Total Throws",
+    "start": "START",
+    "myPage": "My Page"
+  },
+  "consent": {
+    "heading": "Before you throw.",
+    "line1": "It will break. Probably.",
+    "line2": "It might hit your face.",
+    "line3": "Your expensive TV, your window, your ceiling light — all at risk.",
+    "line4": "We won't stop you.",
+    "line5": "But whatever happens, it's on you.",
+    "detailsLink": "Full terms here",
+    "agree": "THROW",
+    "disagree": "Nah"
+  },
+  "permissions": {
+    "heading": "We need access.",
+    "motionSensor": "Motion sensor — to measure your throw",
+    "camera": "Camera — to record the flight",
+    "grantButton": "Grant Access",
+    "denied": "Can't play without permission.",
+    "retryButton": "Try Again",
+    "unsupported": "Your device doesn't support the required sensors.",
+    "unsupportedDetail": "Throw To Win needs motion sensors and a camera."
+  },
+  "prepare": {
+    "heading": "Ready?",
+    "cameraLabel": "Camera",
+    "rearCamera": "Rear",
+    "frontCamera": "Front",
+    "instruction": "Hold your phone and press the button when ready.",
+    "startButton": "START COUNTDOWN"
+  },
+  "game": {
+    "throwNow": "THROW!",
+    "detecting": "Waiting for throw...",
+    "freefall": "Flying...",
+    "landed": "Caught!"
+  },
+  "processing": {
+    "heading": "Processing your throw...",
+    "loadingFfmpeg": "Loading video engine...",
+    "applyingSlowmo": "Creating slow-motion...",
+    "addingOverlay": "Adding height overlay...",
+    "encoding": "Encoding video...",
+    "almostDone": "Almost done..."
+  },
+  "result": {
+    "height": "Height",
+    "airtime": "Airtime",
+    "newRecord": "NEW PERSONAL BEST!",
+    "downloadVideo": "Download Video",
+    "tryAgain": "Try Again",
+    "shareOn": "Share on",
+    "noVideo": "Video unavailable for this throw."
+  },
+  "mypage": {
+    "heading": "My Throws",
+    "personalBest": "Personal Best",
+    "totalThrows": "Total Throws",
+    "totalAirtime": "Total Airtime",
+    "sortByDate": "By Date",
+    "sortByHeight": "By Height",
+    "noThrows": "No throws yet. Go throw your phone!",
+    "back": "Back",
+    "meters": "m",
+    "seconds": "s",
+    "throws": "throws"
+  },
+  "terms": {
+    "heading": "Terms of Use",
+    "lastUpdated": "Last updated",
+    "sections": {
+      "deviceDamage": {
+        "title": "Device Damage",
+        "content": "Throw To Win involves throwing your mobile device into the air. By using this service, you acknowledge that this activity carries inherent risk of damage to your device. Kosukuma Inc. is not responsible for any damage to your device resulting from use of this service."
+      },
+      "personalInjury": {
+        "title": "Personal Injury",
+        "content": "Throwing a mobile device may result in personal injury. Users assume all risk of injury to themselves or others. Kosukuma Inc. is not liable for any injuries sustained during use of this service."
+      },
+      "propertyDamage": {
+        "title": "Property Damage",
+        "content": "Using this service may result in damage to surrounding property. Users are solely responsible for ensuring a safe environment before throwing their device."
+      },
+      "thirdParty": {
+        "title": "Third Party Impact",
+        "content": "Users must ensure their throws do not endanger or disturb other people. Any liability for impact on third parties rests entirely with the user."
+      },
+      "accuracy": {
+        "title": "Record Accuracy",
+        "content": "Height measurements are estimates based on accelerometer data. Kosukuma Inc. does not guarantee the accuracy of any measurements or records."
+      },
+      "dataLoss": {
+        "title": "Data Loss",
+        "content": "All data is stored locally on your device. Changing devices, clearing browser data, or other actions may result in permanent loss of your records. Kosukuma Inc. is not responsible for any data loss."
+      }
+    },
+    "back": "Back"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong. Let's try again!",
+    "retry": "Try Again",
+    "practice": "That was just practice. One more!",
+    "unit": {
+      "meters": "m",
+      "seconds": "s"
+    }
+  }
+}

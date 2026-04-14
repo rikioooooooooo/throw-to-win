@@ -1,0 +1,101 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import type { VideoProcessingStatus } from "@/lib/types";
+
+type LoadingScreenProps = {
+  status: VideoProcessingStatus;
+  progress?: number;
+};
+
+function statusKey(status: VideoProcessingStatus): string {
+  switch (status) {
+    case "loading-ffmpeg":
+      return "loadingFfmpeg";
+    case "applying-slowmo":
+      return "applyingSlowmo";
+    case "encoding":
+      return "encoding";
+    case "done":
+    case "processing":
+    default:
+      return "almostDone";
+  }
+}
+
+export function LoadingScreen({ status, progress }: LoadingScreenProps) {
+  const t = useTranslations("processing");
+
+  const hasProgress =
+    typeof progress === "number" && progress >= 0 && progress <= 100;
+
+  const radius = 40;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = hasProgress
+    ? circumference - (circumference * progress!) / 100
+    : circumference * 0.75;
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black px-6 gap-8 safe-top safe-bottom">
+      {/* Circular progress ring with percentage */}
+      <div className="relative w-48 h-48 flex items-center justify-center">
+        <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+          {/* Track */}
+          <circle
+            cx="50"
+            cy="50"
+            r={radius}
+            fill="none"
+            stroke="var(--color-border)"
+            strokeWidth="2"
+          />
+          {/* Progress arc */}
+          <circle
+            cx="50"
+            cy="50"
+            r={radius}
+            fill="none"
+            stroke="var(--color-accent)"
+            strokeWidth="2"
+            strokeLinecap="butt"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            className="transition-all duration-300 ease-out"
+            style={
+              !hasProgress
+                ? { transformOrigin: "center", animation: "spin-slow 2s linear infinite" }
+                : undefined
+            }
+          />
+        </svg>
+
+        {/* Percentage inside ring */}
+        {hasProgress && (
+          <span className="hud-number text-[28px] text-white">
+            {Math.round(progress!)}%
+          </span>
+        )}
+      </div>
+
+      {/* Status text */}
+      <div className="flex flex-col items-center gap-4 w-full max-w-xs">
+        <h2 className="font-display text-[20px] font-black uppercase tracking-widest text-white text-center">
+          {t("heading")}
+        </h2>
+        <p className="text-muted text-[12px] tracking-[0.15em] uppercase text-center">
+          {t(statusKey(status))}
+        </p>
+
+        {/* Shimmer bar */}
+        <div className="w-full h-[2px] bg-border relative overflow-hidden shimmer">
+          {hasProgress && (
+            <div
+              className="absolute inset-y-0 left-0 bg-accent transition-all duration-300 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

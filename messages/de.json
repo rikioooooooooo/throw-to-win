@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "title": "Throw To Win",
+    "description": "Wirf dein Handy. Wer am höchsten wirft, gewinnt."
+  },
+  "landing": {
+    "subtitle": "Der höchste Wurf gewinnt.",
+    "worldRecord": "World Record",
+    "todaysBest": "Today's Best",
+    "totalThrows": "Total Throws",
+    "start": "START",
+    "myPage": "Mein Profil"
+  },
+  "consent": {
+    "heading": "Bevor du wirfst.",
+    "line1": "Es wird wahrscheinlich kaputtgehen.",
+    "line2": "Es könnte dich ins Gesicht treffen.",
+    "line3": "Dein teurer Fernseher, dein Fenster, deine Deckenlampe — alles ist in Gefahr.",
+    "line4": "Wir halten dich nicht auf.",
+    "line5": "Aber was auch passiert — es ist dein Problem.",
+    "detailsLink": "Vollständige Bedingungen hier",
+    "agree": "THROW",
+    "disagree": "Lieber nicht"
+  },
+  "permissions": {
+    "heading": "Wir brauchen Zugriff.",
+    "motionSensor": "Bewegungssensor — zum Messen deines Wurfs",
+    "camera": "Kamera — zum Aufnehmen des Flugs",
+    "grantButton": "Zugriff gewähren",
+    "denied": "Ohne Erlaubnis kein Spiel.",
+    "retryButton": "Erneut versuchen",
+    "unsupported": "Dein Gerät unterstützt die erforderlichen Sensoren nicht.",
+    "unsupportedDetail": "Throw To Win braucht Bewegungssensoren und eine Kamera."
+  },
+  "prepare": {
+    "heading": "Bereit?",
+    "cameraLabel": "Kamera",
+    "rearCamera": "Hinten",
+    "frontCamera": "Vorne",
+    "instruction": "Halte dein Handy und drücke den Knopf, wenn du bereit bist.",
+    "startButton": "START COUNTDOWN"
+  },
+  "game": {
+    "throwNow": "WIRF!",
+    "detecting": "Warte auf Wurf...",
+    "freefall": "Im Flug...",
+    "landed": "Gefangen!"
+  },
+  "processing": {
+    "heading": "Dein Wurf wird verarbeitet...",
+    "loadingFfmpeg": "Video-Engine wird geladen...",
+    "applyingSlowmo": "Zeitlupe wird erstellt...",
+    "addingOverlay": "Höhenanzeige wird hinzugefügt...",
+    "encoding": "Video wird kodiert...",
+    "almostDone": "Fast fertig..."
+  },
+  "result": {
+    "height": "Höhe",
+    "airtime": "Flugzeit",
+    "newRecord": "NEUER PERSÖNLICHER REKORD!",
+    "downloadVideo": "Video herunterladen",
+    "tryAgain": "Nochmal versuchen",
+    "shareOn": "Teilen auf",
+    "noVideo": "Video für diesen Wurf nicht verfügbar."
+  },
+  "mypage": {
+    "heading": "My Throws",
+    "personalBest": "Persönliche Bestleistung",
+    "totalThrows": "Total Throws",
+    "totalAirtime": "Gesamte Flugzeit",
+    "sortByDate": "Nach Datum",
+    "sortByHeight": "Nach Höhe",
+    "noThrows": "Noch keine Würfe. Geh und wirf dein Handy!",
+    "back": "Zurück",
+    "meters": "m",
+    "seconds": "s",
+    "throws": "Würfe"
+  },
+  "terms": {
+    "heading": "Nutzungsbedingungen",
+    "lastUpdated": "Zuletzt aktualisiert",
+    "sections": {
+      "deviceDamage": {
+        "title": "Geräteschäden",
+        "content": "Throw To Win beinhaltet das Werfen deines Mobilgeräts in die Luft. Durch die Nutzung dieses Dienstes erkennst du an, dass diese Aktivität ein inhärentes Risiko einer Beschädigung deines Geräts mit sich bringt. Kosukuma Inc. haftet nicht für Schäden an deinem Gerät, die durch die Nutzung dieses Dienstes entstehen."
+      },
+      "personalInjury": {
+        "title": "Körperverletzung",
+        "content": "Das Werfen eines Mobilgeräts kann zu Körperverletzungen führen. Nutzer übernehmen alle Risiken für Verletzungen an sich selbst oder anderen. Kosukuma Inc. haftet nicht für Verletzungen, die bei der Nutzung dieses Dienstes entstehen."
+      },
+      "propertyDamage": {
+        "title": "Sachschäden",
+        "content": "Die Nutzung dieses Dienstes kann zu Schäden an umliegendem Eigentum führen. Nutzer sind allein verantwortlich dafür, vor dem Werfen ihres Geräts eine sichere Umgebung zu gewährleisten."
+      },
+      "thirdParty": {
+        "title": "Auswirkungen auf Dritte",
+        "content": "Nutzer müssen sicherstellen, dass ihre Würfe keine anderen Personen gefährden oder stören. Jegliche Haftung für Auswirkungen auf Dritte liegt vollständig beim Nutzer."
+      },
+      "accuracy": {
+        "title": "Aufzeichnungsgenauigkeit",
+        "content": "Höhenmessungen sind Schätzungen auf Basis von Beschleunigungssensordaten. Kosukuma Inc. übernimmt keine Garantie für die Genauigkeit von Messungen oder Aufzeichnungen."
+      },
+      "dataLoss": {
+        "title": "Datenverlust",
+        "content": "Alle Daten werden lokal auf deinem Gerät gespeichert. Das Wechseln des Geräts, das Löschen von Browserdaten oder andere Aktionen können zum dauerhaften Verlust deiner Aufzeichnungen führen. Kosukuma Inc. haftet nicht für Datenverluste."
+      }
+    },
+    "back": "Zurück"
+  },
+  "common": {
+    "loading": "Wird geladen...",
+    "error": "Etwas ist schiefgelaufen. Nochmal versuchen!",
+    "retry": "Nochmal versuchen",
+    "practice": "Das war nur Übung. Noch einmal!",
+    "unit": {
+      "meters": "m",
+      "seconds": "s"
+    }
+  }
+}
