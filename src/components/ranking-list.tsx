@@ -2,6 +2,16 @@
 
 import { formatHeight } from "@/lib/physics";
 
+/** Convert ISO 3166-1 alpha-2 country code to flag emoji (e.g. "JP" → "🇯🇵") */
+function countryFlag(code: string): string {
+  if (!code || code.length !== 2) return code;
+  const upper = code.toUpperCase();
+  return String.fromCodePoint(
+    upper.charCodeAt(0) + 0x1f1a5,
+    upper.charCodeAt(1) + 0x1f1a5,
+  );
+}
+
 export type RankEntry = {
   readonly rank: number;
   readonly deviceId: string;
@@ -60,8 +70,8 @@ export function RankingList({
             }}>
               {entry.displayName || entry.deviceId}
             </span>
-            <span className="text-[11px] text-muted/40 mr-3 uppercase">
-              {entry.country}
+            <span className="text-[14px] mr-3" aria-label={entry.country}>
+              {countryFlag(entry.country)}
             </span>
             <span className="height-number text-[16px] text-foreground">
               {formatHeight(entry.heightMeters)}

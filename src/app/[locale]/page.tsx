@@ -83,7 +83,7 @@ export default function LandingPage() {
   const goToRanking = () => router.push(`/${locale}/ranking`);
 
   return (
-    <main className="relative flex-1 flex flex-col min-h-screen px-5 overflow-y-auto">
+    <main className="relative flex-1 flex flex-col px-5 overflow-y-auto">
       {/* Top bar */}
       <header className="relative z-10 flex justify-end items-center pt-4">
         <button
