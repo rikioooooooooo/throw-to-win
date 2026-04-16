@@ -1,29 +1,24 @@
 @import "tailwindcss";
 
 /* ============================================================
-   THROW TO WIN — Design System by Gemini 3.1 Pro
-   Aesthetic: Nike SNKRS × Apple Fitness+ × Porsche Design
-   Cockpit HUD. Cinematic. Danger red. Zero radius.
+   THROW TO WIN — Premium Extreme Design System
+   Apple-clean base. Explosive at peak.
    ============================================================ */
 
 @theme inline {
   --color-background: #000000;
+  --color-surface: #161616;
+  --color-surface-elevated: #1e1e1e;
   --color-foreground: #ffffff;
-  --color-accent: #ff2d2d;
-  --color-accent-dark: #cc1a1a;
-  --color-accent-glow: rgba(255, 45, 45, 0.3);
   --color-muted: #666666;
-  --color-surface: #0a0a0a;
-  --color-surface-light: #111111;
-  --color-border: #1a1a1a;
-  --font-sans: Helvetica, "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-barlow), "Barlow Condensed", Impact, sans-serif;
-  --animate-fade-in-up: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-fade-in: fade-in 0.5s ease-out both;
-  --animate-countdown: countdown-pop 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  --animate-peak: peak-freeze 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  --animate-glow-burst: glow-burst 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  --animate-glow: glow-pulse 3s ease-in-out infinite;
+  --color-accent: #ff2d2d;
+  --color-accent-gold: #ffb800;
+  --color-accent-blue: #3b82f6;
+  --color-error: #ff4444;
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --animate-fade-in-up: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-in: fade-in 0.3s ease-out both;
   --animate-pulse-red: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-rec: rec-blink 1.5s steps(2, start) infinite;
   --animate-spin-slow: spin-slow 4s linear infinite;
@@ -54,41 +49,25 @@ body {
 
 /* ---- Typography ---- */
 
-.font-display {
-  font-family: var(--font-display);
+.label-text {
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.05em;
 }
 
-.hud-number {
-  font-family: var(--font-display);
-  font-weight: 900;
+.height-number {
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.04em;
-  line-height: 0.85;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
 }
 
-/* ---- Glass ---- */
-
-.glass {
-  background: rgba(10, 10, 10, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--color-border);
-}
-
-.glass-light {
-  background: rgba(17, 17, 17, 0.4);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.cta-text {
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 /* ---- Text Effects ---- */
-
-.text-glow {
-  text-shadow: 0 0 15px var(--color-accent-glow), 0 0 30px rgba(255, 45, 45, 0.15);
-}
 
 .text-camera {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9), 0 4px 24px rgba(0, 0, 0, 0.7);
@@ -104,59 +83,33 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 34px);
 }
 
-/* ---- Shimmer ---- */
+/* ---- Gradient scrim for camera overlay ---- */
 
-.shimmer {
-  position: relative;
-  overflow: hidden;
-}
-
-.shimmer::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.15),
-    transparent
+.gradient-scrim {
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 50%,
+    rgba(0, 0, 0, 0.6) 0%,
+    transparent 100%
   );
-  animation: shimmer 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-/* ---- Film Grain ---- */
-
-.grain::after {
-  content: "";
-  position: fixed;
-  inset: -50%;
-  width: 200%;
-  height: 200%;
-  pointer-events: none;
-  z-index: 9999;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-  animation: grain-shift 8s steps(10) infinite;
 }
 
 /* ---- Stagger Delays ---- */
 
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
+.delay-80 { animation-delay: 80ms; }
+.delay-160 { animation-delay: 160ms; }
+.delay-240 { animation-delay: 240ms; }
+.delay-320 { animation-delay: 320ms; }
 .delay-400 { animation-delay: 400ms; }
-.delay-500 { animation-delay: 500ms; }
-.delay-600 { animation-delay: 600ms; }
+.delay-480 { animation-delay: 480ms; }
+.delay-560 { animation-delay: 560ms; }
 
 /* ============================================================
-   Cinematic Keyframes
+   Keyframes
    ============================================================ */
 
 @keyframes fade-in-up {
-  0% { opacity: 0; transform: translateY(30px) scale(0.98); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fade-in {
@@ -164,32 +117,40 @@ body {
   100% { opacity: 1; }
 }
 
-/* Shockwave pop — number enters from scale(3) with motion blur */
-@keyframes countdown-pop {
-  0% { opacity: 0; transform: scale(3); filter: blur(12px); }
-  20% { opacity: 1; transform: scale(0.9); filter: blur(0); }
-  40% { transform: scale(1.05); }
+/* Tier 1: Normal throw — subtle fade + lift */
+@keyframes tier-1-peak {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Tier 2: Personal Best — micro-freeze(40ms) + scale overshoot(1.08) */
+@keyframes tier-2-peak {
+  0% { transform: scale(0.98); opacity: 0.7; }
+  10% { transform: scale(0.98); opacity: 0.7; } /* 40ms freeze at 400ms total */
+  50% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1.0); opacity: 1; }
+}
+
+/* Tier 3: Rank Update — freeze(80ms) + scale overshoot(1.12) + settle */
+@keyframes tier-3-peak {
+  0% { transform: scale(0.96); opacity: 0.6; }
+  16% { transform: scale(0.96); opacity: 0.6; } /* 80ms freeze at 500ms total */
+  55% { transform: scale(1.12); opacity: 1; }
+  80% { transform: scale(0.98); }
+  100% { transform: scale(1.0); opacity: 1; }
+}
+
+/* Background pulse for tier 3 */
+@keyframes surface-pulse {
+  0% { background-color: var(--color-surface); }
+  30% { background-color: #242424; }
+  100% { background-color: var(--color-surface); }
+}
+
+/* Countdown fade transition */
+@keyframes countdown-fade {
+  0% { opacity: 0; transform: scale(1.05); }
   100% { opacity: 1; transform: scale(1); }
-}
-
-/* Time-stop — brightness flash + drop-shadow on peak freeze */
-@keyframes peak-freeze {
-  0% { transform: scale(0.85) translateY(40px); filter: brightness(2.5) drop-shadow(0 0 40px var(--color-accent)); }
-  15% { transform: scale(1.1) translateY(0); filter: brightness(1.5) drop-shadow(0 0 20px var(--color-accent)); }
-  100% { transform: scale(1) translateY(0); filter: brightness(1) drop-shadow(0 0 0 transparent); }
-}
-
-/* Red explosion on peak */
-@keyframes glow-burst {
-  0% { text-shadow: 0 0 0 rgba(255, 45, 45, 0); }
-  20% { text-shadow: 0 0 60px rgba(255, 45, 45, 0.9), 0 0 120px rgba(255, 45, 45, 0.5); }
-  100% { text-shadow: 0 0 30px rgba(255, 45, 45, 0.5), 0 0 60px rgba(255, 45, 45, 0.2); }
-}
-
-/* Breathing red glow */
-@keyframes glow-pulse {
-  0%, 100% { text-shadow: 0 0 10px rgba(255, 45, 45, 0.2), 0 0 20px rgba(255, 45, 45, 0.1); }
-  50% { text-shadow: 0 0 25px rgba(255, 45, 45, 0.7), 0 0 50px rgba(255, 45, 45, 0.4); }
 }
 
 @keyframes pulse-red {
@@ -207,20 +168,15 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-@keyframes shimmer {
-  100% { left: 200%; }
+/* Subtle opacity pulse for loading */
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
 }
 
-/* Film grain position shift */
-@keyframes grain-shift {
-  0%, 100% { transform: translate(0, 0); }
-  10% { transform: translate(-5%, -10%); }
-  20% { transform: translate(-15%, 5%); }
-  30% { transform: translate(7%, -25%); }
-  40% { transform: translate(-5%, 25%); }
-  50% { transform: translate(-15%, 10%); }
-  60% { transform: translate(15%, 0%); }
-  70% { transform: translate(0%, 15%); }
-  80% { transform: translate(3%, 35%); }
-  90% { transform: translate(-10%, 10%); }
+/* Spring-in for rank badge */
+@keyframes spring-in {
+  0% { opacity: 0; transform: scale(0.8) translateY(8px); }
+  60% { transform: scale(1.05) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }

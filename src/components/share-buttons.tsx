@@ -29,7 +29,12 @@ export function ShareButtons({ videoBlob, heightMeters, locale }: ShareButtonsPr
         <button
           key={platform.id}
           onClick={() => shareTo(platform.id, videoBlob, heightMeters, locale)}
-          className="flex-1 py-4 bg-surface-light border border-border text-white font-display text-[13px] tracking-widest uppercase active:scale-[0.97] transition-all duration-75 hover:border-muted"
+          className="flex-1 py-4 text-foreground text-[13px] font-medium tracking-wide uppercase active:scale-[0.97] transition-all duration-75 hover:bg-surface-elevated"
+          style={{
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-border-subtle)",
+            borderRadius: "10px",
+          }}
           aria-label={`${t("shareOn")} ${platform.label}`}
         >
           {platform.label}

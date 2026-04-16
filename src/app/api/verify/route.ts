@@ -1,0 +1,191 @@
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { NextResponse } from "next/server";
+import { verifyHmacSignature } from "@/lib/server-utils";
+import { validateSensorData } from "@/lib/anti-cheat";
+import type { AccelSample } from "@/lib/types";
+
+/** Physical limits — anything beyond these is fabricated */
+const MAX_HEIGHT_METERS = 30;
+const MAX_AIRTIME_SECONDS = 5;
+
+type VerifyBody = {
+  nonce?: string;
+  timestamp?: number;
+  signature?: string;
+  deviceFingerprint?: string;
+  heightMeters?: number;
+  airtimeSeconds?: number;
+  sensorData?: readonly AccelSample[];
+};
+
+function isValidNumber(v: unknown, min: number, max: number): v is number {
+  return typeof v === "number" && Number.isFinite(v) && v >= min && v <= max;
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = (await request.json()) as VerifyBody;
+
+    if (
+      !body.nonce ||
+      typeof body.timestamp !== "number" ||
+      !body.signature ||
+      !body.deviceFingerprint ||
+      !isValidNumber(body.heightMeters, 0, MAX_HEIGHT_METERS) ||
+      !isValidNumber(body.airtimeSeconds, 0, MAX_AIRTIME_SECONDS) ||
+      !Array.isArray(body.sensorData)
+    ) {
+      return NextResponse.json(
+        { error: "Missing or invalid fields" },
+        { status: 400 },
+      );
+    }
+
+    const { env } = await getCloudflareContext({ async: true });
+
+    // Turnstile already verified at /api/challenge — nonce issuance proves bot check passed.
+
+    // 1. Atomically claim challenge nonce (prevents TOCTOU race)
+    const claimResult = await env.DB.prepare(
+      "UPDATE challenges SET used = 1 WHERE nonce = ? AND used = 0 RETURNING nonce, device_id, expires_at",
+    )
+      .bind(body.nonce)
+      .first<{
+        nonce: string;
+        device_id: string;
+        expires_at: string;
+      }>();
+
+    if (!claimResult) {
+      // Either nonce doesn't exist, or it was already used
+      return NextResponse.json(
+        { error: "Challenge nonce not found or already used" },
+        { status: 400 },
+      );
+    }
+
+    if (new Date(claimResult.expires_at) < new Date()) {
+      return NextResponse.json(
+        { error: "Challenge nonce expired" },
+        { status: 400 },
+      );
+    }
+
+    if (claimResult.device_id !== body.deviceFingerprint) {
+      return NextResponse.json(
+        { error: "Device fingerprint mismatch" },
+        { status: 400 },
+      );
+    }
+
+    // 3. HMAC signature verification
+    const signatureValid = await verifyHmacSignature(
+      `${body.nonce}:${body.timestamp}`,
+      body.signature,
+      env.SERVER_SECRET,
+    );
+
+    if (!signatureValid) {
+      return NextResponse.json(
+        { error: "Invalid signature" },
+        { status: 400 },
+      );
+    }
+
+    // 4. Anti-cheat sensor validation
+    const antiCheatResult = validateSensorData(
+      body.sensorData,
+      body.heightMeters,
+      body.airtimeSeconds,
+    );
+
+    // Use server-recalculated height when available; fall back to client height
+    const verifiedHeight =
+      antiCheatResult.serverHeight > 0
+        ? antiCheatResult.serverHeight
+        : body.heightMeters;
+
+    // Reject outright if anomaly score is too high
+    if (antiCheatResult.anomalyScore >= 0.9) {
+      return NextResponse.json(
+        { error: "Throw rejected by anti-cheat validation" },
+        { status: 422 },
+      );
+    }
+
+    // 5. Persist throw + device data (nonce already claimed atomically in step 1)
+    const country = request.headers.get("cf-ipcountry") ?? "XX";
+
+    const existingDevice = await env.DB.prepare(
+      "SELECT id, total_throws, personal_best FROM devices WHERE id = ?",
+    )
+      .bind(body.deviceFingerprint)
+      .first<{ id: string; total_throws: number; personal_best: number }>();
+
+    if (existingDevice) {
+      const newBest = Math.max(existingDevice.personal_best, verifiedHeight);
+      await env.DB.prepare(
+        "UPDATE devices SET last_seen = datetime('now'), total_throws = total_throws + 1, personal_best = ?, country = ? WHERE id = ?",
+      )
+        .bind(newBest, country, body.deviceFingerprint)
+        .run();
+    } else {
+      await env.DB.prepare(
+        "INSERT INTO devices (id, total_throws, personal_best, country) VALUES (?, 1, ?, ?)",
+      )
+        .bind(body.deviceFingerprint, verifiedHeight, country)
+        .run();
+    }
+
+    const throwId = crypto.randomUUID();
+    await env.DB.prepare(
+      "INSERT INTO throws (id, device_id, height_meters, airtime_seconds, country, challenge_nonce, anomaly_score) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    )
+      .bind(
+        throwId,
+        body.deviceFingerprint,
+        verifiedHeight,
+        body.airtimeSeconds,
+        country,
+        body.nonce,
+        antiCheatResult.anomalyScore,
+      )
+      .run();
+
+    // 7. Calculate ranks (against device personal_best)
+    const updatedBest = existingDevice
+      ? Math.max(existingDevice.personal_best, verifiedHeight)
+      : verifiedHeight;
+
+    const worldRankRow = await env.DB.prepare(
+      "SELECT COUNT(*) as rank FROM devices WHERE personal_best > ?",
+    )
+      .bind(updatedBest)
+      .first<{ rank: number }>();
+
+    const countryRankRow = await env.DB.prepare(
+      "SELECT COUNT(*) as rank FROM devices WHERE personal_best > ? AND country = ?",
+    )
+      .bind(updatedBest, country)
+      .first<{ rank: number }>();
+
+    const totalThrowsRow = await env.DB.prepare(
+      "SELECT COUNT(*) as total FROM throws",
+    ).first<{ total: number }>();
+
+    return NextResponse.json({
+      id: throwId,
+      verifiedHeight,
+      anomalyScore: antiCheatResult.anomalyScore,
+      worldRank: (worldRankRow?.rank ?? 0) + 1,
+      countryRank: (countryRankRow?.rank ?? 0) + 1,
+      totalThrows: totalThrowsRow?.total ?? 0,
+      country,
+    });
+  } catch {
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
+  }
+}

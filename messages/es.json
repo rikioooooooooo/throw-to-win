@@ -61,7 +61,9 @@
     "downloadVideo": "Descargar video",
     "tryAgain": "Intentar de nuevo",
     "shareOn": "Compartir en",
-    "noVideo": "Video no disponible para este lanzamiento."
+    "noVideo": "Video no disponible para este lanzamiento.",
+    "worldRank": "RANKING MUNDIAL",
+    "countryRank": "RANKING NACIONAL"
   },
   "mypage": {
     "heading": "My Throws",

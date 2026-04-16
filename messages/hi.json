@@ -61,7 +61,9 @@
     "downloadVideo": "वीडियो डाउनलोड करो",
     "tryAgain": "फिर कोशिश करो",
     "shareOn": "शेयर करो",
-    "noVideo": "इस थ्रो का वीडियो उपलब्ध नहीं है।"
+    "noVideo": "इस थ्रो का वीडियो उपलब्ध नहीं है।",
+    "worldRank": "विश्व रैंकिंग",
+    "countryRank": "देश रैंकिंग"
   },
   "mypage": {
     "heading": "My Throws",

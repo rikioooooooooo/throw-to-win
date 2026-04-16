@@ -61,7 +61,9 @@
     "downloadVideo": "動画をダウンロード",
     "tryAgain": "もう一度",
     "shareOn": "シェア",
-    "noVideo": "この投擲の動画は利用できません。"
+    "noVideo": "この投擲の動画は利用できません。",
+    "worldRank": "世界ランキング",
+    "countryRank": "国内ランキング"
   },
   "mypage": {
     "heading": "My Throws",

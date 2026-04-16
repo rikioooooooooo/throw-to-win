@@ -61,7 +61,9 @@
     "downloadVideo": "Video herunterladen",
     "tryAgain": "Nochmal versuchen",
     "shareOn": "Teilen auf",
-    "noVideo": "Video für diesen Wurf nicht verfügbar."
+    "noVideo": "Video für diesen Wurf nicht verfügbar.",
+    "worldRank": "WELTRANGLISTE",
+    "countryRank": "LANDESRANGLISTE"
   },
   "mypage": {
     "heading": "My Throws",

@@ -61,7 +61,9 @@
     "downloadVideo": "영상 다운로드",
     "tryAgain": "다시 하기",
     "shareOn": "공유하기",
-    "noVideo": "이번 던지기 영상을 사용할 수 없습니다."
+    "noVideo": "이번 던지기 영상을 사용할 수 없습니다.",
+    "worldRank": "세계 랭킹",
+    "countryRank": "국내 랭킹"
   },
   "mypage": {
     "heading": "My Throws",

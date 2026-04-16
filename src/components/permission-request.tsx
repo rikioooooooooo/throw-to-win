@@ -61,9 +61,17 @@ export function PermissionRequest({ onGranted }: PermissionRequestProps) {
 
   if (deniedState === "unsupported") {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black px-6 safe-top safe-bottom">
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
         <div className="w-full max-w-md flex flex-col gap-6 text-center animate-fade-in-up">
-          <h1 className="font-display text-[28px] font-black uppercase tracking-tighter text-white">
+          {/* Error icon */}
+          <div className="flex justify-center mb-2">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-error)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </div>
+          <h1 className="text-[24px] font-semibold text-foreground">
             {t("unsupported")}
           </h1>
           <p className="text-muted text-[14px] leading-relaxed">
@@ -75,25 +83,37 @@ export function PermissionRequest({ onGranted }: PermissionRequestProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black px-6 safe-top safe-bottom">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
       <div className="w-full max-w-md flex flex-col gap-10 animate-fade-in-up">
-        {/* Heading + red accent line */}
+        {/* Heading */}
         <div className="flex flex-col gap-3">
-          <h1 className="font-display text-[clamp(1.8rem,8vw,2.8rem)] font-black tracking-tighter uppercase text-white">
+          <h1 className="text-[clamp(1.8rem,8vw,2.8rem)] font-semibold tracking-tight text-foreground">
             {t("heading")}
           </h1>
-          <div className="w-12 h-1 bg-accent" />
+          <div className="w-12 h-1 bg-accent" style={{ borderRadius: "2px" }} />
         </div>
 
         {/* Requirement cards */}
         <div className="flex flex-col gap-4">
-          <div className="bg-surface border border-border p-5 flex items-center gap-4 relative">
-            <div className="absolute top-5 right-5 w-2 h-2 bg-accent rounded-full animate-pulse-red" />
+          <div
+            className="p-5 flex items-center gap-4"
+            style={{
+              backgroundColor: "var(--color-surface)",
+              border: "1px solid var(--color-border-subtle)",
+              borderRadius: "12px",
+            }}
+          >
             <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
             <p className="text-white/80 text-[14px]">{t("motionSensor")}</p>
           </div>
-          <div className="bg-surface border border-border p-5 flex items-center gap-4 relative">
-            <div className="absolute top-5 right-5 w-2 h-2 bg-accent rounded-full animate-pulse-red delay-100" />
+          <div
+            className="p-5 flex items-center gap-4"
+            style={{
+              backgroundColor: "var(--color-surface)",
+              border: "1px solid var(--color-border-subtle)",
+              borderRadius: "12px",
+            }}
+          >
             <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
             <p className="text-white/80 text-[14px]">{t("camera")}</p>
           </div>
@@ -101,16 +121,24 @@ export function PermissionRequest({ onGranted }: PermissionRequestProps) {
 
         {/* Denied error */}
         {deniedState === "denied" && (
-          <div className="p-4 border border-accent bg-accent/10 text-accent text-[13px] font-medium text-center">
+          <div
+            className="p-4 text-error text-[13px] font-medium text-center"
+            style={{
+              border: "1px solid var(--color-error)",
+              backgroundColor: "rgba(255, 68, 68, 0.1)",
+              borderRadius: "12px",
+            }}
+          >
             {t("denied")}
           </div>
         )}
 
-        {/* Grant button — white inverted for premium feel */}
+        {/* Grant button */}
         <button
           onClick={handleGrant}
           disabled={requesting}
-          className="w-full py-5 bg-white text-black font-display text-xl font-black tracking-[0.25em] uppercase disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] transition-all duration-75 hover:bg-accent hover:text-white shadow-[0_0_40px_rgba(255,255,255,0.1)]"
+          className="w-full py-5 bg-accent text-white cta-text text-[16px] tracking-[0.15em] disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] transition-all duration-75"
+          style={{ borderRadius: "14px" }}
         >
           {requesting
             ? "..."

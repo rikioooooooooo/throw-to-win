@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ThrowDetector } from "@/lib/sensor";
-import type { ThrowPhase, ThrowResult } from "@/lib/types";
+import type { AccelSample, ThrowPhase, ThrowResult } from "@/lib/types";
 
 type UseThrowDetectionReturn = {
   phase: ThrowPhase;
@@ -11,6 +11,7 @@ type UseThrowDetectionReturn = {
   realtimeHeight: number;
   getFreefallStartTime: () => number;
   getEstimatedV0: () => number;
+  getSamples: () => readonly AccelSample[];
   startCalibration: () => void;
   startDetection: () => void;
   reset: () => void;
@@ -25,12 +26,12 @@ export function useThrowDetection(): UseThrowDetectionReturn {
   const detectorRef = useRef<ThrowDetector | null>(null);
   const rafRef = useRef<number>(0);
   const calibratedRef = useRef(false);
+  const tickRef = useRef<() => void>(() => {});
 
-  const tick = useCallback(() => {
+  const tickFn = useCallback(() => {
     const detector = detectorRef.current;
     if (!detector) return;
 
-    // tick() is now only for realtime height polling + calibration check
     detector.tick();
 
     if (!calibratedRef.current && detector.isCalibrated()) {
@@ -49,12 +50,15 @@ export function useThrowDetection(): UseThrowDetectionReturn {
       currentPhase === "launched" ||
       currentPhase === "freefall"
     ) {
-      rafRef.current = requestAnimationFrame(tick);
+      rafRef.current = requestAnimationFrame(tickRef.current);
     }
   }, []);
 
+  useEffect(() => {
+    tickRef.current = tickFn;
+  }, [tickFn]);
+
   const startCalibration = useCallback(() => {
-    // Stop any prior detector to prevent duplicate devicemotion listeners
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     detectorRef.current?.stop();
 
@@ -67,15 +71,15 @@ export function useThrowDetection(): UseThrowDetectionReturn {
     });
     detectorRef.current = detector;
     detector.startCalibration();
-    rafRef.current = requestAnimationFrame(tick);
-  }, [tick]);
+    rafRef.current = requestAnimationFrame(tickRef.current);
+  }, []);
 
   const startDetection = useCallback(() => {
     const detector = detectorRef.current;
     if (!detector) return;
     detector.startWaitingForThrow();
-    rafRef.current = requestAnimationFrame(tick);
-  }, [tick]);
+    rafRef.current = requestAnimationFrame(tickRef.current);
+  }, []);
 
   const getFreefallStartTime = useCallback(() => {
     return detectorRef.current?.getFreefallStartTime() ?? 0;
@@ -83,6 +87,10 @@ export function useThrowDetection(): UseThrowDetectionReturn {
 
   const getEstimatedV0 = useCallback(() => {
     return detectorRef.current?.getEstimatedV0() ?? 0;
+  }, []);
+
+  const getSamples = useCallback(() => {
+    return detectorRef.current?.getSamples() ?? [];
   }, []);
 
   const reset = useCallback(() => {
@@ -112,6 +120,7 @@ export function useThrowDetection(): UseThrowDetectionReturn {
     realtimeHeight,
     getFreefallStartTime,
     getEstimatedV0,
+    getSamples,
     startCalibration,
     startDetection,
     reset,

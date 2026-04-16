@@ -3,22 +3,8 @@ import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Barlow_Condensed } from "next/font/google";
 import { routing } from "@/i18n/routing";
-import { SUPPORTED_LOCALES } from "@/lib/types";
 import "../globals.css";
-
-// Required for static export — generate all locale routes at build time
-export function generateStaticParams() {
-  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
-}
-
-const barlow = Barlow_Condensed({
-  subsets: ["latin"],
-  weight: ["700", "900"],
-  variable: "--font-barlow",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Throw To Win",
@@ -57,11 +43,11 @@ export default async function LocaleLayout({ children, params }: Props) {
   const messages = await getMessages();
 
   return (
-    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className={`h-full ${barlow.variable}`}>
+    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className="h-full">
       <head>
         <link rel="manifest" href="/manifest.json" />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground grain safe-top">
+      <body className="min-h-full flex flex-col bg-background text-foreground safe-top">
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

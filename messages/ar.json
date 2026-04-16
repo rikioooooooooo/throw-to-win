@@ -61,7 +61,9 @@
     "downloadVideo": "تحميل الفيديو",
     "tryAgain": "المحاولة مجدداً",
     "shareOn": "مشاركة على",
-    "noVideo": "الفيديو غير متاح لهذه الرمية."
+    "noVideo": "الفيديو غير متاح لهذه الرمية.",
+    "worldRank": "التصنيف العالمي",
+    "countryRank": "التصنيف المحلي"
   },
   "mypage": {
     "heading": "My Throws",

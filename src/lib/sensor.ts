@@ -302,6 +302,11 @@ export class ThrowDetector {
     return Math.max(0, v0);
   }
 
+  /** Return a copy of the collected sensor samples for server-side verification */
+  getSamples(): readonly AccelSample[] {
+    return [...this.samples];
+  }
+
   getRealtimeHeight(): number {
     if (this.phase !== "freefall") return 0;
     const elapsed = (performance.now() - this.freefallStartTime) / 1000;

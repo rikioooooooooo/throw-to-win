@@ -36,8 +36,8 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
     : circumference * 0.75;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black px-6 gap-8 safe-top safe-bottom">
-      {/* Circular progress ring with percentage */}
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 gap-8 safe-top safe-bottom">
+      {/* Circular progress ring */}
       <div className="relative w-48 h-48 flex items-center justify-center">
         <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
           {/* Track */}
@@ -46,7 +46,7 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
             cy="50"
             r={radius}
             fill="none"
-            stroke="var(--color-border)"
+            stroke="var(--color-border-subtle)"
             strokeWidth="2"
           />
           {/* Progress arc */}
@@ -71,7 +71,7 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
 
         {/* Percentage inside ring */}
         {hasProgress && (
-          <span className="hud-number text-[28px] text-white">
+          <span className="height-number text-[28px] text-foreground">
             {Math.round(progress!)}%
           </span>
         )}
@@ -79,19 +79,24 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
 
       {/* Status text */}
       <div className="flex flex-col items-center gap-4 w-full max-w-xs">
-        <h2 className="font-display text-[20px] font-black uppercase tracking-widest text-white text-center">
+        <h2 className="text-[20px] font-semibold uppercase tracking-widest text-foreground text-center">
           {t("heading")}
         </h2>
         <p className="text-muted text-[12px] tracking-[0.15em] uppercase text-center">
           {t(statusKey(status))}
         </p>
 
-        {/* Shimmer bar */}
-        <div className="w-full h-[2px] bg-border relative overflow-hidden shimmer">
-          {hasProgress && (
+        {/* Progress bar */}
+        <div className="w-full h-[2px] bg-border-subtle relative overflow-hidden">
+          {hasProgress ? (
             <div
               className="absolute inset-y-0 left-0 bg-accent transition-all duration-300 ease-out"
               style={{ width: `${progress}%` }}
+            />
+          ) : (
+            <div
+              className="absolute inset-y-0 left-0 w-1/3 bg-accent"
+              style={{ animation: "subtle-pulse 1.5s ease-in-out infinite" }}
             />
           )}
         </div>

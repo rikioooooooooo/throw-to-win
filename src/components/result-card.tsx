@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { downloadBlob, shareTo } from "@/lib/share";
+import { downloadBlob } from "@/lib/share";
 import { ShareButtons } from "@/components/share-buttons";
 
 type ResultCardProps = {

@@ -61,7 +61,9 @@
     "downloadVideo": "Download Video",
     "tryAgain": "Try Again",
     "shareOn": "Share on",
-    "noVideo": "Video unavailable for this throw."
+    "noVideo": "Video unavailable for this throw.",
+    "worldRank": "WORLD RANK",
+    "countryRank": "COUNTRY RANK"
   },
   "mypage": {
     "heading": "My Throws",

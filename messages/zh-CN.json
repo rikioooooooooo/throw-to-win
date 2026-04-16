@@ -61,7 +61,9 @@
     "downloadVideo": "下载视频",
     "tryAgain": "再试一次",
     "shareOn": "分享到",
-    "noVideo": "本次投掷视频不可用。"
+    "noVideo": "本次投掷视频不可用。",
+    "worldRank": "世界排名",
+    "countryRank": "国内排名"
   },
   "mypage": {
     "heading": "My Throws",
