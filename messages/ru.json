@@ -9,7 +9,10 @@
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
     "start": "START",
-    "myPage": "Мой профиль"
+    "myPage": "Мой профиль",
+    "worldRanking": "МИРОВОЙ РЕЙТИНГ",
+    "countryRanking": "РЕЙТИНГ СТРАНЫ",
+    "noRankings": "Данных пока нет"
   },
   "consent": {
     "heading": "Прежде чем бросить.",
@@ -63,7 +66,20 @@
     "shareOn": "Поделиться в",
     "noVideo": "Видео для этого броска недоступно.",
     "worldRank": "МИРОВОЙ РЕЙТИНГ",
-    "countryRank": "РЕЙТИНГ СТРАНЫ"
+    "countryRank": "РЕЙТИНГ СТРАНЫ",
+    "backToTop": "На главную"
+  },
+  "ranking": {
+    "heading": "Рейтинг",
+    "seeMore": "Показать ещё",
+    "world": "Мир",
+    "country": "Страна",
+    "back": "Назад"
+  },
+  "profile": {
+    "nameLabel": "ИМЯ",
+    "namePlaceholder": "Введите имя",
+    "save": "СОХРАНИТЬ"
   },
   "mypage": {
     "heading": "My Throws",

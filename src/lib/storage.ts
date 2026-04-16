@@ -27,6 +27,7 @@ function generateUUID(): string {
 
 const EMPTY_DATA: AppData = {
   userId: "",
+  displayName: "",
   consent: { agreed: false, agreedAt: "", version: CONSENT_VERSION },
   settings: { cameraDirection: "rear", locale: DEFAULT_LOCALE },
   throws: [],
@@ -132,6 +133,19 @@ export function addThrowRecord(
   const next: AppData = { ...data, throws, stats };
   saveData(next);
   return next;
+}
+
+/** Update display name */
+export function saveDisplayName(name: string): AppData {
+  const data = loadData();
+  const next: AppData = { ...data, displayName: name };
+  saveData(next);
+  return next;
+}
+
+/** Get display name */
+export function getDisplayName(): string {
+  return loadData().displayName ?? "";
 }
 
 /** Get sorted throws (newest first or highest first) */

@@ -55,8 +55,6 @@ export function HeightDisplay({
 
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
-      <div className="absolute inset-0 gradient-scrim" />
-
       <div
         className="relative flex items-baseline gap-2"
         style={

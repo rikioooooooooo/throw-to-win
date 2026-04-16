@@ -35,6 +35,7 @@ export type UserStats = {
 /** Full localStorage schema */
 export type AppData = {
   readonly userId: string;
+  readonly displayName: string;
   readonly consent: ConsentState;
   readonly settings: UserSettings;
   readonly throws: readonly ThrowRecord[];

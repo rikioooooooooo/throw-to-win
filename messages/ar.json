@@ -9,7 +9,10 @@
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
     "start": "START",
-    "myPage": "صفحتي"
+    "myPage": "صفحتي",
+    "worldRanking": "التصنيف العالمي",
+    "countryRanking": "التصنيف المحلي",
+    "noRankings": "لا توجد بيانات بعد"
   },
   "consent": {
     "heading": "قبل أن ترمي.",
@@ -63,7 +66,20 @@
     "shareOn": "مشاركة على",
     "noVideo": "الفيديو غير متاح لهذه الرمية.",
     "worldRank": "التصنيف العالمي",
-    "countryRank": "التصنيف المحلي"
+    "countryRank": "التصنيف المحلي",
+    "backToTop": "العودة للرئيسية"
+  },
+  "ranking": {
+    "heading": "التصنيف",
+    "seeMore": "عرض المزيد",
+    "world": "العالم",
+    "country": "البلد",
+    "back": "رجوع"
+  },
+  "profile": {
+    "nameLabel": "الاسم",
+    "namePlaceholder": "أدخل اسمك",
+    "save": "حفظ"
   },
   "mypage": {
     "heading": "My Throws",

@@ -9,7 +9,10 @@
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
     "start": "START",
-    "myPage": "마이페이지"
+    "myPage": "마이페이지",
+    "worldRanking": "세계 랭킹",
+    "countryRanking": "국내 랭킹",
+    "noRankings": "아직 데이터가 없습니다"
   },
   "consent": {
     "heading": "던지기 전에, 잠깐.",
@@ -63,7 +66,20 @@
     "shareOn": "공유하기",
     "noVideo": "이번 던지기 영상을 사용할 수 없습니다.",
     "worldRank": "세계 랭킹",
-    "countryRank": "국내 랭킹"
+    "countryRank": "국내 랭킹",
+    "backToTop": "TOP으로"
+  },
+  "ranking": {
+    "heading": "랭킹",
+    "seeMore": "더 보기",
+    "world": "세계",
+    "country": "국내",
+    "back": "뒤로"
+  },
+  "profile": {
+    "nameLabel": "표시 이름",
+    "namePlaceholder": "이름을 입력",
+    "save": "저장"
   },
   "mypage": {
     "heading": "My Throws",

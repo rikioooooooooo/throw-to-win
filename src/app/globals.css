@@ -83,16 +83,6 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 34px);
 }
 
-/* ---- Gradient scrim for camera overlay ---- */
-
-.gradient-scrim {
-  background: radial-gradient(
-    ellipse 80% 60% at 50% 50%,
-    rgba(0, 0, 0, 0.6) 0%,
-    transparent 100%
-  );
-}
-
 /* ---- Stagger Delays ---- */
 
 .delay-80 { animation-delay: 80ms; }

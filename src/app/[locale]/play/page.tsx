@@ -126,15 +126,7 @@ export default function PlayPage() {
     const state = overlayStateRef.current;
 
     if (state.mode === "countdown") {
-      // Semi-transparent overlay
-      ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-      ctx.fillRect(0, 0, w, h);
-
       const fontSize = Math.round(w * 0.35);
-      ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
-      ctx.shadowBlur = Math.round(w * 0.02);
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
       ctx.fillStyle = "#ffffff";
       ctx.font = `400 ${fontSize}px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif`;
       ctx.textAlign = "center";
@@ -176,18 +168,6 @@ export default function PlayPage() {
         useAccentColor = state.isAtPeak;
       }
 
-      // Gradient scrim behind height number (replaces white flash)
-      if (state.isAtPeak || state.freefallStartTime > 0) {
-        const scrimGrad = ctx.createRadialGradient(
-          w / 2, h * 0.08, 0,
-          w / 2, h * 0.08, w * 0.35,
-        );
-        scrimGrad.addColorStop(0, "rgba(0, 0, 0, 0.5)");
-        scrimGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
-        ctx.fillStyle = scrimGrad;
-        ctx.fillRect(0, 0, w, h * 0.2);
-      }
-
       const heightStr = formatHeight(displayHeight);
       const numSize = Math.round(w * 0.07);
       const unitSize = Math.round(numSize * 0.55);
@@ -203,11 +183,6 @@ export default function PlayPage() {
       const startX = (w - totalW) / 2;
 
       // ---- Height number ----
-      ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
-      ctx.shadowBlur = Math.round(w * 0.01);
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
-
       ctx.fillStyle = useAccentColor ? "#ff2d2d" : "#ffffff";
       ctx.font = `400 ${numSize}px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif`;
       ctx.textAlign = "left";
@@ -532,6 +507,13 @@ export default function PlayPage() {
     [stopRecording, stopPreview, resetDetection, getRecordingStartTime, getSamples],
   );
 
+  const handleGoHome = useCallback(() => {
+    wakeLockRef.current?.release().catch(() => {});
+    wakeLockRef.current = null;
+    stopPreview();
+    router.push(`/${locale}`);
+  }, [stopPreview, router, locale]);
+
   const handleTryAgain = useCallback(async () => {
     wakeLockRef.current?.release().catch(() => {});
     wakeLockRef.current = null;
@@ -788,6 +770,7 @@ export default function PlayPage() {
         onSaveVideo={handleSaveVideo}
         onShareVideo={handleShareVideo}
         onTryAgain={handleTryAgain}
+        onGoHome={handleGoHome}
       />
     );
   }

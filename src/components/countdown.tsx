@@ -71,7 +71,7 @@ export function Countdown({ onComplete, onTick }: CountdownProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center safe-top safe-bottom pointer-events-none"
-      style={{ background: "rgba(0, 0, 0, 0.7)" }}
+      style={{ background: "transparent" }}
     >
       {step === "throw" ? (
         <span

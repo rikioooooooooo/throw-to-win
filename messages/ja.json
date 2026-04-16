@@ -9,7 +9,10 @@
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
     "start": "START",
-    "myPage": "My Page"
+    "myPage": "My Page",
+    "worldRanking": "世界ランキング",
+    "countryRanking": "国内ランキング",
+    "noRankings": "まだデータがありません"
   },
   "consent": {
     "heading": "投げる前に。",
@@ -63,7 +66,20 @@
     "shareOn": "シェア",
     "noVideo": "この投擲の動画は利用できません。",
     "worldRank": "世界ランキング",
-    "countryRank": "国内ランキング"
+    "countryRank": "国内ランキング",
+    "backToTop": "TOPに戻る"
+  },
+  "ranking": {
+    "heading": "ランキング",
+    "seeMore": "もっと見る",
+    "world": "世界",
+    "country": "国内",
+    "back": "戻る"
+  },
+  "profile": {
+    "nameLabel": "表示名",
+    "namePlaceholder": "名前を入力",
+    "save": "保存"
   },
   "mypage": {
     "heading": "My Throws",

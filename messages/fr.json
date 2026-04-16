@@ -9,7 +9,10 @@
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
     "start": "START",
-    "myPage": "Mon profil"
+    "myPage": "Mon profil",
+    "worldRanking": "CLASSEMENT MONDIAL",
+    "countryRanking": "CLASSEMENT NATIONAL",
+    "noRankings": "Pas encore de donnees"
   },
   "consent": {
     "heading": "Avant de lancer.",
@@ -63,7 +66,20 @@
     "shareOn": "Partager sur",
     "noVideo": "Vidéo non disponible pour ce lancer.",
     "worldRank": "RANG MONDIAL",
-    "countryRank": "RANG NATIONAL"
+    "countryRank": "RANG NATIONAL",
+    "backToTop": "Retour"
+  },
+  "ranking": {
+    "heading": "Classement",
+    "seeMore": "Voir plus",
+    "world": "Monde",
+    "country": "Pays",
+    "back": "Retour"
+  },
+  "profile": {
+    "nameLabel": "NOM",
+    "namePlaceholder": "Votre nom",
+    "save": "ENREGISTRER"
   },
   "mypage": {
     "heading": "My Throws",

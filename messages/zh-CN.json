@@ -9,7 +9,10 @@
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
     "start": "START",
-    "myPage": "我的主页"
+    "myPage": "我的主页",
+    "worldRanking": "世界排名",
+    "countryRanking": "国内排名",
+    "noRankings": "暂无数据"
   },
   "consent": {
     "heading": "扔之前，想清楚。",
@@ -63,7 +66,20 @@
     "shareOn": "分享到",
     "noVideo": "本次投掷视频不可用。",
     "worldRank": "世界排名",
-    "countryRank": "国内排名"
+    "countryRank": "国内排名",
+    "backToTop": "返回首页"
+  },
+  "ranking": {
+    "heading": "排名",
+    "seeMore": "查看更多",
+    "world": "世界",
+    "country": "国内",
+    "back": "返回"
+  },
+  "profile": {
+    "nameLabel": "显示名称",
+    "namePlaceholder": "输入名称",
+    "save": "保存"
   },
   "mypage": {
     "heading": "My Throws",

@@ -9,7 +9,10 @@
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
     "start": "START",
-    "myPage": "मेरा पेज"
+    "myPage": "मेरा पेज",
+    "worldRanking": "विश्व रैंकिंग",
+    "countryRanking": "देश रैंकिंग",
+    "noRankings": "अभी कोई डेटा नहीं"
   },
   "consent": {
     "heading": "फेंकने से पहले।",
@@ -63,7 +66,20 @@
     "shareOn": "शेयर करो",
     "noVideo": "इस थ्रो का वीडियो उपलब्ध नहीं है।",
     "worldRank": "विश्व रैंकिंग",
-    "countryRank": "देश रैंकिंग"
+    "countryRank": "देश रैंकिंग",
+    "backToTop": "होम पर वापस"
+  },
+  "ranking": {
+    "heading": "रैंकिंग",
+    "seeMore": "और देखें",
+    "world": "विश्व",
+    "country": "देश",
+    "back": "वापस"
+  },
+  "profile": {
+    "nameLabel": "नाम",
+    "namePlaceholder": "अपना नाम दर्ज करें",
+    "save": "सेव"
   },
   "mypage": {
     "heading": "My Throws",

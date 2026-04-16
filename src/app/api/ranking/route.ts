@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 type DeviceRankRow = {
   id: string;
+  display_name: string;
   personal_best: number;
   total_throws: number;
   country: string;
@@ -34,11 +35,11 @@ export async function GET(request: Request) {
 
     if (scope === "country" && country) {
       query =
-        "SELECT id, personal_best, total_throws, country, last_seen FROM devices WHERE country = ? ORDER BY personal_best DESC LIMIT ? OFFSET ?";
+        "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices WHERE country = ? ORDER BY personal_best DESC LIMIT ? OFFSET ?";
       params = [country, limit, offset];
     } else {
       query =
-        "SELECT id, personal_best, total_throws, country, last_seen FROM devices ORDER BY personal_best DESC LIMIT ? OFFSET ?";
+        "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices ORDER BY personal_best DESC LIMIT ? OFFSET ?";
       params = [limit, offset];
     }
 
@@ -53,6 +54,7 @@ export async function GET(request: Request) {
     const rankings = rows.map((row, index) => ({
       rank: offset + index + 1,
       deviceId: anonymizeDeviceId(row.id),
+      displayName: row.display_name || "",
       heightMeters: row.personal_best,
       totalThrows: row.total_throws,
       country: row.country,
@@ -71,11 +73,14 @@ export async function GET(request: Request) {
         : countStmt;
     const countResult = await countBound.first<{ total: number }>();
 
+    const yourCountry = request.headers.get("cf-ipcountry") ?? "XX";
+
     return NextResponse.json({
       rankings,
       total: countResult?.total ?? 0,
       limit,
       offset,
+      yourCountry,
     });
   } catch {
     return NextResponse.json(

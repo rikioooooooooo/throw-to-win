@@ -9,7 +9,10 @@
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
     "start": "START",
-    "myPage": "My Page"
+    "myPage": "My Page",
+    "worldRanking": "WORLD RANKING",
+    "countryRanking": "COUNTRY RANKING",
+    "noRankings": "No data yet"
   },
   "consent": {
     "heading": "Before you throw.",
@@ -63,7 +66,20 @@
     "shareOn": "Share on",
     "noVideo": "Video unavailable for this throw.",
     "worldRank": "WORLD RANK",
-    "countryRank": "COUNTRY RANK"
+    "countryRank": "COUNTRY RANK",
+    "backToTop": "Back to TOP"
+  },
+  "ranking": {
+    "heading": "Rankings",
+    "seeMore": "See More",
+    "world": "World",
+    "country": "Country",
+    "back": "Back"
+  },
+  "profile": {
+    "nameLabel": "DISPLAY NAME",
+    "namePlaceholder": "Enter your name",
+    "save": "SAVE"
   },
   "mypage": {
     "heading": "My Throws",

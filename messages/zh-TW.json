@@ -9,7 +9,10 @@
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
     "start": "START",
-    "myPage": "我的主頁"
+    "myPage": "我的主頁",
+    "worldRanking": "世界排名",
+    "countryRanking": "國內排名",
+    "noRankings": "尚無資料"
   },
   "consent": {
     "heading": "扔之前，想清楚。",
@@ -63,7 +66,20 @@
     "shareOn": "分享至",
     "noVideo": "本次投擲影片不可用。",
     "worldRank": "世界排名",
-    "countryRank": "國內排名"
+    "countryRank": "國內排名",
+    "backToTop": "返回首頁"
+  },
+  "ranking": {
+    "heading": "排名",
+    "seeMore": "查看更多",
+    "world": "世界",
+    "country": "國內",
+    "back": "返回"
+  },
+  "profile": {
+    "nameLabel": "顯示名稱",
+    "namePlaceholder": "輸入名稱",
+    "save": "儲存"
   },
   "mypage": {
     "heading": "My Throws",
