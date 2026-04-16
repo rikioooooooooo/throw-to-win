@@ -8,7 +8,7 @@ type SlowMoPlayerProps = {
   slowStart: number;
   /** Seconds from video start where slow-mo ends */
   slowEnd: number;
-  /** Playback rate during slow-mo section (default: 0.25) */
+  /** Playback rate during slow-mo section (default: 0.20 = 5x slow) */
   slowRate?: number;
   className?: string;
 };
@@ -21,7 +21,7 @@ export function SlowMoPlayer({
   src,
   slowStart,
   slowEnd,
-  slowRate = 0.25,
+  slowRate = 0.20,
   className,
 }: SlowMoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);

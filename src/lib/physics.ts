@@ -2,7 +2,7 @@
 // Throw physics — height from airtime
 // ============================================================
 
-const GRAVITY = 9.81; // m/s²
+export const GRAVITY = 9.81; // m/s²
 
 /**
  * Calculate max height from total airtime.

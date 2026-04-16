@@ -14,7 +14,7 @@
 // ============================================================
 
 import type { AccelSample, ThrowPhase, ThrowResult } from "./types";
-import { calculateHeight, estimatePeakTime } from "./physics";
+import { calculateHeight, estimatePeakTime, GRAVITY } from "./physics";
 
 // ---- Thresholds (absolute, in m/s²) ----
 const LAUNCH_THRESHOLD = 15.0; // above = throw detected (~1.5G)
@@ -43,6 +43,8 @@ export class ThrowDetector {
   private callback: SensorCallback;
   private calibrationSamples: number[] = [];
   private launchConfirmCount = 0;
+  private estimatedV0 = 0;
+  private maxRealtimeHeight = 0;
 
   constructor(callback: SensorCallback) {
     this.callback = callback;
@@ -152,6 +154,7 @@ export class ThrowDetector {
           }
           if (now - this.freefallCandidateStart >= FREEFALL_CONFIRM_MS) {
             this.freefallStartTime = this.freefallCandidateStart;
+            this.estimatedV0 = this.computeV0FromLaunch();
             this.phase = "freefall";
             this.callback(this.phase);
           }
@@ -205,6 +208,7 @@ export class ThrowDetector {
             freefallStartTime: this.freefallStartTime,
             landingTime,
             peakTime,
+            estimatedV0: this.estimatedV0,
           });
         }
         break;
@@ -228,6 +232,7 @@ export class ThrowDetector {
     this.freefallCandidateStart = 0;
     this.launchTime = 0;
     this.launchConfirmCount = 0;
+    this.maxRealtimeHeight = 0;
     this.callback(this.phase);
   }
 
@@ -248,10 +253,70 @@ export class ThrowDetector {
     return this.calibrationSamples.length >= CALIBRATION_SAMPLES;
   }
 
+  getFreefallStartTime(): number {
+    return this.freefallStartTime;
+  }
+
+  getEstimatedV0(): number {
+    return this.estimatedV0;
+  }
+
+  /**
+   * Estimate initial upward velocity by integrating acceleration magnitude
+   * over the launch window (from first high-G sample to freefall start).
+   *
+   * Uses |a| - g (magnitude minus gravity) which is orientation-independent.
+   * This overestimates for angled throws (~15-30% error) but is simple and
+   * works at 60Hz with minimal data points. Phase 1 approach.
+   *
+   * Note: Integrates ALL netAccel values (including negative / deceleration)
+   * to avoid systematic overestimation from dropping the release deceleration.
+   * Only the final v0 is clamped to >= 0.
+   */
+  private computeV0FromLaunch(): number {
+    const LAUNCH_ACCEL_THRESHOLD = 12; // m/s² — start of meaningful throw force
+    let v0 = 0;
+    let integrating = false;
+
+    for (let i = 1; i < this.samples.length; i++) {
+      const sample = this.samples[i];
+      // Stop at freefall start — don't integrate the low-G freefall samples
+      if (sample.t > this.freefallStartTime) break;
+
+      if (!integrating && sample.magnitude > LAUNCH_ACCEL_THRESHOLD) {
+        integrating = true;
+      }
+
+      if (integrating) {
+        const prev = this.samples[i - 1];
+        const dt = (sample.t - prev.t) / 1000;
+        // Net acceleration = total magnitude minus gravity baseline
+        // Include negative values (deceleration before release) for accurate v0
+        const netAccel = sample.magnitude - this.calibrationBaseline;
+        if (dt > 0 && dt < 0.1) {
+          v0 += netAccel * dt;
+        }
+      }
+    }
+
+    return Math.max(0, v0);
+  }
+
   getRealtimeHeight(): number {
     if (this.phase !== "freefall") return 0;
     const elapsed = (performance.now() - this.freefallStartTime) / 1000;
-    return calculateHeight(elapsed);
+    let h: number;
+    if (this.estimatedV0 > 0) {
+      // v₀-based trajectory: tracks actual phone altitude during freefall.
+      // Must match the canvas overlay formula exactly for consistency.
+      h = Math.max(0, this.estimatedV0 * elapsed - (GRAVITY * elapsed * elapsed) / 2);
+    } else {
+      h = calculateHeight(elapsed);
+    }
+    if (h > this.maxRealtimeHeight) {
+      this.maxRealtimeHeight = h;
+    }
+    return this.maxRealtimeHeight;
   }
 
   stop(): void {
@@ -270,6 +335,8 @@ export class ThrowDetector {
     this.freefallStartTime = 0;
     this.launchTime = 0;
     this.launchConfirmCount = 0;
+    this.estimatedV0 = 0;
+    this.maxRealtimeHeight = 0;
     this.phase = "idle";
   }
 }

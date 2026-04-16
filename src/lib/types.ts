@@ -68,6 +68,8 @@ export type ThrowResult = {
   readonly freefallStartTime: number;
   readonly landingTime: number;
   readonly peakTime: number; // midpoint of freefall
+  /** Estimated initial upward velocity from launch-phase integration (m/s) */
+  readonly estimatedV0: number;
 };
 
 /** Camera quality tier */

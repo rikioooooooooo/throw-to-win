@@ -8,7 +8,7 @@ import { useCamera, type OverlayRenderer } from "@/hooks/use-camera";
 import { hasValidConsent, addThrowRecord } from "@/lib/storage";
 import { downloadBlob, shareNative, shareTo } from "@/lib/share";
 import { processVideo, preloadFFmpeg } from "@/lib/video-processor";
-import { formatHeight } from "@/lib/physics";
+import { formatHeight, GRAVITY } from "@/lib/physics";
 import type { ThrowResult, VideoProcessingStatus } from "@/lib/types";
 import { PermissionRequest } from "@/components/permission-request";
 import { Countdown, type CountdownStep } from "@/components/countdown";
@@ -31,9 +31,6 @@ export default function PlayPage() {
   const locale = (params.locale as string) ?? "en";
 
   const [gameState, setGameState] = useState<GameState>("permissions");
-  const [cameraDirection, setCameraDirection] = useState<"rear" | "front">(
-    "rear",
-  );
   const [processingStatus, setProcessingStatus] =
     useState<VideoProcessingStatus>("idle");
   const [processingProgress, setProcessingProgress] = useState(0);
@@ -54,6 +51,8 @@ export default function PlayPage() {
     phase,
     result,
     realtimeHeight,
+    getFreefallStartTime,
+    getEstimatedV0,
     startCalibration,
     startDetection,
     reset: resetDetection,
@@ -62,8 +61,11 @@ export default function PlayPage() {
   const {
     videoRef,
     isRecording,
+    availableLenses,
+    activeLensId,
     getRecordingStartTime,
     startPreview,
+    startPreviewWithLens,
     startRecording,
     stopRecording,
     stopPreview,
@@ -72,18 +74,31 @@ export default function PlayPage() {
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const finishingRef = useRef(false);
   const finishTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const descentAnimRef = useRef<number>(0);
-  const isDescentAnimatingRef = useRef(false);
   const overlayStateRef = useRef<{
     mode: "idle" | "countdown" | "height";
     countdownText: string;
     height: number;
     isAtPeak: boolean;
+    /** Trajectory simulation: v₀ from launch-phase integration */
+    estimatedV0: number;
+    freefallStartTime: number;
+    /** Tracks max displayed height — only goes UP, freezes at peak */
+    maxDisplayedHeight: number;
+    /** Landing correction: smooth from estimated to true peak */
+    correctionStartTime: number;
+    correctionFrom: number;
+    correctionTo: number;
   }>({
     mode: "idle",
     countdownText: "",
     height: 0,
     isAtPeak: false,
+    estimatedV0: 0,
+    freefallStartTime: 0,
+    maxDisplayedHeight: 0,
+    correctionStartTime: 0,
+    correctionFrom: 0,
+    correctionTo: 0,
   });
 
   // ---- Overlay renderer (canvas compositing for video baking) ----
@@ -111,7 +126,44 @@ export default function PlayPage() {
     }
 
     if (state.mode === "height") {
-      const heightStr = formatHeight(state.height);
+      const CORRECTION_MS = 200;
+      let displayHeight: number;
+      let useAccentColor: boolean;
+
+      if (state.correctionStartTime > 0) {
+        // Post-landing correction to true peak.
+        // If overestimated (estimated > true): snap immediately to true peak
+        // to avoid the jarring "number going down" effect.
+        // If underestimated (estimated < true): smooth easeOut upward.
+        if (state.correctionFrom > state.correctionTo) {
+          // Overestimate: snap to true value immediately
+          displayHeight = state.correctionTo;
+          useAccentColor = true;
+        } else {
+          const elapsed = performance.now() - state.correctionStartTime;
+          const progress = Math.min(elapsed / CORRECTION_MS, 1);
+          const eased = 1 - (1 - progress) * (1 - progress);
+          displayHeight = state.correctionFrom + (state.correctionTo - state.correctionFrom) * eased;
+          useAccentColor = progress >= 1;
+        }
+      } else if (state.freefallStartTime > 0 && state.estimatedV0 > 0) {
+        // v₀-based trajectory: h(t) = v₀t - gt²/2
+        // Tracks actual phone altitude during freefall (fast rise → peak → fall).
+        // maxDisplayedHeight freezes at peak so the number never drops.
+        const t = Math.min((performance.now() - state.freefallStartTime) / 1000, 4.0);
+        const h_t = state.estimatedV0 * t - (GRAVITY * t * t) / 2;
+        const clamped = Math.max(0, h_t);
+        if (clamped > state.maxDisplayedHeight) {
+          state.maxDisplayedHeight = clamped;
+        }
+        displayHeight = state.maxDisplayedHeight;
+        useAccentColor = false;
+      } else {
+        displayHeight = state.height;
+        useAccentColor = state.isAtPeak;
+      }
+
+      const heightStr = formatHeight(displayHeight);
       const numSize = Math.round(w * 0.07);
       const unitSize = Math.round(numSize * 0.55);
       const y = h * 0.08;
@@ -129,13 +181,13 @@ export default function PlayPage() {
       const totalW = numWidth + gap + mWidth;
       const startX = (w - totalW) / 2;
 
-      ctx.fillStyle = state.isAtPeak ? "#ff2d2d" : "#ffffff";
+      ctx.fillStyle = useAccentColor ? "#ff2d2d" : "#ffffff";
       ctx.font = `900 ${numSize}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
       ctx.textAlign = "left";
       ctx.textBaseline = "middle";
       ctx.fillText(heightStr, startX, y);
 
-      ctx.fillStyle = state.isAtPeak
+      ctx.fillStyle = useAccentColor
         ? "rgba(255, 45, 45, 0.6)"
         : "rgba(255, 255, 255, 0.4)";
       ctx.font = `700 ${unitSize}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
@@ -160,26 +212,32 @@ export default function PlayPage() {
     }
   }, []);
 
-  // ---- Overlay state sync (skipped during descent animation) ----
+  // ---- Overlay state sync ----
+  // When freefall starts: set trajectory params (v₀ + startTime) for live simulation.
+  // The renderer computes h(t) = v₀t - gt²/2 and tracks max (freezes at peak).
+  // Landing correction is set synchronously in the result handler.
   useEffect(() => {
-    if (isDescentAnimatingRef.current) return;
-    if (peakResult) {
-      overlayStateRef.current = {
-        mode: "height",
-        countdownText: "",
-        height: peakResult.heightMeters,
-        isAtPeak: true,
-      };
-      return;
-    }
-    if (gameState === "active" && realtimeHeight > 0) {
-      overlayStateRef.current = {
-        mode: "height",
-        countdownText: "",
-        height: realtimeHeight,
-        isAtPeak: false,
-      };
-      return;
+    // Guard: don't overwrite correction state set by the result handler.
+    // Check both peakResult (state, may lag one render) and finishingRef (sync ref).
+    if (peakResult || finishingRef.current) return;
+    if (gameState === "active" && phase === "freefall") {
+      const t0 = getFreefallStartTime();
+      const v0 = getEstimatedV0();
+      if (t0 > 0) {
+        overlayStateRef.current = {
+          mode: "height",
+          countdownText: "",
+          height: 0,
+          isAtPeak: false,
+          estimatedV0: v0,
+          freefallStartTime: t0,
+          maxDisplayedHeight: 0,
+          correctionStartTime: 0,
+          correctionFrom: 0,
+          correctionTo: 0,
+        };
+        return;
+      }
     }
     if (gameState === "countdown") return;
     overlayStateRef.current = {
@@ -187,25 +245,31 @@ export default function PlayPage() {
       countdownText: "",
       height: 0,
       isAtPeak: false,
+      estimatedV0: 0,
+      freefallStartTime: 0,
+      maxDisplayedHeight: 0,
+      correctionStartTime: 0,
+      correctionFrom: 0,
+      correctionTo: 0,
     };
-  }, [peakResult, realtimeHeight, gameState]);
+  }, [peakResult, phase, gameState, getFreefallStartTime, getEstimatedV0]);
 
   const handleCountdownTick = useCallback((step: CountdownStep) => {
     if (step === "done") return;
+    const base = {
+      height: 0,
+      isAtPeak: false,
+      estimatedV0: 0,
+      freefallStartTime: 0,
+      maxDisplayedHeight: 0,
+      correctionStartTime: 0,
+      correctionFrom: 0,
+      correctionTo: 0,
+    };
     if (typeof step === "number") {
-      overlayStateRef.current = {
-        mode: "countdown",
-        countdownText: String(step),
-        height: 0,
-        isAtPeak: false,
-      };
+      overlayStateRef.current = { mode: "countdown", countdownText: String(step), ...base };
     } else {
-      overlayStateRef.current = {
-        mode: "idle",
-        countdownText: "",
-        height: 0,
-        isAtPeak: false,
-      };
+      overlayStateRef.current = { mode: "idle", countdownText: "", ...base };
     }
   }, []);
 
@@ -229,68 +293,49 @@ export default function PlayPage() {
   }, [router, locale]);
 
   // ---- Handle throw result ----
-  // After landing: hold peak briefly, then animate descent from peak→0 on the
-  // canvas overlay so the baked video shows height going up AND coming down.
-  // Recording continues for 2 seconds after landing to capture the catch.
+  // At landing: flash peak height in red and FREEZE. The overlay sync useEffect
+  // sets isAtPeak=true which stops live computation and locks the display.
+  // Recording continues for 5 seconds to capture the catch moment.
   useEffect(() => {
     if (result && gameState === "active" && !finishingRef.current) {
       finishingRef.current = true;
-      setPeakResult(result);
 
-      // Phase 1: Flash peak height in red
+      // Landing: if v₀ trajectory was active, the tracked max IS the result.
+      // No correction needed — just freeze at the displayed max (red flash).
+      // If v₀ estimation failed (maxDisplayedHeight=0), fall back to airtime-based.
+      const trackedMax = overlayStateRef.current.maxDisplayedHeight;
+      const finalHeight = trackedMax > 0 ? trackedMax : result.heightMeters;
+      const displayResult: ThrowResult = trackedMax > 0
+        ? { ...result, heightMeters: finalHeight }
+        : result;
+
+      // Set peak with unified height — DOM HeightDisplay and canvas overlay match.
+      setPeakResult(displayResult);
+
       overlayStateRef.current = {
         mode: "height",
         countdownText: "",
-        height: result.heightMeters,
+        height: finalHeight,
         isAtPeak: true,
+        estimatedV0: 0,
+        freefallStartTime: 0,
+        maxDisplayedHeight: 0,
+        correctionStartTime: 0,
+        correctionFrom: 0,
+        correctionTo: 0,
       };
 
-      // Phase 2: Descent animation — height drops from peak to 0
-      const PEAK_HOLD_MS = 400;
-      const descentMs = Math.max(300, Math.min((result.airtimeSeconds * 1000) / 2, 1200));
-      const descentStart = performance.now() + PEAK_HOLD_MS;
-      isDescentAnimatingRef.current = true;
-
-      const animateDescent = () => {
-        const elapsed = performance.now() - descentStart;
-        if (elapsed < 0) {
-          descentAnimRef.current = requestAnimationFrame(animateDescent);
-          return;
-        }
-        const progress = Math.min(elapsed / descentMs, 1);
-        // easeIn (quadratic) matches gravitational acceleration
-        const eased = progress * progress;
-        overlayStateRef.current = {
-          mode: "height",
-          countdownText: "",
-          height: Math.max(0, result.heightMeters * (1 - eased)),
-          isAtPeak: false,
-        };
-        if (progress < 1) {
-          descentAnimRef.current = requestAnimationFrame(animateDescent);
-        }
-        // Keep isDescentAnimatingRef true until handleThrowComplete transitions away
-      };
-      descentAnimRef.current = requestAnimationFrame(animateDescent);
-
-      // Phase 3: After 2 seconds, stop recording and process video
+      // Wait 5 seconds then stop recording and process video.
       finishTimeoutRef.current = setTimeout(() => {
-        if (descentAnimRef.current) cancelAnimationFrame(descentAnimRef.current);
-        descentAnimRef.current = 0;
         finishTimeoutRef.current = null;
-        handleThrowComplete(result);
-      }, 2000);
+        handleThrowComplete(displayResult);
+      }, 5000);
     }
     return () => {
       if (finishTimeoutRef.current) {
         clearTimeout(finishTimeoutRef.current);
         finishTimeoutRef.current = null;
       }
-      if (descentAnimRef.current) {
-        cancelAnimationFrame(descentAnimRef.current);
-        descentAnimRef.current = 0;
-      }
-      isDescentAnimatingRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result, gameState]);
@@ -306,11 +351,11 @@ export default function PlayPage() {
   }, [resultData?.videoBlob]);
 
   const handlePermissionsGranted = useCallback(async () => {
-    const success = await startPreview(cameraDirection);
+    const success = await startPreview("rear");
     if (success) {
       setGameState("prepare");
     }
-  }, [cameraDirection, startPreview]);
+  }, [startPreview]);
 
   const handleStartCountdown = useCallback(async () => {
     setGameState("countdown");
@@ -393,21 +438,16 @@ export default function PlayPage() {
       clearTimeout(finishTimeoutRef.current);
       finishTimeoutRef.current = null;
     }
-    if (descentAnimRef.current) {
-      cancelAnimationFrame(descentAnimRef.current);
-      descentAnimRef.current = 0;
-    }
-    isDescentAnimatingRef.current = false;
     finishingRef.current = false;
     setResultData(null);
     setVideoUrl(null);
     setPeakResult(null);
     setProcessingStatus("idle");
     setProcessingProgress(0);
-    // Restart camera preview directly instead of forcing re-permission
-    const success = await startPreview(cameraDirection);
+    // Restart camera preview (re-enumerates lenses)
+    const success = await startPreview("rear");
     setGameState(success ? "prepare" : "permissions");
-  }, [startPreview, cameraDirection]);
+  }, [startPreview]);
 
   const handleSaveVideo = useCallback(async () => {
     if (!resultData?.videoBlob) return;
@@ -479,31 +519,26 @@ export default function PlayPage() {
         {/* ---- Prepare overlay ---- */}
         {gameState === "prepare" && (
           <>
-            {/* Camera switch button */}
-            <div className="absolute top-0 inset-x-0 z-20 flex justify-end p-5 safe-top">
-              <button
-                onClick={() => {
-                  const next =
-                    cameraDirection === "rear" ? "front" : "rear";
-                  setCameraDirection(next);
-                  startPreview(next);
-                }}
-                className="w-14 h-14 glass border border-border flex items-center justify-center text-white/80 active:scale-90 transition-transform"
-                aria-label="Switch camera"
+            {/* Lens picker */}
+            {availableLenses.length > 0 && (
+              <div
+                className="absolute top-0 inset-x-0 z-20 flex justify-center gap-1.5 px-4 pt-3 safe-top"
               >
-                <svg
-                  width="22"
-                  height="22"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="square"
-                >
-                  <path d="M16 3h5v5M8 3H3v5M21 3l-7 7M3 3l7 7M16 21h5v-5M8 21H3v-5M21 21l-7-7M3 21l7-7" />
-                </svg>
-              </button>
-            </div>
+                {availableLenses.map((lens) => (
+                  <button
+                    key={lens.id}
+                    onClick={() => startPreviewWithLens(lens.id)}
+                    className={`min-w-[48px] h-9 px-3 text-[11px] font-display font-bold tracking-wider uppercase transition-all duration-150 ${
+                      activeLensId === lens.id
+                        ? "bg-white/15 text-white border border-white/30 backdrop-blur-md"
+                        : "text-white/40 border border-white/[0.08] backdrop-blur-sm active:scale-90"
+                    }`}
+                  >
+                    {lens.shortLabel}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Bottom CTA with gradient fade */}
             <div className="absolute bottom-0 inset-x-0 z-20 p-6 pb-8 safe-bottom bg-gradient-to-t from-black/80 via-black/40 to-transparent">

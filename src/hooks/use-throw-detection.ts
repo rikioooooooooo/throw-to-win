@@ -9,6 +9,8 @@ type UseThrowDetectionReturn = {
   result: ThrowResult | null;
   isCalibrated: boolean;
   realtimeHeight: number;
+  getFreefallStartTime: () => number;
+  getEstimatedV0: () => number;
   startCalibration: () => void;
   startDetection: () => void;
   reset: () => void;
@@ -75,6 +77,14 @@ export function useThrowDetection(): UseThrowDetectionReturn {
     rafRef.current = requestAnimationFrame(tick);
   }, [tick]);
 
+  const getFreefallStartTime = useCallback(() => {
+    return detectorRef.current?.getFreefallStartTime() ?? 0;
+  }, []);
+
+  const getEstimatedV0 = useCallback(() => {
+    return detectorRef.current?.getEstimatedV0() ?? 0;
+  }, []);
+
   const reset = useCallback(() => {
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
@@ -100,6 +110,8 @@ export function useThrowDetection(): UseThrowDetectionReturn {
     result,
     isCalibrated,
     realtimeHeight,
+    getFreefallStartTime,
+    getEstimatedV0,
     startCalibration,
     startDetection,
     reset,

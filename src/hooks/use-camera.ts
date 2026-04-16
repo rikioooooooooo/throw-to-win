@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { detectCapabilities, CAMERA_CONSTRAINTS } from "@/lib/device-capability";
+// device-capability import removed — resolution/frameRate constraints are now
+// hardcoded to avoid the tier-based 120fps that caused OverconstrainedError
+// on ultra-wide cameras via iOS Safari WebKit.
 
 /** Overlay renderer — draws onto the compositing canvas each frame */
 export type OverlayRenderer = (
@@ -10,19 +12,44 @@ export type OverlayRenderer = (
   height: number,
 ) => void;
 
+export type CameraLens = {
+  readonly id: string;
+  readonly label: string;
+  /** Display label: "0.5x", "1x", "2x", "Front" etc. */
+  readonly shortLabel: string;
+  readonly isFront: boolean;
+};
+
 type UseCameraReturn = {
   videoRef: (node: HTMLVideoElement | null) => void;
   isRecording: boolean;
   videoBlob: Blob | null;
   recordedMimeType: string;
+  availableLenses: readonly CameraLens[];
+  activeLensId: string;
   /** Returns performance.now() when MediaRecorder actually started (live ref, not stale snapshot) */
   getRecordingStartTime: () => number;
   startPreview: (direction: "rear" | "front") => Promise<boolean>;
+  startPreviewWithLens: (lensId: string) => Promise<boolean>;
   startRecording: () => void;
   stopRecording: () => Promise<Blob | null>;
   stopPreview: () => void;
   setOverlayRenderer: (renderer: OverlayRenderer | null) => void;
 };
+
+/** Convert iOS camera label to short display label */
+function toLensShortLabel(label: string): string {
+  const l = label.toLowerCase();
+  if (l.includes("ultra wide") || l.includes("ultrawide") || l.includes("\u8D85\u5E83\u89D2")) return "0.5x";
+  if (l.includes("telephoto") || l.includes("\u671B\u9060")) return "2x";
+  if (l.includes("front") || l.includes("facetime") || l.includes("\u524D\u9762")) return "Front";
+  // "triple", "dual wide", "dual" are composite — skip showing them
+  if (l.includes("triple") || l.includes("\u30C8\u30EA\u30D7\u30EB")) return "";
+  if (l.includes("dual") || l.includes("\u30C7\u30E5\u30A2\u30EB")) return "";
+  // Default rear camera = 1x
+  if (l.includes("back") || l.includes("\u80CC\u9762") || l.includes("\u30AB\u30E1\u30E9")) return "1x";
+  return label.slice(0, 6);
+}
 
 /** Feature-detect canvas captureStream support (missing on some iOS Safari) */
 function canCaptureCanvas(): boolean {
@@ -42,6 +69,8 @@ export function useCamera(): UseCameraReturn {
   const [isRecording, setIsRecording] = useState(false);
   const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
   const [recordedMimeType, setRecordedMimeType] = useState("");
+  const [availableLenses, setAvailableLenses] = useState<readonly CameraLens[]>([]);
+  const [activeLensId, setActiveLensId] = useState("");
   const recordingStartTimeRef = useRef(0);
 
   // Canvas compositing refs
@@ -106,54 +135,144 @@ export function useCamera(): UseCameraReturn {
         recordingStartTimeRef.current = 0;
         streamRef.current?.getTracks().forEach((t) => t.stop());
 
-        const caps = detectCapabilities();
-        const constraints = CAMERA_CONSTRAINTS[caps.tier];
-
+        // Get camera (grants permission + enables label access on iOS Safari).
+        // Only constrain width — specifying BOTH width+height forces iOS Safari
+        // to crop the sensor to that aspect ratio, narrowing the FOV significantly.
+        // Omitting height lets the camera output its native aspect ratio (4:3 etc.)
+        // which matches the native Camera app's field of view.
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: direction === "rear" ? "environment" : "user",
-            width: { ideal: constraints.width },
-            height: { ideal: constraints.height },
-            frameRate: { ideal: constraints.frameRate, min: 30 },
+            width: { ideal: 1920 },
+            frameRate: { ideal: 60 },
           },
           audio: true,
         });
 
-        // Store stream and attach to video element FIRST (prevents black screen)
+        // Enumerate devices and build lens list (labels available after permission)
+        const currentTrack = stream.getVideoTracks()[0];
+        let matchedLensId = currentTrack?.getSettings().deviceId ?? "";
+
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const videoDevices = devices.filter((d) => d.kind === "videoinput");
+          const lenses: CameraLens[] = [];
+
+          for (const d of videoDevices) {
+            const short = toLensShortLabel(d.label);
+            if (!short) continue; // Skip composites (triple, dual)
+            lenses.push({
+              id: d.deviceId,
+              label: d.label,
+              shortLabel: short,
+              isFront: short === "Front",
+            });
+          }
+
+          setAvailableLenses(lenses);
+
+          // For rear camera, auto-switch to 0.5x (ultra-wide) if available.
+          // Get new stream before stopping old (iOS Safari requirement).
+          if (direction === "rear") {
+            const ultraWide = lenses.find((l) => l.shortLabel === "0.5x");
+            if (ultraWide) {
+              try {
+                const uwStream = await navigator.mediaDevices.getUserMedia({
+                  video: { deviceId: { exact: ultraWide.id } },
+                  audio: true,
+                });
+                stream.getTracks().forEach((t) => t.stop());
+                const uwTrack = uwStream.getVideoTracks()[0];
+                if (uwTrack) {
+                  try {
+                    await uwTrack.applyConstraints({
+                      width: { ideal: 1920 },
+                      frameRate: { ideal: 60 },
+                    });
+                  } catch { /* best-effort */ }
+                }
+                matchedLensId = ultraWide.id;
+                streamRef.current = uwStream;
+                setActiveLensId(matchedLensId);
+                applyStream();
+                return true;
+              } catch {
+                // Ultra-wide unavailable — fall through to default
+              }
+            }
+          }
+
+          // Fallback: match active lens to button highlight
+          const directMatch = lenses.find((l) => l.id === matchedLensId);
+          if (!directMatch) {
+            const fallback = direction === "front"
+              ? lenses.find((l) => l.isFront)
+              : lenses.find((l) => l.shortLabel === "1x");
+            if (fallback) matchedLensId = fallback.id;
+          }
+        } catch {
+          setAvailableLenses([]);
+        }
+
+        setActiveLensId(matchedLensId);
+
         streamRef.current = stream;
         applyStream();
 
-        // THEN try to zoom out to ultra-wide (0.5x on iPhones)
-        const videoTrack = stream.getVideoTracks()[0];
-        if (videoTrack && direction === "rear") {
-          try {
-            const trackCaps = videoTrack.getCapabilities?.() as
-              | (MediaTrackCapabilities & {
-                  zoom?: { min: number; max: number };
-                })
-              | undefined;
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [applyStream],
+  );
 
-            if (trackCaps?.zoom && trackCaps.zoom.min < 1) {
-              const ultraWideZoom = Math.max(trackCaps.zoom.min, 0.5);
-              await videoTrack.applyConstraints({
-                advanced: [
-                  { zoom: ultraWideZoom } as MediaTrackConstraintSet,
-                ],
-              });
-            } else if (trackCaps?.zoom) {
-              await videoTrack.applyConstraints({
-                advanced: [
-                  { zoom: trackCaps.zoom.min } as MediaTrackConstraintSet,
-                ],
-              });
-            }
+  const startPreviewWithLens = useCallback(
+    async (lensId: string): Promise<boolean> => {
+      try {
+        // iOS Safari (WebKit) rejects getUserMedia when deviceId: { exact }
+        // is combined with frameRate/resolution constraints that the specific
+        // camera can't satisfy (e.g. ultra-wide maxes at 30fps but high-tier
+        // requests ideal: 120). Use ONLY deviceId to acquire the stream,
+        // then tune resolution/frameRate via applyConstraints afterwards.
+        const newStream = await navigator.mediaDevices.getUserMedia({
+          video: { deviceId: { exact: lensId } },
+          audio: true,
+        });
+
+        // Best-effort: request high resolution + frameRate without forcing aspect ratio.
+        // Width-only keeps the camera's native aspect ratio → native FOV.
+        const videoTrack = newStream.getVideoTracks()[0];
+        if (videoTrack) {
+          try {
+            await videoTrack.applyConstraints({
+              width: { ideal: 1920 },
+              frameRate: { ideal: 60 },
+            });
           } catch {
-            // zoom constraint not supported, keep default
+            // Some cameras may not support these — that's fine
           }
         }
 
+        // New stream acquired — now clean up old
+        stopCompositing();
+        if (recorderRef.current && recorderRef.current.state !== "inactive") {
+          recorderRef.current.stop();
+        }
+        recorderRef.current = null;
+        chunksRef.current = [];
+        recordingStartTimeRef.current = 0;
+        streamRef.current?.getTracks().forEach((t) => t.stop());
+
+        if (videoTrack) {
+          setActiveLensId(videoTrack.getSettings().deviceId ?? lensId);
+        }
+
+        streamRef.current = newStream;
+        applyStream();
         return true;
       } catch {
+        // getUserMedia failed — old stream was NOT stopped, camera keeps working
         return false;
       }
     },
@@ -404,8 +523,11 @@ export function useCamera(): UseCameraReturn {
     isRecording,
     videoBlob,
     recordedMimeType,
+    availableLenses,
+    activeLensId,
     getRecordingStartTime,
     startPreview,
+    startPreviewWithLens,
     startRecording,
     stopRecording,
     stopPreview,

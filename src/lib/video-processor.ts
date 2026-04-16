@@ -120,8 +120,9 @@ const ENCODE_ARGS = [
  * Multi-pass slow-motion: extract 3 parts → slow the peak → concat.
  * More reliable than single-pass filter_complex which could drop frames.
  *
- * 2x slow-mo (not 4x) — at 60fps source, 2x gives 30fps effective
- * which is smooth enough. At 120fps source, 2x gives 60fps (perfect).
+ * 5x slow-mo (0.2x speed) — dramatic slow-motion around the peak.
+ * At 60fps source, 5x gives 12fps effective (cinematic).
+ * At 120fps source, 5x gives 24fps (film-like).
  */
 async function processWithSlowMo(
   videoBlob: Blob,
@@ -165,15 +166,15 @@ async function processWithSlowMo(
 
     onStatus("applying-slowmo", 35);
 
-    // Pass 2: peak section (2x slow-mo)
+    // Pass 2: peak section (5x slow-mo = 0.2x speed)
     // Input seeking (-ss/-t BEFORE -i) so -t limits INPUT duration.
     // With output seeking (-ss after -i), -t limits OUTPUT time, and
-    // setpts=2*PTS doubles the output clock → only half the source captured.
+    // setpts=5*PTS stretches the output clock → only 1/5 of source captured per second.
     await ffmpeg.exec([
       "-ss", slowStart.toFixed(3),
       "-t", slowDuration.toFixed(3),
       "-i", inputName,
-      "-vf", "setpts=2*(PTS-STARTPTS)",
+      "-vf", "setpts=5*(PTS-STARTPTS)",
       ...ENCODE_ARGS,
       "-y", "part2.mp4",
     ]);
