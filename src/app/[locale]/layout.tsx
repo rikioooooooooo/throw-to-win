@@ -9,7 +9,7 @@ import "../globals.css";
 export const metadata: Metadata = {
   title: "Throw To Win",
   description: "Throw your phone. The highest wins.",
-  icons: { icon: "/favicon.ico" },
+  icons: { icon: "/favicon.svg" },
   openGraph: {
     title: "Throw To Win",
     description: "Throw your phone. The highest wins.",

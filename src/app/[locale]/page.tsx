@@ -83,7 +83,7 @@ export default function LandingPage() {
   const goToRanking = () => router.push(`/${locale}/ranking`);
 
   return (
-    <main className="relative flex-1 flex flex-col min-h-screen px-5 overflow-y-auto safe-bottom">
+    <main className="relative flex-1 flex flex-col min-h-screen px-5 overflow-y-auto">
       {/* Top bar */}
       <header className="relative z-10 flex justify-end items-center pt-4">
         <button
@@ -178,15 +178,18 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* CTA */}
-      <div className="relative z-10 sticky bottom-0 pb-8 pt-4 bg-gradient-to-t from-background via-background to-transparent">
-        <button
-          onClick={handleStart}
-          className="w-full py-4 bg-accent text-white cta-text text-[16px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100"
-          style={{ borderRadius: "14px", height: "56px" }}
-        >
-          {t("landing.start")}
-        </button>
+      {/* CTA — solid black extends to screen edge to prevent Safari bottom bar red bleed */}
+      <div className="relative z-10 sticky bottom-0 -mx-5 pt-4 safe-bottom" style={{ background: "#000000" }}>
+        <div className="absolute inset-x-0 top-0 h-8 -translate-y-full bg-gradient-to-t from-black to-transparent pointer-events-none" />
+        <div className="px-5 pb-2">
+          <button
+            onClick={handleStart}
+            className="w-full py-4 bg-accent text-white cta-text text-[16px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100"
+            style={{ borderRadius: "14px", height: "56px" }}
+          >
+            {t("landing.start")}
+          </button>
+        </div>
       </div>
 
       {/* Consent modal */}
