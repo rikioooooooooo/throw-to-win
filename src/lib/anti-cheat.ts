@@ -6,9 +6,10 @@ const MAX_DT_COEFFICIENT_OF_VARIATION = 0.6;
 const CALIBRATION_MAGNITUDE_MIN = 8.5;
 const CALIBRATION_MAGNITUDE_MAX = 11.0;
 const LAUNCH_MAGNITUDE_THRESHOLD = 15;
-const FREEFALL_MAGNITUDE_THRESHOLD = 5.5;
+const FREEFALL_MAGNITUDE_THRESHOLD = 8.0; // matches sensor.ts FREEFALL_THRESHOLD
+const LANDING_MAGNITUDE_THRESHOLD = 12; // matches sensor.ts LANDING_THRESHOLD
 const MIN_FREEFALL_SAMPLES = 3;
-const HEIGHT_DEVIATION_THRESHOLD = 1.5;
+const RELATIVE_DEVIATION_THRESHOLD = 0.15; // 15% relative deviation allowed
 const NOISE_STD_MIN = 0.01;
 const NOISE_STD_MAX = 0.5;
 
@@ -150,7 +151,7 @@ function checkLandingSpike(samples: readonly AccelSample[]): CheckResult {
     if (sample.magnitude < FREEFALL_MAGNITUDE_THRESHOLD) {
       foundFreefall = true;
     }
-    if (foundFreefall && sample.magnitude > LAUNCH_MAGNITUDE_THRESHOLD) {
+    if (foundFreefall && sample.magnitude > LANDING_MAGNITUDE_THRESHOLD) {
       hasLandingSpike = true;
       break;
     }
@@ -164,9 +165,35 @@ function checkLandingSpike(samples: readonly AccelSample[]): CheckResult {
   };
 }
 
-function recalculateHeightFromFreefall(
+/** Server-side mirror of sensor.ts::computeV0FromLaunch */
+function estimateV0FromSamples(
   samples: readonly AccelSample[],
+  freefallStartT: number,
 ): number {
+  const LAUNCH_ACCEL_THRESHOLD = 12;
+  const baseline = mean(
+    samples.slice(0, Math.min(10, samples.length)).map((s) => s.magnitude),
+  );
+  let v0 = 0;
+  let integrating = false;
+  for (let i = 1; i < samples.length; i++) {
+    const s = samples[i];
+    if (s.t > freefallStartT) break;
+    if (!integrating && s.magnitude > LAUNCH_ACCEL_THRESHOLD) integrating = true;
+    if (integrating) {
+      const prev = samples[i - 1];
+      const dt = (s.t - prev.t) / 1000;
+      const netAccel = s.magnitude - baseline;
+      if (dt > 0 && dt < 0.1) v0 += netAccel * dt;
+    }
+  }
+  return Math.max(0, v0);
+}
+
+/** Find freefall boundaries in the sensor stream */
+function findFreefallBoundaries(
+  samples: readonly AccelSample[],
+): { start: number; end: number } {
   let freefallStart = -1;
   let freefallEnd = -1;
   let inFreefall = false;
@@ -176,25 +203,40 @@ function recalculateHeightFromFreefall(
       freefallStart = i;
       inFreefall = true;
     }
-    if (inFreefall && samples[i].magnitude >= LAUNCH_MAGNITUDE_THRESHOLD) {
+    if (inFreefall && samples[i].magnitude >= LANDING_MAGNITUDE_THRESHOLD) {
       freefallEnd = i;
       break;
     }
   }
 
-  if (freefallStart < 0 || freefallEnd < 0) return -1;
+  return { start: freefallStart, end: freefallEnd };
+}
 
-  const durationMs = samples[freefallEnd].t - samples[freefallStart].t;
+/** Recalculate height using the same scoreHeight logic as the client */
+function recalculateScoreHeight(
+  samples: readonly AccelSample[],
+): number {
+  const { start, end } = findFreefallBoundaries(samples);
+  if (start < 0 || end < 0) return -1;
+
+  const durationMs = samples[end].t - samples[start].t;
   const durationSec = durationMs / 1000;
-  return (GRAVITY * durationSec * durationSec) / 8;
+  const timeBased = (GRAVITY * durationSec * durationSec) / 8;
+
+  const v0 = estimateV0FromSamples(samples, samples[start].t);
+  if (v0 <= 0) return timeBased;
+
+  const V0_MARGIN = 1.15;
+  const v0Cap = (v0 * v0) / (2 * GRAVITY) * V0_MARGIN;
+  return Math.min(timeBased, v0Cap);
 }
 
 function checkHeightDeviation(
   samples: readonly AccelSample[],
   clientHeight: number,
 ): CheckResult {
-  const serverHeight = recalculateHeightFromFreefall(samples);
-  if (serverHeight < 0) {
+  const serverHeight = recalculateScoreHeight(samples);
+  if (serverHeight <= 0) {
     return {
       name: "height_deviation",
       passed: false,
@@ -203,13 +245,13 @@ function checkHeightDeviation(
     };
   }
 
-  const deviation = Math.abs(clientHeight - serverHeight);
-  const passed = deviation < HEIGHT_DEVIATION_THRESHOLD;
+  const relDev = Math.abs(clientHeight - serverHeight) / serverHeight;
+  const passed = relDev < RELATIVE_DEVIATION_THRESHOLD;
   return {
     name: "height_deviation",
     passed,
-    score: passed ? 0 : Math.min(0.5, deviation * 0.5),
-    detail: `client=${clientHeight.toFixed(2)} server=${serverHeight.toFixed(2)} dev=${deviation.toFixed(2)}`,
+    score: passed ? 0 : Math.min(0.5, relDev),
+    detail: `client=${clientHeight.toFixed(2)} server=${serverHeight.toFixed(2)} relDev=${(relDev * 100).toFixed(1)}%`,
   };
 }
 
@@ -255,6 +297,47 @@ function checkNoisePattern(samples: readonly AccelSample[]): CheckResult {
   };
 }
 
+/** Detect ground-drop style asymmetric throws where airtime vastly exceeds
+ *  what the estimated launch velocity can explain. */
+function checkAsymmetricThrow(
+  samples: readonly AccelSample[],
+  airtimeSeconds: number,
+): CheckResult {
+  const { start } = findFreefallBoundaries(samples);
+  if (start < 0) {
+    return {
+      name: "asymmetric_throw",
+      passed: true,
+      score: 0,
+      detail: "freefall not found (skipped)",
+    };
+  }
+
+  const v0 = estimateV0FromSamples(samples, samples[start].t);
+  if (v0 <= 0) {
+    return {
+      name: "asymmetric_throw",
+      passed: true,
+      score: 0,
+      detail: "v0 not estimable (skipped)",
+    };
+  }
+
+  const timeBased = (GRAVITY * airtimeSeconds * airtimeSeconds) / 8;
+  const v0Based = (v0 * v0) / (2 * GRAVITY);
+  const ratio = v0Based > 0 ? timeBased / v0Based : 0;
+
+  // ratio > 2.0 = airtime implies >2x the height v0 justifies.
+  // Strong indicator of drop-to-ground style asymmetric catch.
+  const passed = ratio < 2.0;
+  return {
+    name: "asymmetric_throw",
+    passed,
+    score: passed ? 0 : Math.min(0.4, (ratio - 2.0) * 0.2),
+    detail: `ratio=${ratio.toFixed(2)} (time=${timeBased.toFixed(2)}m v0=${v0Based.toFixed(2)}m)`,
+  };
+}
+
 export type AntiCheatResult = {
   readonly anomalyScore: number;
   readonly checks: readonly CheckResult[];
@@ -275,11 +358,12 @@ export function validateSensorData(
     checkLandingSpike(samples),
     checkHeightDeviation(samples, clientHeight),
     checkNoisePattern(samples),
+    checkAsymmetricThrow(samples, airtimeSeconds),
   ];
 
   const totalScore = checks.reduce((sum, c) => sum + c.score, 0);
   const anomalyScore = Math.min(1.0, totalScore);
-  const serverHeight = recalculateHeightFromFreefall(samples);
+  const serverHeight = recalculateScoreHeight(samples);
 
   return { anomalyScore, checks, serverHeight };
 }

@@ -15,6 +15,39 @@ export function calculateHeight(airtimeSeconds: number): number {
 }
 
 /**
+ * Max height from initial upward velocity.
+ * h = v₀² / (2g) — independent of where the phone is caught.
+ */
+export function calculateHeightFromV0(v0: number): number {
+  if (v0 <= 0) return 0;
+  return (v0 * v0) / (2 * GRAVITY);
+}
+
+/**
+ * Final score height combining airtime-based and v₀-based estimates.
+ *
+ * Both estimates systematically overestimate:
+ *   - h_airtime overshoots when catch is lower than release (asymmetric throw)
+ *   - h_v0 overshoots because scalar integration of |a| captures tangential
+ *     components (~15-30% overestimate typical)
+ *
+ * Taking min() gives the tighter upper bound, provably closer to truth.
+ *
+ * V0_MARGIN provides a safety margin for edge cases where v₀ is
+ * underestimated (e.g. first launch sample missed at low sensor rate).
+ */
+export function calculateScoreHeight(
+  airtimeSeconds: number,
+  estimatedV0: number,
+): number {
+  const timeBased = calculateHeight(airtimeSeconds);
+  if (estimatedV0 <= 0) return timeBased;
+  const V0_MARGIN = 1.15;
+  const v0Cap = calculateHeightFromV0(estimatedV0) * V0_MARGIN;
+  return Math.min(timeBased, v0Cap);
+}
+
+/**
  * Estimate the peak time (midpoint of freefall).
  */
 export function estimatePeakTime(

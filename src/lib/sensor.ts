@@ -14,13 +14,14 @@
 // ============================================================
 
 import type { AccelSample, ThrowPhase, ThrowResult } from "./types";
-import { calculateHeight, estimatePeakTime, GRAVITY } from "./physics";
+import { calculateHeight, calculateScoreHeight, estimatePeakTime, GRAVITY } from "./physics";
 
 // ---- Thresholds (absolute, in m/s²) ----
 const LAUNCH_THRESHOLD = 15.0; // above = throw detected (~1.5G)
 const LAUNCH_CONFIRM_COUNT = 2; // consecutive samples above threshold to confirm launch
-const FREEFALL_THRESHOLD = 5.5; // below = freefall (tolerates spinning at ~2 rev/s adding ~9.5 m/s² centripetal)
-const LANDING_THRESHOLD = 15.0; // above after freefall = caught (~1.5G, avoids false triggers from hand movements)
+const FREEFALL_THRESHOLD = 8.0; // below = freefall (tolerates spinning at up to ~2 rev/s; centripetal = ω²r where r≈0.05m → 7.9 m/s²)
+const LANDING_THRESHOLD = 12.0; // above after freefall = caught (~1.2G, lowered from 15 to detect soft catches ~10ms earlier)
+const LANDING_CONFIRM_COUNT = 2; // consecutive samples above threshold to avoid false landings from spin noise
 const FREEFALL_CONFIRM_MS = 40; // sustained low-G to confirm freefall (filters brief dips during hand movement)
 const LAUNCH_TIMEOUT_MS = 1000; // reset if no freefall within 1s of launch
 const MIN_FREEFALL_MS = 60; // minimum valid freefall duration
@@ -43,6 +44,8 @@ export class ThrowDetector {
   private callback: SensorCallback;
   private calibrationSamples: number[] = [];
   private launchConfirmCount = 0;
+  private landingConfirmCount = 0;
+  private firstLandingSampleTime = 0;
   private estimatedV0 = 0;
   private maxRealtimeHeight = 0;
 
@@ -174,20 +177,38 @@ export class ThrowDetector {
       case "freefall": {
         const freefallElapsed = now - this.freefallStartTime;
 
-        // Detect landing: magnitude rises above threshold, OR freefall timeout
-        // Timeout handles soft catches where deceleration never spikes above threshold
+        // Detect landing: require LANDING_CONFIRM_COUNT consecutive samples
+        // above threshold to filter false positives from phone spin during flight.
+        // Backdate landingTime to the FIRST high-G sample so confirmation
+        // logic doesn't re-introduce detection delay.
+        if (magnitude > LANDING_THRESHOLD) {
+          if (this.landingConfirmCount === 0) {
+            this.firstLandingSampleTime = now;
+          }
+          this.landingConfirmCount++;
+        } else {
+          this.landingConfirmCount = 0;
+          this.firstLandingSampleTime = 0;
+        }
+
         const isLanding =
-          magnitude > LANDING_THRESHOLD ||
+          this.landingConfirmCount >= LANDING_CONFIRM_COUNT ||
           freefallElapsed > MAX_FREEFALL_MS;
 
         if (isLanding) {
-          const landingTime = now;
-          const freefallDuration = freefallElapsed;
+          // Use backdated time of first high-G sample for precision
+          const landingTime =
+            this.firstLandingSampleTime > 0
+              ? this.firstLandingSampleTime
+              : now;
+          const freefallDuration = landingTime - this.freefallStartTime;
 
           if (freefallDuration < MIN_FREEFALL_MS) {
             // Too short — noise, reset to waiting
             this.phase = "waiting-throw";
             this.freefallCandidateStart = 0;
+            this.landingConfirmCount = 0;
+            this.firstLandingSampleTime = 0;
             this.callback(this.phase);
             return;
           }
@@ -195,7 +216,7 @@ export class ThrowDetector {
           // Cap freefall at timeout to prevent absurd height values
           const clampedDuration = Math.min(freefallDuration, MAX_FREEFALL_MS);
           const airtimeSeconds = clampedDuration / 1000;
-          const heightMeters = calculateHeight(airtimeSeconds);
+          const heightMeters = calculateScoreHeight(airtimeSeconds, this.estimatedV0);
           const peakTime = estimatePeakTime(
             this.freefallStartTime,
             this.freefallStartTime + clampedDuration,
@@ -232,6 +253,8 @@ export class ThrowDetector {
     this.freefallCandidateStart = 0;
     this.launchTime = 0;
     this.launchConfirmCount = 0;
+    this.landingConfirmCount = 0;
+    this.firstLandingSampleTime = 0;
     this.maxRealtimeHeight = 0;
     this.callback(this.phase);
   }
@@ -340,6 +363,8 @@ export class ThrowDetector {
     this.freefallStartTime = 0;
     this.launchTime = 0;
     this.launchConfirmCount = 0;
+    this.landingConfirmCount = 0;
+    this.firstLandingSampleTime = 0;
     this.estimatedV0 = 0;
     this.maxRealtimeHeight = 0;
     this.phase = "idle";
