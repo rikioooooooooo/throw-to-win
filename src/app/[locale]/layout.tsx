@@ -46,6 +46,8 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className="h-full">
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground safe-top">
         <NextIntlClientProvider messages={messages}>

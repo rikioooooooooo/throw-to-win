@@ -645,7 +645,7 @@ export default function PlayPage() {
                   <button
                     key={lens.id}
                     onClick={() => startPreviewWithLens(lens.id)}
-                    className={`min-w-[48px] h-9 px-3 text-[11px] font-medium tracking-wider uppercase transition-all duration-150 ${
+                    className={`min-w-[48px] h-11 px-3 text-[11px] font-medium tracking-wider uppercase transition-all duration-150 ${
                       activeLensId === lens.id
                         ? "bg-white/15 text-white backdrop-blur-md"
                         : "text-white/40 backdrop-blur-sm active:scale-90"

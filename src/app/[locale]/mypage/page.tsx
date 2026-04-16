@@ -36,7 +36,7 @@ export default function MyPage() {
       >
         <button
           onClick={() => router.push(`/${locale}`)}
-          className="w-10 h-10 flex items-center justify-center active:scale-[0.97] transition-transform"
+          className="w-11 h-11 flex items-center justify-center active:scale-[0.97] transition-transform"
           style={{
             backgroundColor: "var(--color-surface)",
             border: "1px solid var(--color-border-subtle)",
@@ -51,7 +51,7 @@ export default function MyPage() {
         <h1 className="text-[18px] font-semibold tracking-wide uppercase">
           {t("heading")}
         </h1>
-        <div className="w-10" />
+        <div className="w-11" />
       </header>
 
       <div className="flex-1 overflow-y-auto px-5 py-8">
@@ -124,7 +124,7 @@ export default function MyPage() {
             <div className="flex gap-2">
               <button
                 onClick={() => setSortBy("date")}
-                className={`px-4 py-2.5 label-text text-[11px] tracking-wide transition-colors active:scale-[0.97] ${
+                className={`px-4 py-3 label-text text-[11px] tracking-wide transition-colors active:scale-[0.97] ${
                   sortBy === "date"
                     ? "text-accent"
                     : "text-muted"
@@ -139,7 +139,7 @@ export default function MyPage() {
               </button>
               <button
                 onClick={() => setSortBy("height")}
-                className={`px-4 py-2.5 label-text text-[11px] tracking-wide transition-colors active:scale-[0.97] ${
+                className={`px-4 py-3 label-text text-[11px] tracking-wide transition-colors active:scale-[0.97] ${
                   sortBy === "height"
                     ? "text-accent"
                     : "text-muted"

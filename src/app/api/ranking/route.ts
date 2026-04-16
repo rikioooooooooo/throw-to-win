@@ -35,11 +35,11 @@ export async function GET(request: Request) {
 
     if (scope === "country" && country) {
       query =
-        "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices WHERE country = ? ORDER BY personal_best DESC LIMIT ? OFFSET ?";
+        "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices WHERE country = ? AND personal_best > 0 ORDER BY personal_best DESC LIMIT ? OFFSET ?";
       params = [country, limit, offset];
     } else {
       query =
-        "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices ORDER BY personal_best DESC LIMIT ? OFFSET ?";
+        "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices WHERE personal_best > 0 ORDER BY personal_best DESC LIMIT ? OFFSET ?";
       params = [limit, offset];
     }
 
@@ -63,8 +63,8 @@ export async function GET(request: Request) {
 
     const countQuery =
       scope === "country" && country
-        ? "SELECT COUNT(*) as total FROM devices WHERE country = ?"
-        : "SELECT COUNT(*) as total FROM devices";
+        ? "SELECT COUNT(*) as total FROM devices WHERE country = ? AND personal_best > 0"
+        : "SELECT COUNT(*) as total FROM devices WHERE personal_best > 0";
 
     const countStmt = env.DB.prepare(countQuery);
     const countBound =

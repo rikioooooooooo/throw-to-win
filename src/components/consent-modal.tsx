@@ -18,7 +18,7 @@ export function ConsentModal({ onAgree, onDisagree }: ConsentModalProps) {
       style={{ background: "rgba(0, 0, 0, 0.7)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
     >
       <div
-        className="w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto flex flex-col animate-fade-in-up"
+        className="w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto flex flex-col animate-fade-in-up"
         style={{
           backgroundColor: "var(--color-surface)",
           border: "1px solid var(--color-border-subtle)",

@@ -61,19 +61,22 @@ export default function RankingPage() {
       <header className="flex items-center justify-between pt-4 mb-6">
         <button
           onClick={() => router.push(`/${locale}`)}
-          className="label-text text-[11px] text-muted hover:text-foreground transition-colors px-4 py-2 active:scale-[0.97]"
+          className="w-11 h-11 flex items-center justify-center active:scale-[0.97] transition-transform"
           style={{
             backgroundColor: "var(--color-surface)",
             border: "1px solid var(--color-border-subtle)",
             borderRadius: "10px",
           }}
+          aria-label="Back"
         >
-          {t("ranking.back")}
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
         </button>
         <h1 className="label-text text-[12px] tracking-[0.2em] text-foreground uppercase">
           {t("ranking.heading")}
         </h1>
-        <div className="w-[60px]" />
+        <div className="w-11" />
       </header>
 
       {/* Tabs */}
@@ -87,7 +90,7 @@ export default function RankingPage() {
       >
         <button
           onClick={() => setTab("world")}
-          className="flex-1 py-3 text-center label-text text-[11px] tracking-[0.15em] transition-colors"
+          className="flex-1 py-3.5 text-center label-text text-[11px] tracking-[0.15em] transition-colors"
           style={{
             backgroundColor: tab === "world" ? "var(--color-accent)" : "transparent",
             color: tab === "world" ? "#ffffff" : "var(--color-muted)",
@@ -97,7 +100,7 @@ export default function RankingPage() {
         </button>
         <button
           onClick={() => setTab("country")}
-          className="flex-1 py-3 text-center label-text text-[11px] tracking-[0.15em] transition-colors"
+          className="flex-1 py-3.5 text-center label-text text-[11px] tracking-[0.15em] transition-colors"
           style={{
             backgroundColor: tab === "country" ? "var(--color-accent)" : "transparent",
             color: tab === "country" ? "#ffffff" : "var(--color-muted)",
