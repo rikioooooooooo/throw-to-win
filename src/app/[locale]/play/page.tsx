@@ -74,6 +74,8 @@ export default function PlayPage() {
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const finishingRef = useRef(false);
   const finishTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Survives overlay state resets — holds the v₀ trajectory peak for the result handler */
+  const v0PeakRef = useRef(0);
   const overlayStateRef = useRef<{
     mode: "idle" | "countdown" | "height";
     countdownText: string;
@@ -155,6 +157,7 @@ export default function PlayPage() {
         const clamped = Math.max(0, h_t);
         if (clamped > state.maxDisplayedHeight) {
           state.maxDisplayedHeight = clamped;
+          v0PeakRef.current = clamped;
         }
         displayHeight = state.maxDisplayedHeight;
         useAccentColor = false;
@@ -302,8 +305,9 @@ export default function PlayPage() {
 
       // Landing: if v₀ trajectory was active, the tracked max IS the result.
       // No correction needed — just freeze at the displayed max (red flash).
-      // If v₀ estimation failed (maxDisplayedHeight=0), fall back to airtime-based.
-      const trackedMax = overlayStateRef.current.maxDisplayedHeight;
+      // Read from v0PeakRef (survives overlay state reset by the sync useEffect
+      // that fires in the same render cycle when phase changes to "landed").
+      const trackedMax = v0PeakRef.current;
       const finalHeight = trackedMax > 0 ? trackedMax : result.heightMeters;
       const displayResult: ThrowResult = trackedMax > 0
         ? { ...result, heightMeters: finalHeight }
@@ -439,6 +443,7 @@ export default function PlayPage() {
       finishTimeoutRef.current = null;
     }
     finishingRef.current = false;
+    v0PeakRef.current = 0;
     setResultData(null);
     setVideoUrl(null);
     setPeakResult(null);
