@@ -12,7 +12,6 @@ export type ChallengeResponse = {
 export type VerifyResponse = {
   readonly id: string;
   readonly verifiedHeight: number;
-  readonly anomalyScore: number;
   readonly worldRank: number;
   readonly countryRank: number;
   readonly totalThrows: number;

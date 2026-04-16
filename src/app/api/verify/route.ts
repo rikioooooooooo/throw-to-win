@@ -33,7 +33,9 @@ export async function POST(request: Request) {
       !body.deviceFingerprint ||
       !isValidNumber(body.heightMeters, 0, MAX_HEIGHT_METERS) ||
       !isValidNumber(body.airtimeSeconds, 0, MAX_AIRTIME_SECONDS) ||
-      !Array.isArray(body.sensorData)
+      !Array.isArray(body.sensorData) ||
+      body.sensorData.length === 0 ||
+      body.sensorData.length > 2000
     ) {
       return NextResponse.json(
         { error: "Missing or invalid fields" },
@@ -113,29 +115,26 @@ export async function POST(request: Request) {
       );
     }
 
-    // 5. Persist throw + device data (nonce already claimed atomically in step 1)
+    // 5. Persist throw + device data (atomic upsert, nonce already claimed in step 1)
     const country = request.headers.get("cf-ipcountry") ?? "XX";
 
-    const existingDevice = await env.DB.prepare(
-      "SELECT id, total_throws, personal_best FROM devices WHERE id = ?",
+    await env.DB.prepare(
+      `INSERT INTO devices (id, total_throws, personal_best, country)
+       VALUES (?, 1, ?, ?)
+       ON CONFLICT(id) DO UPDATE SET
+         last_seen = datetime('now'),
+         total_throws = total_throws + 1,
+         personal_best = MAX(personal_best, excluded.personal_best),
+         country = excluded.country`,
+    )
+      .bind(body.deviceFingerprint, verifiedHeight, country)
+      .run();
+
+    const updatedDevice = await env.DB.prepare(
+      "SELECT personal_best FROM devices WHERE id = ?",
     )
       .bind(body.deviceFingerprint)
-      .first<{ id: string; total_throws: number; personal_best: number }>();
-
-    if (existingDevice) {
-      const newBest = Math.max(existingDevice.personal_best, verifiedHeight);
-      await env.DB.prepare(
-        "UPDATE devices SET last_seen = datetime('now'), total_throws = total_throws + 1, personal_best = ?, country = ? WHERE id = ?",
-      )
-        .bind(newBest, country, body.deviceFingerprint)
-        .run();
-    } else {
-      await env.DB.prepare(
-        "INSERT INTO devices (id, total_throws, personal_best, country) VALUES (?, 1, ?, ?)",
-      )
-        .bind(body.deviceFingerprint, verifiedHeight, country)
-        .run();
-    }
+      .first<{ personal_best: number }>();
 
     const throwId = crypto.randomUUID();
     await env.DB.prepare(
@@ -153,9 +152,7 @@ export async function POST(request: Request) {
       .run();
 
     // 7. Calculate ranks (against device personal_best)
-    const updatedBest = existingDevice
-      ? Math.max(existingDevice.personal_best, verifiedHeight)
-      : verifiedHeight;
+    const updatedBest = updatedDevice?.personal_best ?? verifiedHeight;
 
     const worldRankRow = await env.DB.prepare(
       "SELECT COUNT(*) as rank FROM devices WHERE personal_best > ?",
@@ -176,7 +173,6 @@ export async function POST(request: Request) {
     return NextResponse.json({
       id: throwId,
       verifiedHeight,
-      anomalyScore: antiCheatResult.anomalyScore,
       worldRank: (worldRankRow?.rank ?? 0) + 1,
       countryRank: (countryRankRow?.rank ?? 0) + 1,
       totalThrows: totalThrowsRow?.total ?? 0,

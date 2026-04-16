@@ -542,6 +542,7 @@ export default function PlayPage() {
     finishingRef.current = false;
     v0PeakRef.current = 0;
     challengeDataRef.current = null;
+    turnstileTokenRef.current = null;
     setResultData(null);
     setVideoUrl(null);
     setPeakResult(null);
