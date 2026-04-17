@@ -58,17 +58,26 @@ export function RankingList({
             }
           >
             <span
-              className="height-number text-[14px] w-8 shrink-0"
+              className={`height-number text-[14px] w-8 shrink-0${entry.rank <= 3 ? " font-semibold" : ""}`}
               style={{
                 color: entry.rank <= 3 ? "var(--color-accent-gold)" : "var(--color-muted)",
               }}
             >
               {entry.rank}
             </span>
-            <span
-              className="inline-block w-1.5 h-1.5 rounded-full mr-1.5 flex-shrink-0"
-              style={{ backgroundColor: getTierForHeight(entry.heightMeters).color }}
-            />
+            {(() => {
+              const tierDef = getTierForHeight(entry.heightMeters);
+              const isHighTier = entry.heightMeters >= 5.0;
+              return (
+                <span
+                  className="inline-block w-1.5 h-1.5 rounded-full mr-1.5 flex-shrink-0"
+                  style={{
+                    backgroundColor: tierDef.color,
+                    ...(isHighTier ? { boxShadow: `0 0 4px ${tierDef.color}` } : {}),
+                  }}
+                />
+              );
+            })()}
             <span className="text-[12px] flex-1 truncate" style={{
               color: entry.displayName ? "var(--color-foreground)" : "var(--color-muted)",
               opacity: entry.displayName ? 0.7 : 0.5,

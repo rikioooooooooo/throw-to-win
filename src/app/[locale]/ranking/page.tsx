@@ -55,7 +55,7 @@ export default function RankingPage() {
           className="flex-1 py-3.5 text-center label-text text-[11px] tracking-[0.15em] transition-colors"
           style={{
             backgroundColor: tab === "world" ? "var(--color-accent)" : "transparent",
-            color: tab === "world" ? "#ffffff" : "var(--color-muted)",
+            color: tab === "world" ? "#000000" : "var(--color-muted)",
           }}
         >
           {t("ranking.world")}
@@ -65,7 +65,7 @@ export default function RankingPage() {
           className="flex-1 py-3.5 text-center label-text text-[11px] tracking-[0.15em] transition-colors"
           style={{
             backgroundColor: tab === "country" ? "var(--color-accent)" : "transparent",
-            color: tab === "country" ? "#ffffff" : "var(--color-muted)",
+            color: tab === "country" ? "#000000" : "var(--color-muted)",
           }}
         >
           {t("ranking.country")}
