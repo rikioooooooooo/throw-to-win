@@ -8,6 +8,7 @@ import { CountUpHeight } from "@/components/count-up-height";
 import { SlowMoPlayer } from "@/components/slow-mo-player";
 import { RankingList } from "@/components/ranking-list";
 import { useRankings } from "@/hooks/use-rankings";
+import { TierIcon } from "@/components/tier-icon";
 import type { HeightTier } from "@/components/height-display";
 import type { VerifyResponse } from "@/lib/challenge";
 
@@ -123,10 +124,7 @@ export function ResultScreen({
               className="mt-3 flex items-center justify-center gap-2"
               style={{ animation: "badge-appear 0.3s ease-out 0.3s both" }}
             >
-              <span
-                className="inline-block w-2.5 h-2.5 rounded-full"
-                style={{ backgroundColor: tierInfo.current.color, boxShadow: `0 0 8px ${tierInfo.current.color}` }}
-              />
+              <TierIcon tierId={tierInfo.current.id} size={40} />
               <span
                 className="text-[14px] font-semibold tracking-[0.15em] uppercase"
                 style={{ color: tierInfo.current.color }}

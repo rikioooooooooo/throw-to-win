@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { loadData, hasValidConsent, saveConsent } from "@/lib/storage";
 import { formatHeight } from "@/lib/physics";
 import { getTierForHeight } from "@/lib/tiers";
+import { TierIcon } from "@/components/tier-icon";
 import { ConsentModal } from "@/components/consent-modal";
 
 export default function LandingPage() {
@@ -81,10 +82,7 @@ export default function LandingPage() {
         {stats.personalBest > 0 && (
           <div className="mt-6 flex flex-col items-center animate-fade-in-up delay-240">
             <div className="flex items-center gap-2">
-              <span
-                className="inline-block w-2 h-2 rounded-full"
-                style={{ backgroundColor: tier.color }}
-              />
+              <TierIcon tierId={tier.id} size={28} />
               <span className="height-number text-[22px] text-foreground/80">
                 {formatHeight(stats.personalBest)}
                 <span className="text-[13px] text-muted/60 ml-0.5">m</span>

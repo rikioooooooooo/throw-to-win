@@ -7,6 +7,7 @@ import { loadData, getSortedThrows, getDisplayName, saveDisplayName } from "@/li
 import { formatHeight, formatAirtime } from "@/lib/physics";
 import { getTierForHeight } from "@/lib/tiers";
 import { generateFingerprint } from "@/lib/fingerprint";
+import { TierIcon } from "@/components/tier-icon";
 import { NameInput } from "@/components/name-input";
 import type { ThrowRecord } from "@/lib/types";
 
@@ -95,10 +96,7 @@ export default function MyPage() {
             }}
           >
             <div className="flex items-center gap-2 mb-3">
-              <span
-                className="inline-block w-2 h-2 rounded-full"
-                style={{ backgroundColor: getTierForHeight(stats.personalBest).color }}
-              />
+              <TierIcon tierId={getTierForHeight(stats.personalBest).id} size={24} />
               <p className="label-text text-[11px] tracking-[0.2em]" style={{ color: getTierForHeight(stats.personalBest).color }}>
                 {t("personalBest")}
               </p>
