@@ -35,6 +35,7 @@
     "camera": "Camera — to record the flight",
     "grantButton": "Grant Access",
     "denied": "Can't play without permission.",
+    "cameraFailed": "Could not start camera. Please check camera permissions in your settings.",
     "retryButton": "Try Again",
     "unsupported": "Your device doesn't support the required sensors.",
     "unsupportedDetail": "Throw To Win needs motion sensors and a camera."

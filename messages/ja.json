@@ -35,6 +35,7 @@
     "camera": "カメラ — 飛行中を撮影します",
     "grantButton": "許可する",
     "denied": "許可がないと遊べません。",
+    "cameraFailed": "カメラを起動できませんでした。設定からカメラの許可を確認してください。",
     "retryButton": "もう一度",
     "unsupported": "お使いの端末はセンサーに対応していません。",
     "unsupportedDetail": "Throw To Win にはモーションセンサーとカメラが必要です。"

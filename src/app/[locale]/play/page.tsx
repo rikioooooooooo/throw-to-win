@@ -400,10 +400,17 @@ export default function PlayPage() {
     setVideoUrl(null);
   }, [resultData?.videoBlob]);
 
+  const [cameraFailed, setCameraFailed] = useState(false);
+
   const handlePermissionsGranted = useCallback(async () => {
+    setCameraFailed(false);
     const success = await startPreview("rear");
     if (success) {
       setGameState("prepare");
+    } else {
+      // Camera permission denied or hardware unavailable.
+      // Show error on the permissions screen so user isn't stuck.
+      setCameraFailed(true);
     }
   }, [startPreview]);
 
@@ -636,6 +643,20 @@ export default function PlayPage() {
     return (
       <>
         <PermissionRequest onGranted={handlePermissionsGranted} />
+        {/* Camera failed fallback — show inline error so user isn't stuck */}
+        {cameraFailed && (
+          <div
+            className="fixed bottom-12 inset-x-6 z-[60] p-4 text-error text-[13px] font-medium text-center safe-bottom"
+            style={{
+              border: "1px solid var(--color-error)",
+              backgroundColor: "rgba(255, 68, 68, 0.15)",
+              borderRadius: "12px",
+              backdropFilter: "blur(8px)",
+            }}
+          >
+            {t("permissions.cameraFailed")}
+          </div>
+        )}
         {turnstileWidget}
       </>
     );

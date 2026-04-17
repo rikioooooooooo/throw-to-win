@@ -35,6 +35,7 @@
     "camera": "Kamera — zum Aufnehmen des Flugs",
     "grantButton": "Zugriff gewähren",
     "denied": "Ohne Erlaubnis kein Spiel.",
+    "cameraFailed": "Kamera konnte nicht gestartet werden. Bitte überprüfen Sie die Kameraberechtigungen.",
     "retryButton": "Erneut versuchen",
     "unsupported": "Dein Gerät unterstützt die erforderlichen Sensoren nicht.",
     "unsupportedDetail": "Throw To Win braucht Bewegungssensoren und eine Kamera."

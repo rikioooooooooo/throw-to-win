@@ -35,6 +35,7 @@
     "camera": "Câmera — para gravar o voo",
     "grantButton": "Conceder acesso",
     "denied": "Sem permissão não tem jogo.",
+    "cameraFailed": "Não foi possível iniciar a câmera. Verifique as permissões nas configurações.",
     "retryButton": "Tentar de novo",
     "unsupported": "Seu dispositivo não suporta os sensores necessários.",
     "unsupportedDetail": "Throw To Win precisa de sensores de movimento e câmera."

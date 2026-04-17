@@ -14,49 +14,45 @@ export function PermissionRequest({ onGranted }: PermissionRequestProps) {
   const [deniedState, setDeniedState] = useState<DeniedState>("none");
   const [requesting, setRequesting] = useState(false);
 
-  async function handleGrant() {
+  // NON-async: iOS Safari requires DeviceMotionEvent.requestPermission()
+  // to be called within the synchronous user-gesture context.
+  // Using async/await can break this on iOS 16+.
+  function handleGrant() {
     setRequesting(true);
     setDeniedState("none");
 
-    try {
-      // iOS DeviceMotionEvent permission
-      if (
-        typeof DeviceMotionEvent !== "undefined" &&
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        typeof (DeviceMotionEvent as any).requestPermission === "function"
-      ) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const result = await (DeviceMotionEvent as any).requestPermission();
+    // Step 1: DeviceMotionEvent permission (iOS only)
+    if (typeof DeviceMotionEvent === "undefined") {
+      setDeniedState("unsupported");
+      setRequesting(false);
+      return;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const needsMotionPermission = typeof (DeviceMotionEvent as any).requestPermission === "function";
+
+    const motionPromise: Promise<string> = needsMotionPermission
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? (DeviceMotionEvent as any).requestPermission()
+      : Promise.resolve("granted");
+
+    // .then() chain preserves user-gesture context on iOS Safari
+    motionPromise
+      .then((result: string) => {
         if (result !== "granted") {
           setDeniedState("denied");
           setRequesting(false);
           return;
         }
-      } else if (typeof DeviceMotionEvent === "undefined") {
-        setDeniedState("unsupported");
+        // Step 2: Camera permission is handled by startPreview() in onGranted.
+        // No redundant getUserMedia here — avoids double-request race on iOS.
         setRequesting(false);
-        return;
-      }
-
-      // Camera permission
-      if (!navigator.mediaDevices?.getUserMedia) {
-        setDeniedState("unsupported");
+        onGranted();
+      })
+      .catch(() => {
+        setDeniedState("denied");
         setRequesting(false);
-        return;
-      }
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-        audio: false,
       });
-      // Stop tracks immediately — we only need the permission grant here
-      stream.getTracks().forEach((track) => track.stop());
-
-      onGranted();
-    } catch {
-      setDeniedState("denied");
-    } finally {
-      setRequesting(false);
-    }
   }
 
   if (deniedState === "unsupported") {

@@ -35,6 +35,7 @@
     "camera": "Caméra — pour filmer le vol",
     "grantButton": "Accorder l'accès",
     "denied": "Impossible de jouer sans autorisation.",
+    "cameraFailed": "Impossible de démarrer la caméra. Vérifiez les autorisations dans les réglages.",
     "retryButton": "Réessayer",
     "unsupported": "Ton appareil ne prend pas en charge les capteurs requis.",
     "unsupportedDetail": "Throw To Win a besoin de capteurs de mouvement et d'une caméra."

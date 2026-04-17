@@ -35,6 +35,7 @@
     "camera": "相機 — 用來拍攝飛行過程",
     "grantButton": "授予權限",
     "denied": "沒有權限就沒法玩。",
+    "cameraFailed": "無法啟動相機。請在設定中確認相機權限。",
     "retryButton": "重試",
     "unsupported": "你的裝置不支援所需感測器。",
     "unsupportedDetail": "Throw To Win 需要動作感測器和相機。"
