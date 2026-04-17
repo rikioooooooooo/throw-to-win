@@ -76,24 +76,6 @@ export function GyroBars({ className }: GyroBarsProps) {
     };
     window.addEventListener("deviceorientation", handleOrientation);
 
-    // iOS requires requestPermission() from a user gesture for DeviceOrientationEvent.
-    // Request on first tap anywhere on the page — one-shot, no UI needed.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const needsPermission = typeof (DeviceOrientationEvent as any).requestPermission === "function";
-    let permissionRequested = false;
-    const requestOnTap = () => {
-      if (permissionRequested) return;
-      permissionRequested = true;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (DeviceOrientationEvent as any).requestPermission?.().catch(() => {});
-      window.removeEventListener("touchstart", requestOnTap);
-      window.removeEventListener("click", requestOnTap);
-    };
-    if (needsPermission && !hasGyroRef.current) {
-      window.addEventListener("touchstart", requestOnTap, { once: true });
-      window.addEventListener("click", requestOnTap, { once: true });
-    }
-
     let useFallback = false;
     const gyroTimer = setTimeout(() => {
       if (!hasGyroRef.current) useFallback = true;
@@ -222,8 +204,6 @@ export function GyroBars({ className }: GyroBarsProps) {
       clearTimeout(gyroTimer);
       window.removeEventListener("deviceorientation", handleOrientation);
       window.removeEventListener("resize", resize);
-      window.removeEventListener("touchstart", requestOnTap);
-      window.removeEventListener("click", requestOnTap);
     };
   }, []);
 

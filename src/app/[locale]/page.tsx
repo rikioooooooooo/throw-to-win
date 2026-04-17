@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { loadData, hasValidConsent, saveConsent } from "@/lib/storage";
@@ -47,8 +47,21 @@ export default function LandingPage() {
 
   const tier = getTierForHeight(stats.personalBest);
 
+  // iOS DeviceOrientation permission — must be the FIRST call in a user gesture.
+  // Request on first tap anywhere on the landing page.
+  const gyroRequestedRef = useRef(false);
+  const handleGyroPermission = useCallback(() => {
+    if (gyroRequestedRef.current) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rp = (DeviceOrientationEvent as any).requestPermission;
+    if (typeof rp === "function") {
+      gyroRequestedRef.current = true;
+      (rp as () => Promise<string>)().catch(() => {});
+    }
+  }, []);
+
   return (
-    <main className="relative flex-1 flex flex-col px-6 overflow-y-auto">
+    <main className="relative flex-1 flex flex-col px-6 overflow-y-auto" onClick={handleGyroPermission}>
       <GyroBars className="fixed inset-0 z-0 pointer-events-none" />
 
       {/* Top bar */}
