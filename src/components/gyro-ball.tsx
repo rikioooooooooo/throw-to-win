@@ -48,6 +48,8 @@ export function GyroBars({ className }: GyroBarsProps) {
   const targetRef = useRef({ x: 0, y: 0 });
   const currentRef = useRef({ x: 0, y: 0 });
   const hasGyroRef = useRef(false);
+  const calibratedRef = useRef(false);
+  const betaOffsetRef = useRef(0);
   const rafRef = useRef(0);
   const polesRef = useRef<readonly Pole[]>(createPoles());
   const vignetteRef = useRef<CanvasGradient | null>(null);
@@ -65,10 +67,16 @@ export function GyroBars({ className }: GyroBarsProps) {
     const handleOrientation = (e: DeviceOrientationEvent) => {
       if (e.gamma == null || e.beta == null) return;
       hasGyroRef.current = true;
+      // Auto-calibrate: first reading = neutral position
+      if (!calibratedRef.current) {
+        calibratedRef.current = true;
+        betaOffsetRef.current = e.beta;
+      }
       // No clamping — let extreme tilts produce extreme parallax
+      // Both axes use the same divisor for uniform response
       targetRef.current = {
         x: e.gamma / 35,
-        y: (e.beta - 50) / 35,
+        y: (e.beta - betaOffsetRef.current) / 35,
       };
     };
     window.addEventListener("deviceorientation", handleOrientation);
