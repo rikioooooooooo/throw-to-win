@@ -13,6 +13,7 @@ type ThrowRow = {
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
+    // deviceId is now a stable localStorage-based UUID (not a volatile browser fingerprint hash)
     const deviceId = url.searchParams.get("deviceId");
 
     if (!deviceId) {

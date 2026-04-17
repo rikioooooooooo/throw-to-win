@@ -13,7 +13,10 @@
     "myPage": "Mein Profil",
     "worldRanking": "WELTRANGLISTE",
     "countryRanking": "LANDESRANGLISTE",
-    "noRankings": "Noch keine Daten"
+    "noRankings": "Noch keine Daten",
+    "desktopTitle": "Ein Smartphone wird benotigt",
+    "desktopSubtext": "Throw To Win nutzt die Bewegungssensoren deines Handys, um die Wurfhohe zu messen. Du musst dein Handy tatsachlich in die Luft werfen.",
+    "continueAnyway": "Trotzdem fortfahren"
   },
   "consent": {
     "heading": "Bevor du wirfst.",
@@ -113,7 +116,13 @@
     "seconds": "s",
     "throws": "Würfe",
     "streak": "Serie",
-    "days": "Tage"
+    "days": "Tage",
+    "totalHeight": "Gesamthohe",
+    "nextTierTo": "bis",
+    "worldThrows": "Weltweite Wurfe",
+    "countriesActive": "{count} Lander",
+    "throwsCount": "Wurfe",
+    "playersCount": "Spieler"
   },
   "terms": {
     "heading": "Nutzungsbedingungen",

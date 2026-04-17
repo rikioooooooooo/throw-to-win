@@ -5,6 +5,7 @@ const MAX_NAME_LENGTH = 20;
 const NAME_PATTERN = /^[\p{L}\p{N}\p{M}\s._-]+$/u;
 
 type ProfileBody = {
+  /** Stable localStorage-based UUID (not a volatile browser fingerprint hash) */
   deviceFingerprint?: string;
   displayName?: string;
 };

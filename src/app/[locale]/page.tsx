@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { loadData, hasValidConsent, saveConsent } from "@/lib/storage";
@@ -14,8 +14,19 @@ export default function LandingPage() {
   const router = useRouter();
   const locale = useLocale();
   const [showConsent, setShowConsent] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [dismissedDesktop, setDismissedDesktop] = useState(false);
+
+  useEffect(() => {
+    const isMobile = typeof navigator !== "undefined" && (
+      navigator.maxTouchPoints > 0 ||
+      "ontouchstart" in window
+    );
+    setIsDesktop(!isMobile);
+  }, []);
+
   const [stats] = useState(() => {
-    if (typeof window === "undefined") return { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0, todayDateISO: "", todayBest: 0, streakDays: 0, lastActiveDateISO: "" };
+    if (typeof window === "undefined") return { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0, totalHeightMeters: 0, todayDateISO: "", todayBest: 0, streakDays: 0, lastActiveDateISO: "" };
     return loadData().stats;
   });
 
@@ -67,16 +78,18 @@ export default function LandingPage() {
         </p>
 
         {/* CTA — tight to subtitle, not stuck at bottom */}
-        <button
-          onClick={handleStart}
-          className="mt-10 w-full max-w-[320px] bg-accent text-black cta-text text-[15px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100 animate-fade-in-up delay-160 neon-glow"
-          style={{
-            borderRadius: "16px",
-            height: "58px",
-          }}
-        >
-          {t("landing.start")}
-        </button>
+        {(!isDesktop || dismissedDesktop) && (
+          <button
+            onClick={handleStart}
+            className="mt-10 w-full max-w-[320px] bg-accent text-black cta-text text-[15px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100 animate-fade-in-up delay-160 neon-glow"
+            style={{
+              borderRadius: "16px",
+              height: "58px",
+            }}
+          >
+            {t("landing.start")}
+          </button>
+        )}
 
         {/* PB + tier for returning users */}
         {stats.personalBest > 0 && (
@@ -117,6 +130,35 @@ export default function LandingPage() {
 
       {/* Bottom spacer for safe area */}
       <div className="safe-bottom" />
+
+      {/* Desktop warning overlay */}
+      {isDesktop && !dismissedDesktop && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8"
+          style={{ backgroundColor: "rgba(5, 5, 8, 0.92)" }}
+        >
+          <div className="flex flex-col items-center text-center max-w-md">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00fa9a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mb-6">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+              <line x1="12" y1="18" x2="12.01" y2="18" />
+            </svg>
+            <h2
+              className="text-[20px] font-semibold tracking-wide text-foreground mb-3"
+            >
+              {t("landing.desktopTitle")}
+            </h2>
+            <p className="text-[14px] text-muted leading-relaxed mb-8">
+              {t("landing.desktopSubtext")}
+            </p>
+            <button
+              onClick={() => setDismissedDesktop(true)}
+              className="text-muted/50 text-[12px] tracking-[0.1em] hover:text-muted transition-colors"
+            >
+              {t("landing.continueAnyway")}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Consent modal */}
       {showConsent && (

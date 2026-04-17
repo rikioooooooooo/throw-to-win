@@ -13,7 +13,10 @@
     "myPage": "صفحتي",
     "worldRanking": "التصنيف العالمي",
     "countryRanking": "التصنيف المحلي",
-    "noRankings": "لا توجد بيانات بعد"
+    "noRankings": "لا توجد بيانات بعد",
+    "desktopTitle": "يتطلب هاتف ذكي",
+    "desktopSubtext": "يستخدم Throw To Win مستشعرات الحركة في هاتفك لقياس ارتفاع الرمية. تحتاج إلى رمي هاتفك فعلياً في الهواء.",
+    "continueAnyway": "المتابعة على أي حال"
   },
   "consent": {
     "heading": "قبل أن ترمي.",
@@ -113,7 +116,13 @@
     "seconds": "ث",
     "throws": "رميات",
     "streak": "سلسلة",
-    "days": "يوم"
+    "days": "يوم",
+    "totalHeight": "الارتفاع الإجمالي",
+    "nextTierTo": "إلى",
+    "worldThrows": "رميات العالم",
+    "countriesActive": "{count} دولة",
+    "throwsCount": "رميات",
+    "playersCount": "لاعبين"
   },
   "terms": {
     "heading": "شروط الاستخدام",

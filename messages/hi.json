@@ -13,7 +13,10 @@
     "myPage": "मेरा पेज",
     "worldRanking": "विश्व रैंकिंग",
     "countryRanking": "देश रैंकिंग",
-    "noRankings": "अभी कोई डेटा नहीं"
+    "noRankings": "अभी कोई डेटा नहीं",
+    "desktopTitle": "स्मार्टफोन आवश्यक है",
+    "desktopSubtext": "Throw To Win आपके फोन के मोशन सेंसर का उपयोग करके थ्रो की ऊंचाई मापता है। आपको वास्तव में अपना फोन हवा में फेंकना होगा।",
+    "continueAnyway": "फिर भी जारी रखें"
   },
   "consent": {
     "heading": "फेंकने से पहले।",
@@ -113,7 +116,13 @@
     "seconds": "से",
     "throws": "थ्रो",
     "streak": "लगातार",
-    "days": "दिन"
+    "days": "दिन",
+    "totalHeight": "कुल ऊंचाई",
+    "nextTierTo": "तक",
+    "worldThrows": "दुनिया के थ्रो",
+    "countriesActive": "{count} देश",
+    "throwsCount": "थ्रो",
+    "playersCount": "खिलाड़ी"
   },
   "terms": {
     "heading": "उपयोग की शर्तें",

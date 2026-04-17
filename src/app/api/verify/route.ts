@@ -14,6 +14,7 @@ type VerifyBody = {
   nonce?: string;
   timestamp?: number;
   signature?: string;
+  /** Stable localStorage-based UUID (not a volatile browser fingerprint hash) */
   deviceFingerprint?: string;
   heightMeters?: number;
   airtimeSeconds?: number;

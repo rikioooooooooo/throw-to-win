@@ -1,8 +1,23 @@
 // Throw To Win — Service Worker
 // Caches static assets for offline support
 
-const CACHE_NAME = "ttw-v1";
-const STATIC_ASSETS = ["/", "/manifest.json"];
+const CACHE_NAME = "ttw-v2";
+const STATIC_ASSETS = [
+  "/",
+  "/manifest.json",
+  "/ja/",
+  "/en/",
+  "/zh-CN/",
+  "/zh-TW/",
+  "/ko/",
+  "/es/",
+  "/fr/",
+  "/de/",
+  "/pt/",
+  "/ar/",
+  "/ru/",
+  "/hi/",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

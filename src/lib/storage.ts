@@ -31,7 +31,7 @@ const EMPTY_DATA: AppData = {
   consent: { agreed: false, agreedAt: "", version: CONSENT_VERSION },
   settings: { cameraDirection: "rear", locale: DEFAULT_LOCALE },
   throws: [],
-  stats: { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0, todayDateISO: "", todayBest: 0, streakDays: 0, lastActiveDateISO: "" },
+  stats: { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0, totalHeightMeters: 0, todayDateISO: "", todayBest: 0, streakDays: 0, lastActiveDateISO: "" },
 };
 
 /** Check if localStorage is available */
@@ -57,6 +57,7 @@ export function loadData(): AppData {
     // Backward compatibility: fill missing stats fields
     const stats: UserStats = {
       ...parsed.stats,
+      totalHeightMeters: parsed.stats.totalHeightMeters ?? 0,
       todayDateISO: parsed.stats.todayDateISO ?? "",
       todayBest: parsed.stats.todayBest ?? 0,
       streakDays: parsed.stats.streakDays ?? 0,
@@ -176,6 +177,7 @@ export function addThrowRecord(
     personalBest: isPersonalBest ? heightMeters : data.stats.personalBest,
     totalThrows: data.stats.totalThrows + 1,
     totalAirtimeSeconds: data.stats.totalAirtimeSeconds + airtimeSeconds,
+    totalHeightMeters: data.stats.totalHeightMeters + heightMeters,
     todayDateISO: todayISO,
     todayBest,
     streakDays,

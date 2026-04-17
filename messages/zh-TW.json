@@ -13,7 +13,10 @@
     "myPage": "我的主頁",
     "worldRanking": "世界排名",
     "countryRanking": "國內排名",
-    "noRankings": "尚無資料"
+    "noRankings": "尚無資料",
+    "desktopTitle": "需要智慧型手機",
+    "desktopSubtext": "Throw To Win 使用手機的運動感測器來測量投擲高度。你需要真的把手機扔到空中。",
+    "continueAnyway": "仍然繼續"
   },
   "consent": {
     "heading": "扔之前，想清楚。",
@@ -113,7 +116,13 @@
     "seconds": "秒",
     "throws": "次",
     "streak": "連續記錄",
-    "days": "天"
+    "days": "天",
+    "totalHeight": "累計高度",
+    "nextTierTo": "到",
+    "worldThrows": "全球投擲",
+    "countriesActive": "{count} 個國家",
+    "throwsCount": "次",
+    "playersCount": "人"
   },
   "terms": {
     "heading": "使用條款",

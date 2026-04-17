@@ -13,7 +13,10 @@
     "myPage": "My Page",
     "worldRanking": "世界ランキング",
     "countryRanking": "国内ランキング",
-    "noRankings": "まだデータがありません"
+    "noRankings": "まだデータがありません",
+    "desktopTitle": "スマートフォンが必要です",
+    "desktopSubtext": "Throw To Win はスマホのモーションセンサーで投げた高さを計測します。実際にスマホを空中に投げる必要があります。",
+    "continueAnyway": "このまま続ける"
   },
   "consent": {
     "heading": "投げる前に。",
@@ -113,7 +116,13 @@
     "seconds": "秒",
     "throws": "回",
     "streak": "連続記録",
-    "days": "日"
+    "days": "日",
+    "totalHeight": "累計高度",
+    "nextTierTo": "で",
+    "worldThrows": "世界の投げ",
+    "countriesActive": "{count}ヶ国",
+    "throwsCount": "回",
+    "playersCount": "人"
   },
   "terms": {
     "heading": "利用規約",

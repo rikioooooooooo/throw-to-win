@@ -13,7 +13,10 @@
     "myPage": "마이페이지",
     "worldRanking": "세계 랭킹",
     "countryRanking": "국내 랭킹",
-    "noRankings": "아직 데이터가 없습니다"
+    "noRankings": "아직 데이터가 없습니다",
+    "desktopTitle": "스마트폰이 필요합니다",
+    "desktopSubtext": "Throw To Win은 폰의 모션 센서로 던진 높이를 측정합니다. 실제로 폰을 공중에 던져야 합니다.",
+    "continueAnyway": "그래도 계속하기"
   },
   "consent": {
     "heading": "던지기 전에, 잠깐.",
@@ -113,7 +116,13 @@
     "seconds": "초",
     "throws": "회",
     "streak": "연속 기록",
-    "days": "일"
+    "days": "일",
+    "totalHeight": "총 높이",
+    "nextTierTo": "까지",
+    "worldThrows": "세계 던지기",
+    "countriesActive": "{count}개국",
+    "throwsCount": "회",
+    "playersCount": "명"
   },
   "terms": {
     "heading": "이용약관",

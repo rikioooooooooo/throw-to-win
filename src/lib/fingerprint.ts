@@ -1,6 +1,6 @@
 "use client";
 
-const FALLBACK_FP_KEY = "ttw_fallback_fp";
+const STABLE_ID_KEY = "ttw_device_id";
 
 function djb2Hash(str: string): string {
   let hash = 5381;
@@ -87,45 +87,46 @@ function getHardwareFingerprint(): string {
   ].join(",");
 }
 
-function getGLFingerprint(): string {
+/**
+ * Primary device identity — localStorage-based stable UUID.
+ * Unlike browser fingerprinting, this ID survives browser updates
+ * and GPU driver changes, preventing users from losing their
+ * ranking history, personal best, and display name.
+ */
+export async function generateFingerprint(): Promise<string> {
   try {
-    const canvas = document.createElement("canvas");
-    const gl = canvas.getContext("webgl") ?? canvas.getContext("experimental-webgl");
-    if (!gl || !(gl instanceof WebGLRenderingContext)) return "no-gl";
-    const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-    if (!debugInfo) return "no-debug";
-    return [
-      gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL),
-      gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL),
-    ].join(",");
+    const stored = localStorage.getItem(STABLE_ID_KEY);
+    if (stored) return stored;
+
+    const id =
+      crypto.randomUUID?.() ??
+      `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    localStorage.setItem(STABLE_ID_KEY, id);
+    return id;
   } catch {
-    return "gl-error";
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   }
 }
 
-export async function generateFingerprint(): Promise<string> {
+/**
+ * Secondary fingerprint hash for anti-cheat purposes.
+ * Uses stable browser signals (canvas, audio, screen, hardware,
+ * timezone, language) — intentionally excludes userAgent and
+ * WebGL renderer which change on browser/driver updates.
+ */
+export async function generateFingerprintHash(): Promise<string> {
   try {
     const components = [
       getCanvasFingerprint(),
       getAudioFingerprint(),
       getScreenFingerprint(),
       getHardwareFingerprint(),
-      getGLFingerprint(),
-      navigator.userAgent,
       Intl.DateTimeFormat().resolvedOptions().timeZone,
       navigator.language,
     ];
 
     return await sha256Hex(components.join("|"));
   } catch {
-    try {
-      const stored = localStorage.getItem(FALLBACK_FP_KEY);
-      if (stored) return stored;
-      const id = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      localStorage.setItem(FALLBACK_FP_KEY, id);
-      return id;
-    } catch {
-      return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    }
+    return "hash-error";
   }
 }

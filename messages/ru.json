@@ -13,7 +13,10 @@
     "myPage": "Мой профиль",
     "worldRanking": "МИРОВОЙ РЕЙТИНГ",
     "countryRanking": "РЕЙТИНГ СТРАНЫ",
-    "noRankings": "Данных пока нет"
+    "noRankings": "Данных пока нет",
+    "desktopTitle": "Нужен смартфон",
+    "desktopSubtext": "Throw To Win использует датчики движения телефона для измерения высоты броска. Вам нужно физически бросить телефон в воздух.",
+    "continueAnyway": "Продолжить в любом случае"
   },
   "consent": {
     "heading": "Прежде чем бросить.",
@@ -113,7 +116,13 @@
     "seconds": "с",
     "throws": "бросков",
     "streak": "Серия",
-    "days": "дней"
+    "days": "дней",
+    "totalHeight": "Общая высота",
+    "nextTierTo": "до",
+    "worldThrows": "Броски со всего мира",
+    "countriesActive": "{count} стран",
+    "throwsCount": "бросков",
+    "playersCount": "игроков"
   },
   "terms": {
     "heading": "Условия использования",

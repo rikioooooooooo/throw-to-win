@@ -13,7 +13,10 @@
     "myPage": "Mon profil",
     "worldRanking": "CLASSEMENT MONDIAL",
     "countryRanking": "CLASSEMENT NATIONAL",
-    "noRankings": "Pas encore de donnees"
+    "noRankings": "Pas encore de donnees",
+    "desktopTitle": "Un smartphone est requis",
+    "desktopSubtext": "Throw To Win utilise les capteurs de mouvement de votre telephone pour mesurer la hauteur du lancer. Vous devez physiquement lancer votre telephone en l'air.",
+    "continueAnyway": "Continuer quand meme"
   },
   "consent": {
     "heading": "Avant de lancer.",
@@ -113,7 +116,13 @@
     "seconds": "s",
     "throws": "lancers",
     "streak": "Serie",
-    "days": "jours"
+    "days": "jours",
+    "totalHeight": "Hauteur totale",
+    "nextTierTo": "pour",
+    "worldThrows": "Lancers mondiaux",
+    "countriesActive": "{count} pays",
+    "throwsCount": "lancers",
+    "playersCount": "joueurs"
   },
   "terms": {
     "heading": "Conditions d'utilisation",

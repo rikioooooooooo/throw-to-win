@@ -8,6 +8,7 @@ const MAX_ACTIVE_CHALLENGES = 5;
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
+      /** Stable localStorage-based UUID (not a volatile browser fingerprint hash) */
       deviceFingerprint?: string;
       turnstileToken?: string;
     };

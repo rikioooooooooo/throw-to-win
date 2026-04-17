@@ -13,7 +13,10 @@
     "myPage": "My Page",
     "worldRanking": "WORLD RANKING",
     "countryRanking": "COUNTRY RANKING",
-    "noRankings": "No data yet"
+    "noRankings": "No data yet",
+    "desktopTitle": "This game requires a smartphone",
+    "desktopSubtext": "Throw To Win uses your phone's motion sensors to measure how high you throw it. You need to physically throw your phone into the air.",
+    "continueAnyway": "Continue anyway"
   },
   "consent": {
     "heading": "Before you throw.",
@@ -113,7 +116,13 @@
     "seconds": "s",
     "throws": "throws",
     "streak": "Streak",
-    "days": "days"
+    "days": "days",
+    "totalHeight": "Total Height",
+    "nextTierTo": "to",
+    "worldThrows": "World Throws",
+    "countriesActive": "{count} countries",
+    "throwsCount": "throws",
+    "playersCount": "players"
   },
   "terms": {
     "heading": "Terms of Use",

@@ -1,23 +1,32 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, useParams } from "next/navigation";
 import { loadData, getSortedThrows, getDisplayName, saveDisplayName } from "@/lib/storage";
 import { formatHeight, formatAirtime } from "@/lib/physics";
-import { getTierForHeight } from "@/lib/tiers";
+import { getTierForHeight, getNextTier } from "@/lib/tiers";
 import { generateFingerprint } from "@/lib/fingerprint";
 import { TierIcon } from "@/components/tier-icon";
 import { NameInput } from "@/components/name-input";
+import { WorldMap } from "@/components/world-map";
 import type { ThrowRecord } from "@/lib/types";
+
+type WorldCountry = {
+  readonly country: string;
+  readonly throws: number;
+  readonly players: number;
+  readonly best: number;
+};
 
 export default function MyPage() {
   const t = useTranslations("mypage");
+  const tTier = useTranslations("tier");
   const router = useRouter();
   const params = useParams();
   const locale = (params.locale as string) ?? "en";
   const [stats] = useState(() => {
-    if (typeof window === "undefined") return { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0, todayDateISO: "", todayBest: 0, streakDays: 0, lastActiveDateISO: "" };
+    if (typeof window === "undefined") return { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0, totalHeightMeters: 0, todayDateISO: "", todayBest: 0, streakDays: 0, lastActiveDateISO: "" };
     return loadData().stats;
   });
   const [displayName, setDisplayName] = useState(() =>
@@ -29,6 +38,7 @@ export default function MyPage() {
     if (typeof window === "undefined") return [];
     return getSortedThrows(sortBy);
   }, [sortBy]);
+  const [worldCountries, setWorldCountries] = useState<readonly WorldCountry[]>([]);
 
   const handleSaveName = useCallback(async (name: string) => {
     setSavingName(true);
@@ -48,6 +58,17 @@ export default function MyPage() {
     } finally {
       setSavingName(false);
     }
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/world")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.countries) setWorldCountries(data.countries);
+      })
+      .catch(() => {
+        // silent
+      });
   }, []);
 
   return (
@@ -107,6 +128,17 @@ export default function MyPage() {
               </span>
               <span className="text-[16px] text-muted/60 ml-1 mb-1">{t("meters")}</span>
             </div>
+            {(() => {
+              const next = getNextTier(stats.personalBest);
+              if (!next) return null;
+              return (
+                <p className="mt-3 text-[12px] text-muted/70 tracking-[0.05em]">
+                  <span style={{ color: next.tier.color }}>{next.remaining}m</span>
+                  {" "}{t("nextTierTo")}{" "}
+                  <span style={{ color: next.tier.color }}>{tTier(next.tier.id as never)}</span>
+                </p>
+              );
+            })()}
           </div>
 
           <div
@@ -141,6 +173,25 @@ export default function MyPage() {
                 {formatAirtime(stats.totalAirtimeSeconds)}
               </span>
               <span className="text-[12px] text-muted/60 ml-1">{t("seconds")}</span>
+            </div>
+          </div>
+
+          <div
+            className="col-span-2 p-4"
+            style={{
+              background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 50%) var(--color-surface)",
+              border: "1px solid var(--color-border-subtle)",
+              borderRadius: "14px",
+            }}
+          >
+            <p className="label-text text-[11px] tracking-[0.15em] text-muted/70 mb-2">
+              {t("totalHeight")}
+            </p>
+            <div className="flex items-end">
+              <span className="height-number text-[28px] text-foreground leading-none">
+                {stats.totalHeightMeters.toFixed(1)}
+              </span>
+              <span className="text-[12px] text-muted/60 ml-1">{t("meters")}</span>
             </div>
           </div>
 
@@ -278,6 +329,14 @@ export default function MyPage() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* World throws */}
+        <div className="mt-10 animate-fade-in-up delay-160">
+          <h2 className="text-[16px] font-semibold tracking-wide uppercase mb-6">
+            {t("worldThrows")}
+          </h2>
+          <WorldMap countries={worldCountries} />
         </div>
       </div>
     </main>
