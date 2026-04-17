@@ -24,7 +24,7 @@ type Pole = {
 const GRID_COLS = 11;
 const GRID_ROWS = 18;
 const DEPTH_LAYERS = 8;
-const MAX_SHIFT = 200;
+const MAX_SHIFT = 90;
 const LERP = 0.07;
 const GYRO_TIMEOUT_MS = 2000;
 
@@ -70,8 +70,8 @@ export function GyroBars({ className }: GyroBarsProps) {
       if (e.gamma == null || e.beta == null) return;
       hasGyroRef.current = true;
       targetRef.current = {
-        x: Math.max(-1, Math.min(1, e.gamma / 55)),
-        y: Math.max(-1, Math.min(1, (e.beta - 50) / 55)),
+        x: Math.max(-1, Math.min(1, e.gamma / 40)),
+        y: Math.max(-1, Math.min(1, (e.beta - 50) / 40)),
       };
     };
     window.addEventListener("deviceorientation", handleOrientation);
