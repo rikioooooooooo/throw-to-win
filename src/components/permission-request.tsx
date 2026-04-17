@@ -14,45 +14,38 @@ export function PermissionRequest({ onGranted }: PermissionRequestProps) {
   const [deniedState, setDeniedState] = useState<DeniedState>("none");
   const [requesting, setRequesting] = useState(false);
 
-  // NON-async: iOS Safari requires DeviceMotionEvent.requestPermission()
-  // to be called within the synchronous user-gesture context.
-  // Using async/await can break this on iOS 16+.
+  // iOS Safari: requestPermission() MUST be the very first API call
+  // inside the click handler — no setState, no conditionals before it.
+  // Any JavaScript that touches React state or runs microtasks before
+  // requestPermission() can break the user-gesture context on iOS 16+.
   function handleGrant() {
-    setRequesting(true);
-    setDeniedState("none");
-
-    // Step 1: DeviceMotionEvent permission (iOS only)
     if (typeof DeviceMotionEvent === "undefined") {
       setDeniedState("unsupported");
-      setRequesting(false);
       return;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const needsMotionPermission = typeof (DeviceMotionEvent as any).requestPermission === "function";
-
-    const motionPromise: Promise<string> = needsMotionPermission
+    const rp = (DeviceMotionEvent as any).requestPermission;
+    if (typeof rp === "function") {
+      // iOS: call requestPermission() IMMEDIATELY — no setState before this line.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ? (DeviceMotionEvent as any).requestPermission()
-      : Promise.resolve("granted");
-
-    // .then() chain preserves user-gesture context on iOS Safari
-    motionPromise
-      .then((result: string) => {
-        if (result !== "granted") {
+      (rp as () => Promise<string>)()
+        .then((result: string) => {
+          if (result === "granted") {
+            onGranted();
+          } else {
+            setDeniedState("denied");
+          }
+        })
+        .catch(() => {
           setDeniedState("denied");
-          setRequesting(false);
-          return;
-        }
-        // Step 2: Camera permission is handled by startPreview() in onGranted.
-        // No redundant getUserMedia here — avoids double-request race on iOS.
-        setRequesting(false);
-        onGranted();
-      })
-      .catch(() => {
-        setDeniedState("denied");
-        setRequesting(false);
-      });
+        });
+      return;
+    }
+
+    // Android / desktop: DeviceMotionEvent exists but no requestPermission.
+    // Proceed directly — camera permission is handled by startPreview().
+    onGranted();
   }
 
   if (deniedState === "unsupported") {
