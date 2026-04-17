@@ -8,7 +8,7 @@ import { formatHeight } from "@/lib/physics";
 import { getTierForHeight } from "@/lib/tiers";
 import { TierIcon } from "@/components/tier-icon";
 import { ConsentModal } from "@/components/consent-modal";
-import { GyroBall } from "@/components/gyro-ball";
+import { GyroBars } from "@/components/gyro-ball";
 
 export default function LandingPage() {
   const t = useTranslations();
@@ -49,7 +49,7 @@ export default function LandingPage() {
 
   return (
     <main className="relative flex-1 flex flex-col px-6 overflow-y-auto">
-      <GyroBall />
+      <GyroBars className="absolute inset-0 z-0 pointer-events-none" />
 
       {/* Top bar */}
       <header className="relative z-10 flex justify-end items-center pt-4">

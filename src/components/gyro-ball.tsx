@@ -1,141 +1,170 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
 /**
- * Invisible heavy ball physics — vibration only, no visual.
- * Creates the illusion of a heavy ball rattling inside the phone
- * by triggering haptic feedback on wall collisions proportional to impact speed.
+ * Gyroscope-driven parallax vertical bars.
+ * Creates the illusion that the phone screen is a window into a 3D space
+ * with evenly-spaced vertical poles standing behind it.
+ * Tilting the phone shifts perspective — closer poles move more, far poles less.
  */
 
-const RESTITUTION = 0.6;
-const FRICTION = 0.997;
-const GRAVITY_SCALE = 800; // px/s² per degree of tilt — heavier feel
-const FIXED_DT = 1 / 60;
-const HAPTIC_THROTTLE_MS = 30;
-const GYRO_TIMEOUT_MS = 1500;
-/** Minimum impact speed (px/s) to trigger vibration */
-const MIN_IMPACT_SPEED = 40;
+type GyroBarsProps = {
+  readonly className?: string;
+};
 
-/** Map impact speed to vibration duration (ms). Heavier hit = longer buzz. */
-function impactToVibeDuration(speed: number): number {
-  if (speed < MIN_IMPACT_SPEED) return 0;
-  // 40 px/s → 3ms, 400+ px/s → 25ms, clamped
-  return Math.min(25, Math.round(3 + (speed - MIN_IMPACT_SPEED) * 0.055));
-}
+// Depth layers — each has poles at a different Z-distance from the "window"
+const LAYERS = [
+  { z: 0.15, opacity: 0.04, width: 6 },
+  { z: 0.3,  opacity: 0.06, width: 4.5 },
+  { z: 0.5,  opacity: 0.08, width: 3 },
+  { z: 0.75, opacity: 0.10, width: 2 },
+  { z: 1.0,  opacity: 0.12, width: 1.5 },
+] as const;
 
-export function GyroBall() {
-  const ballRef = useRef({ x: 0, y: 0, vx: 0, vy: 0 });
-  const gravityRef = useRef({ x: 0, y: 0 });
+/** How many poles per layer across the visible width */
+const POLES_PER_SCREEN = 12;
+/** Extra poles rendered off-screen on each side so tilting doesn't reveal gaps */
+const OVERSHOOT = 8;
+/** Max parallax shift in px at full tilt */
+const MAX_SHIFT = 120;
+const GYRO_TIMEOUT_MS = 2000;
+/** Smoothing factor — lower = smoother but laggier (0-1) */
+const LERP = 0.08;
+
+export function GyroBars({ className }: GyroBarsProps) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const targetRef = useRef({ x: 0, y: 0 });
+  const currentRef = useRef({ x: 0, y: 0 });
   const hasGyroRef = useRef(false);
-  const lastVibrateRef = useRef(0);
   const rafRef = useRef(0);
-  const accRef = useRef(0);
-  const lastTimeRef = useRef(0);
-  const sizeRef = useRef({ w: 0, h: 0 });
+
+  const setCanvasRef = useCallback((node: HTMLCanvasElement | null) => {
+    canvasRef.current = node;
+  }, []);
 
   useEffect(() => {
-    // Reduced motion: skip entirely
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    // No vibration API: skip entirely
-    if (typeof navigator.vibrate !== "function") return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    // --- Device orientation ---
     const handleOrientation = (e: DeviceOrientationEvent) => {
       hasGyroRef.current = true;
-      // gamma: left-right tilt (-90..90), beta: front-back tilt (-180..180)
-      gravityRef.current = {
-        x: (e.gamma ?? 0) * GRAVITY_SCALE / 60,
-        y: (e.beta ?? 0) * GRAVITY_SCALE / 60,
+      const gamma = e.gamma ?? 0; // left-right: -90..90
+      const beta = e.beta ?? 0;   // front-back: -180..180
+      // Normalize to -1..1, clamped
+      targetRef.current = {
+        x: Math.max(-1, Math.min(1, gamma / 45)),
+        y: Math.max(-1, Math.min(1, (beta - 45) / 45)),
+        // beta resting is ~45° when phone held naturally, so subtract 45
       };
     };
-
     window.addEventListener("deviceorientation", handleOrientation);
 
-    // If no gyro events within timeout, clean up — no fallback drift
-    // (vibration without gyro input would feel random and weird)
+    let useFallback = false;
     const gyroTimer = setTimeout(() => {
-      if (!hasGyroRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        window.removeEventListener("deviceorientation", handleOrientation);
-      }
+      if (!hasGyroRef.current) useFallback = true;
     }, GYRO_TIMEOUT_MS);
 
-    // Initialize ball at center
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    sizeRef.current = { w, h };
-    ballRef.current = { x: w / 2, y: h / 2, vx: 0, vy: 0 };
+    // --- Canvas setup ---
+    const dpr = window.devicePixelRatio || 1;
 
-    const handleResize = () => {
-      sizeRef.current = { w: window.innerWidth, h: window.innerHeight };
+    const resize = () => {
+      const p = canvas.parentElement;
+      if (!p) return;
+      const r = p.getBoundingClientRect();
+      canvas.width = r.width * dpr;
+      canvas.height = r.height * dpr;
+      canvas.style.width = `${r.width}px`;
+      canvas.style.height = `${r.height}px`;
     };
-    window.addEventListener("resize", handleResize);
+    resize();
+    window.addEventListener("resize", resize);
 
-    const doVibrate = (speed: number) => {
-      const dur = impactToVibeDuration(speed);
-      if (dur <= 0) return;
-      const now = performance.now();
-      if (now - lastVibrateRef.current < HAPTIC_THROTTLE_MS) return;
-      navigator.vibrate(dur);
-      lastVibrateRef.current = now;
-    };
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-    lastTimeRef.current = performance.now();
+    const startTime = performance.now();
 
-    const loop = (now: number) => {
-      const dt = Math.min((now - lastTimeRef.current) / 1000, 0.1);
-      lastTimeRef.current = now;
-      accRef.current += dt;
+    const draw = (now: number) => {
+      const p = canvas.parentElement;
+      if (!p) { rafRef.current = requestAnimationFrame(draw); return; }
+      const { width: cw, height: ch } = p.getBoundingClientRect();
+      if (cw === 0 || ch === 0) { rafRef.current = requestAnimationFrame(draw); return; }
 
-      const { w, h } = sizeRef.current;
-      const gx = gravityRef.current.x;
-      const gy = gravityRef.current.y;
-      const ball = ballRef.current;
-
-      while (accRef.current >= FIXED_DT) {
-        ball.vx += gx;
-        ball.vy += gy;
-        ball.vx *= FRICTION;
-        ball.vy *= FRICTION;
-        ball.x += ball.vx * FIXED_DT;
-        ball.y += ball.vy * FIXED_DT;
-
-        // Wall collisions — vibrate proportional to impact speed
-        if (ball.x < 0) {
-          doVibrate(Math.abs(ball.vx));
-          ball.x = 0;
-          ball.vx = Math.abs(ball.vx) * RESTITUTION;
-        } else if (ball.x > w) {
-          doVibrate(Math.abs(ball.vx));
-          ball.x = w;
-          ball.vx = -Math.abs(ball.vx) * RESTITUTION;
-        }
-        if (ball.y < 0) {
-          doVibrate(Math.abs(ball.vy));
-          ball.y = 0;
-          ball.vy = Math.abs(ball.vy) * RESTITUTION;
-        } else if (ball.y > h) {
-          doVibrate(Math.abs(ball.vy));
-          ball.y = h;
-          ball.vy = -Math.abs(ball.vy) * RESTITUTION;
-        }
-
-        accRef.current -= FIXED_DT;
+      // Fallback: gentle drift
+      if (useFallback) {
+        const t = (now - startTime) / 1000;
+        targetRef.current = {
+          x: Math.sin(t * 0.4) * 0.3,
+          y: Math.cos(t * 0.6) * 0.15,
+        };
       }
 
-      rafRef.current = requestAnimationFrame(loop);
+      // Smooth interpolation
+      currentRef.current = {
+        x: currentRef.current.x + (targetRef.current.x - currentRef.current.x) * LERP,
+        y: currentRef.current.y + (targetRef.current.y - currentRef.current.y) * LERP,
+      };
+
+      const shiftX = currentRef.current.x * MAX_SHIFT;
+      const shiftY = currentRef.current.y * MAX_SHIFT * 0.3; // vertical shift is subtler
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cw, ch);
+
+      // Draw each depth layer (far to near)
+      for (const layer of LAYERS) {
+        const parallaxX = shiftX * layer.z;
+        const parallaxY = shiftY * layer.z;
+
+        // Pole spacing based on screen width
+        const spacing = cw / POLES_PER_SCREEN;
+        const totalPoles = POLES_PER_SCREEN + OVERSHOOT * 2;
+
+        // Base offset so poles are centered, plus parallax
+        const baseX = -OVERSHOOT * spacing + parallaxX;
+
+        ctx.fillStyle = `rgba(0, 250, 154, ${layer.opacity})`;
+
+        for (let i = 0; i < totalPoles; i++) {
+          const x = baseX + i * spacing + spacing / 2;
+
+          // Slight vertical perspective: poles closer to edge are a bit shorter
+          const distFromCenter = Math.abs(x - cw / 2) / (cw / 2);
+          const heightScale = 1 - distFromCenter * 0.08;
+          const poleH = ch * heightScale;
+          const poleY = (ch - poleH) / 2 + parallaxY;
+
+          ctx.fillRect(
+            Math.round(x - layer.width / 2),
+            Math.round(poleY),
+            layer.width,
+            Math.round(poleH),
+          );
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(draw);
     };
 
-    rafRef.current = requestAnimationFrame(loop);
+    rafRef.current = requestAnimationFrame(draw);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
       clearTimeout(gyroTimer);
       window.removeEventListener("deviceorientation", handleOrientation);
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", resize);
     };
   }, []);
 
-  // Renders nothing — haptics only
-  return null;
+  return (
+    <canvas
+      ref={setCanvasRef}
+      className={className}
+      aria-hidden="true"
+    />
+  );
 }
