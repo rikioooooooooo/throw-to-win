@@ -8,6 +8,7 @@
     "worldRecord": "World Record",
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
+    "streakDays": "दिन लगातार",
     "start": "START",
     "myPage": "मेरा पेज",
     "worldRanking": "विश्व रैंकिंग",
@@ -70,7 +71,8 @@
     "backToTop": "होम पर वापस",
     "scoreNotSaved": "स्कोर सेव नहीं हुआ",
     "nearMissTier": "{tier} तक बस {remaining}m बाकी",
-    "nearMissPB": "अपना रिकॉर्ड तोड़ने में बस {remaining}m बाकी"
+    "nearMissPB": "अपना रिकॉर्ड तोड़ने में बस {remaining}m बाकी",
+    "todaysBest": "आज का बेस्ट"
   },
   "tier": {
     "rookie": "Rookie",
@@ -109,7 +111,9 @@
     "back": "वापस",
     "meters": "m",
     "seconds": "से",
-    "throws": "थ्रो"
+    "throws": "थ्रो",
+    "streak": "लगातार",
+    "days": "दिन"
   },
   "terms": {
     "heading": "उपयोग की शर्तें",

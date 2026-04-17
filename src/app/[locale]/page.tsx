@@ -14,7 +14,7 @@ export default function LandingPage() {
   const locale = useLocale();
   const [showConsent, setShowConsent] = useState(false);
   const [stats] = useState(() => {
-    if (typeof window === "undefined") return { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0 };
+    if (typeof window === "undefined") return { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0, todayDateISO: "", todayBest: 0, streakDays: 0, lastActiveDateISO: "" };
     return loadData().stats;
   });
 
@@ -98,6 +98,22 @@ export default function LandingPage() {
             >
               {t("ranking.viewRanking")} →
             </button>
+
+            {/* Streak + Today's Best */}
+            {(stats.streakDays > 1 || stats.todayBest > 0) && (
+              <div className="flex items-center gap-4 mt-2">
+                {stats.streakDays > 1 && (
+                  <span className="text-muted text-[11px] tracking-[0.05em]">
+                    🔥 {stats.streakDays} {t("landing.streakDays")}
+                  </span>
+                )}
+                {stats.todayBest > 0 && (
+                  <span className="text-muted text-[11px] tracking-[0.05em]">
+                    {t("landing.todaysBest")}: {formatHeight(stats.todayBest)}m
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

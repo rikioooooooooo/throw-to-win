@@ -14,7 +14,7 @@ export default function MyPage() {
   const params = useParams();
   const locale = (params.locale as string) ?? "en";
   const [stats] = useState(() => {
-    if (typeof window === "undefined") return { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0 };
+    if (typeof window === "undefined") return { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0, todayDateISO: "", todayBest: 0, streakDays: 0, lastActiveDateISO: "" };
     return loadData().stats;
   });
   const [sortBy, setSortBy] = useState<"date" | "height">("date");
@@ -119,6 +119,28 @@ export default function MyPage() {
               <span className="text-[12px] text-muted/60 ml-1">{t("seconds")}</span>
             </div>
           </div>
+
+          {stats.streakDays > 0 && (
+            <div
+              className="col-span-2 p-4 flex items-center gap-3"
+              style={{
+                background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 50%) var(--color-surface)",
+                border: "1px solid var(--color-border-subtle)",
+                borderRadius: "14px",
+              }}
+            >
+              <span className="text-[24px]">🔥</span>
+              <div>
+                <p className="label-text text-[11px] tracking-[0.15em] text-muted/70 mb-0.5">
+                  {t("streak")}
+                </p>
+                <span className="height-number text-[22px] text-foreground leading-none">
+                  {stats.streakDays}
+                </span>
+                <span className="text-[12px] text-muted/60 ml-1">{t("days")}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Sort toggle + throw list */}

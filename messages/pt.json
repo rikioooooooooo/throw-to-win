@@ -8,6 +8,7 @@
     "worldRecord": "World Record",
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
+    "streakDays": "dias seguidos",
     "start": "START",
     "myPage": "Meu perfil",
     "worldRanking": "RANKING MUNDIAL",
@@ -70,7 +71,8 @@
     "backToTop": "Voltar ao inicio",
     "scoreNotSaved": "Pontuacao nao salva",
     "nearMissTier": "Faltam {remaining}m para {tier}",
-    "nearMissPB": "Faltam {remaining}m para bater seu recorde"
+    "nearMissPB": "Faltam {remaining}m para bater seu recorde",
+    "todaysBest": "Melhor de hoje"
   },
   "tier": {
     "rookie": "Rookie",
@@ -109,7 +111,9 @@
     "back": "Voltar",
     "meters": "m",
     "seconds": "s",
-    "throws": "lançamentos"
+    "throws": "lançamentos",
+    "streak": "Sequencia",
+    "days": "dias"
   },
   "terms": {
     "heading": "Termos de uso",

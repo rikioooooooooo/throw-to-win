@@ -8,6 +8,7 @@
     "worldRecord": "World Record",
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
+    "streakDays": "Tage in Folge",
     "start": "START",
     "myPage": "Mein Profil",
     "worldRanking": "WELTRANGLISTE",
@@ -70,7 +71,8 @@
     "backToTop": "Zuruck",
     "scoreNotSaved": "Ergebnis nicht gespeichert",
     "nearMissTier": "Noch {remaining}m bis {tier}",
-    "nearMissPB": "Noch {remaining}m bis zu deinem Rekord"
+    "nearMissPB": "Noch {remaining}m bis zu deinem Rekord",
+    "todaysBest": "Bester heute"
   },
   "tier": {
     "rookie": "Rookie",
@@ -109,7 +111,9 @@
     "back": "Zurück",
     "meters": "m",
     "seconds": "s",
-    "throws": "Würfe"
+    "throws": "Würfe",
+    "streak": "Serie",
+    "days": "Tage"
   },
   "terms": {
     "heading": "Nutzungsbedingungen",

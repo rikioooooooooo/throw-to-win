@@ -8,6 +8,7 @@
     "worldRecord": "World Record",
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
+    "streakDays": "дней подряд",
     "start": "START",
     "myPage": "Мой профиль",
     "worldRanking": "МИРОВОЙ РЕЙТИНГ",
@@ -70,7 +71,8 @@
     "backToTop": "На главную",
     "scoreNotSaved": "Результат не сохранен",
     "nearMissTier": "Ещё {remaining}м до {tier}",
-    "nearMissPB": "Ещё {remaining}м до личного рекорда"
+    "nearMissPB": "Ещё {remaining}м до личного рекорда",
+    "todaysBest": "Лучший сегодня"
   },
   "tier": {
     "rookie": "Rookie",
@@ -109,7 +111,9 @@
     "back": "Назад",
     "meters": "м",
     "seconds": "с",
-    "throws": "бросков"
+    "throws": "бросков",
+    "streak": "Серия",
+    "days": "дней"
   },
   "terms": {
     "heading": "Условия использования",

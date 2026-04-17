@@ -8,6 +8,7 @@
     "worldRecord": "World Record",
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
+    "streakDays": "يوم متتالي",
     "start": "START",
     "myPage": "صفحتي",
     "worldRanking": "التصنيف العالمي",
@@ -70,7 +71,8 @@
     "backToTop": "العودة للرئيسية",
     "scoreNotSaved": "لم يتم حفظ النتيجة",
     "nearMissTier": "باقي {remaining}م لـ {tier}",
-    "nearMissPB": "باقي {remaining}م لتحطيم رقمك القياسي"
+    "nearMissPB": "باقي {remaining}م لتحطيم رقمك القياسي",
+    "todaysBest": "الأفضل اليوم"
   },
   "tier": {
     "rookie": "Rookie",
@@ -109,7 +111,9 @@
     "back": "رجوع",
     "meters": "م",
     "seconds": "ث",
-    "throws": "رميات"
+    "throws": "رميات",
+    "streak": "سلسلة",
+    "days": "يوم"
   },
   "terms": {
     "heading": "شروط الاستخدام",

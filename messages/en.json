@@ -8,6 +8,7 @@
     "worldRecord": "World Record",
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
+    "streakDays": "day streak",
     "start": "START",
     "myPage": "My Page",
     "worldRanking": "WORLD RANKING",
@@ -70,7 +71,8 @@
     "backToTop": "Back to TOP",
     "scoreNotSaved": "Score not saved",
     "nearMissTier": "{remaining}m to {tier}",
-    "nearMissPB": "{remaining}m to beat your best"
+    "nearMissPB": "{remaining}m to beat your best",
+    "todaysBest": "Today's Best"
   },
   "tier": {
     "rookie": "Rookie",
@@ -109,7 +111,9 @@
     "back": "Back",
     "meters": "m",
     "seconds": "s",
-    "throws": "throws"
+    "throws": "throws",
+    "streak": "Streak",
+    "days": "days"
   },
   "terms": {
     "heading": "Terms of Use",

@@ -8,6 +8,7 @@
     "worldRecord": "World Record",
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
+    "streakDays": "天連續",
     "start": "START",
     "myPage": "我的主頁",
     "worldRanking": "世界排名",
@@ -70,7 +71,8 @@
     "backToTop": "返回首頁",
     "scoreNotSaved": "成績未儲存",
     "nearMissTier": "距 {tier} 還差 {remaining}m",
-    "nearMissPB": "距個人最佳還差 {remaining}m"
+    "nearMissPB": "距個人最佳還差 {remaining}m",
+    "todaysBest": "今日最佳"
   },
   "tier": {
     "rookie": "Rookie",
@@ -109,7 +111,9 @@
     "back": "返回",
     "meters": "m",
     "seconds": "秒",
-    "throws": "次"
+    "throws": "次",
+    "streak": "連續記錄",
+    "days": "天"
   },
   "terms": {
     "heading": "使用條款",

@@ -8,6 +8,7 @@
     "worldRecord": "World Record",
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
+    "streakDays": "일 연속",
     "start": "START",
     "myPage": "마이페이지",
     "worldRanking": "세계 랭킹",
@@ -70,7 +71,8 @@
     "backToTop": "TOP으로",
     "scoreNotSaved": "점수 미저장",
     "nearMissTier": "{tier}까지 {remaining}m 남음",
-    "nearMissPB": "자기 최고까지 {remaining}m 남음"
+    "nearMissPB": "자기 최고까지 {remaining}m 남음",
+    "todaysBest": "오늘의 베스트"
   },
   "tier": {
     "rookie": "Rookie",
@@ -109,7 +111,9 @@
     "back": "뒤로",
     "meters": "m",
     "seconds": "초",
-    "throws": "회"
+    "throws": "회",
+    "streak": "연속 기록",
+    "days": "일"
   },
   "terms": {
     "heading": "이용약관",

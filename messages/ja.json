@@ -8,6 +8,7 @@
     "worldRecord": "World Record",
     "todaysBest": "Today's Best",
     "totalThrows": "Total Throws",
+    "streakDays": "日連続",
     "start": "START",
     "myPage": "My Page",
     "worldRanking": "世界ランキング",
@@ -70,7 +71,8 @@
     "backToTop": "TOPに戻る",
     "scoreNotSaved": "スコア未保存",
     "nearMissTier": "あと {remaining}m で {tier}",
-    "nearMissPB": "あと {remaining}m で自己ベスト更新"
+    "nearMissPB": "あと {remaining}m で自己ベスト更新",
+    "todaysBest": "今日のベスト"
   },
   "tier": {
     "rookie": "Rookie",
@@ -109,7 +111,9 @@
     "back": "戻る",
     "meters": "m",
     "seconds": "秒",
-    "throws": "回"
+    "throws": "回",
+    "streak": "連続記録",
+    "days": "日"
   },
   "terms": {
     "heading": "利用規約",
