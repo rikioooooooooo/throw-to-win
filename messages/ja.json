@@ -79,16 +79,16 @@
     "todaysBest": "今日のベスト"
   },
   "tier": {
-    "rookie": "Rookie",
-    "iron": "Iron",
-    "bronze": "Bronze",
-    "silver": "Silver",
-    "gold": "Gold",
-    "platinum": "Platinum",
-    "emerald": "Emerald",
-    "diamond": "Diamond",
-    "master": "Master",
-    "legend": "Legend",
+    "rookie": "ルーキー",
+    "iron": "アイアン",
+    "bronze": "ブロンズ",
+    "silver": "シルバー",
+    "gold": "ゴールド",
+    "platinum": "プラチナ",
+    "emerald": "エメラルド",
+    "diamond": "ダイヤモンド",
+    "master": "マスター",
+    "legend": "レジェンド",
     "new": "NEW!"
   },
   "ranking": {
