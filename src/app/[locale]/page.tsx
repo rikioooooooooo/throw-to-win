@@ -49,7 +49,7 @@ export default function LandingPage() {
 
   return (
     <main className="relative flex-1 flex flex-col px-6 overflow-y-auto">
-      <GyroBars className="absolute inset-0 z-0 pointer-events-none" />
+      <GyroBars className="fixed inset-0 z-0 pointer-events-none" />
 
       {/* Top bar */}
       <header className="relative z-10 flex justify-end items-center pt-4">

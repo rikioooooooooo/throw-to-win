@@ -141,11 +141,11 @@ export function GyroBars({ className }: GyroBarsProps) {
         const sx = cx + pole.wx * spreadX * (0.5 + pole.z * 0.5) + tiltX * parallaxFactor;
         const sy = cy + pole.wy * spreadY * (0.5 + pole.z * 0.5) + tiltY * parallaxFactor * 0.6;
 
-        // Circle radius: closer = bigger
-        const radius = 2.5 * perspectiveScale;
+        // Circle radius: closer = bigger, more substantial
+        const radius = 3.5 * perspectiveScale;
 
-        // Opacity: closer = more visible
-        const alpha = 0.04 + (1 - pole.z) * 0.10;
+        // Opacity: closer = much more visible for clear depth separation
+        const alpha = 0.08 + (1 - pole.z) * 0.35;
 
         // Skip if off-screen
         if (sx < -radius || sx > cw + radius || sy < -radius || sy > ch + radius) continue;
