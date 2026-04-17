@@ -67,7 +67,8 @@
     "noVideo": "الفيديو غير متاح لهذه الرمية.",
     "worldRank": "التصنيف العالمي",
     "countryRank": "التصنيف المحلي",
-    "backToTop": "العودة للرئيسية"
+    "backToTop": "العودة للرئيسية",
+    "scoreNotSaved": "لم يتم حفظ النتيجة"
   },
   "ranking": {
     "heading": "التصنيف",

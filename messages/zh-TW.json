@@ -67,7 +67,8 @@
     "noVideo": "本次投擲影片不可用。",
     "worldRank": "世界排名",
     "countryRank": "國內排名",
-    "backToTop": "返回首頁"
+    "backToTop": "返回首頁",
+    "scoreNotSaved": "成績未儲存"
   },
   "ranking": {
     "heading": "排名",

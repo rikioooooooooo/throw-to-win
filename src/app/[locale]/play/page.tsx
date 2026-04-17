@@ -57,6 +57,8 @@ export default function PlayPage() {
   const [isPersonalBest, setIsPersonalBest] = useState(false);
   const [rankingData, setRankingData] = useState<VerifyResponse | null>(null);
   const [turnstileSiteKey, setTurnstileSiteKey] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState(false);
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
 
   const fingerprintRef = useRef<string | null>(null);
   const turnstileTokenRef = useRef<string | null>(null);
@@ -332,27 +334,26 @@ export default function PlayPage() {
     if (result && gameState === "active" && !finishingRef.current) {
       finishingRef.current = true;
 
-      // Landing: if v0 trajectory was active, the tracked max IS the result.
-      // No correction needed — just freeze at the displayed max.
-      // Read from v0PeakRef (survives overlay state reset by the sync useEffect
-      // that fires in the same render cycle when phase changes to "landed").
+      // Landing: v0PeakRef tracks the canvas overlay trajectory max for display only.
+      // result.heightMeters (from calculateScoreHeight in sensor.ts) is the authoritative
+      // value for server submission. Keep them separate.
       const trackedMax = v0PeakRef.current;
-      const finalHeight = trackedMax > 0 ? trackedMax : result.heightMeters;
+      const displayHeight = trackedMax > 0 ? trackedMax : result.heightMeters;
       const displayResult: ThrowResult = trackedMax > 0
-        ? { ...result, heightMeters: finalHeight }
+        ? { ...result, heightMeters: displayHeight }
         : result;
 
-      // Compute personal best early — needed during 5s camera window before handleThrowComplete
+      // Compute personal best early — use the authoritative server height
       const currentData = loadData();
-      setIsPersonalBest(finalHeight > currentData.stats.personalBest);
+      setIsPersonalBest(result.heightMeters > currentData.stats.personalBest);
 
-      // Set peak with unified height — DOM HeightDisplay and canvas overlay match.
+      // Set peak with display height — DOM HeightDisplay and canvas overlay match.
       setPeakResult(displayResult);
 
       overlayStateRef.current = {
         mode: "height",
         countdownText: "",
-        height: finalHeight,
+        height: displayHeight,
         isAtPeak: true,
         estimatedV0: 0,
         freefallStartTime: 0,
@@ -363,9 +364,11 @@ export default function PlayPage() {
       };
 
       // Wait 5 seconds then stop recording and process video.
+      // Pass the original result (with authoritative heightMeters from sensor.ts)
+      // for server submission. Display height is only for the UI.
       finishTimeoutRef.current = setTimeout(() => {
         finishTimeoutRef.current = null;
-        handleThrowComplete(displayResult);
+        handleThrowComplete(result);
       }, 5000);
     }
     return () => {
@@ -464,7 +467,7 @@ export default function PlayPage() {
             setRankingData(verifyResult);
           })
           .catch(() => {
-            // Server submission failed — local result still shown
+            setSubmitError(true);
           });
         challengeDataRef.current = null;
       }
@@ -530,8 +533,10 @@ export default function PlayPage() {
     setPeakResult(null);
     setIsPersonalBest(false);
     setRankingData(null);
+    setSubmitError(false);
     setProcessingStatus("idle");
     setProcessingProgress(0);
+    setTurnstileResetKey((k) => k + 1);
     // Restart camera preview (re-enumerates lenses)
     const success = await startPreview("rear");
     setGameState(success ? "prepare" : "permissions");
@@ -585,13 +590,17 @@ export default function PlayPage() {
     turnstileTokenRef.current = token;
   }, []);
 
+  const turnstileWidget = turnstileSiteKey ? (
+    <div style={{ position: "fixed", top: -9999, left: -9999, width: 0, height: 0, overflow: "hidden" }}>
+      <Turnstile key={turnstileResetKey} siteKey={turnstileSiteKey} onToken={handleTurnstileToken} />
+    </div>
+  ) : null;
+
   if (gameState === "permissions") {
     return (
       <>
         <PermissionRequest onGranted={handlePermissionsGranted} />
-        {turnstileSiteKey && (
-          <Turnstile siteKey={turnstileSiteKey} onToken={handleTurnstileToken} />
-        )}
+        {turnstileWidget}
       </>
     );
   }
@@ -604,6 +613,7 @@ export default function PlayPage() {
   ) {
     return (
       <div className="fixed inset-0 z-50 bg-black">
+        {turnstileWidget}
         {/* Persistent video element */}
         <video
           ref={videoRef}
@@ -687,6 +697,22 @@ export default function PlayPage() {
           />
         )}
 
+        {/* ---- Sensor unsupported overlay ---- */}
+        {phase === "unsupported" && (
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/80 px-6">
+            <p className="text-white text-[18px] font-medium text-center mb-6">
+              {t("permissions.unsupported")}
+            </p>
+            <button
+              onClick={handleGoHome}
+              className="py-3 px-8 bg-accent text-white cta-text text-[14px] tracking-widest"
+              style={{ borderRadius: "14px" }}
+            >
+              {t("result.backToTop")}
+            </button>
+          </div>
+        )}
+
         {/* ---- Active throw overlay ---- */}
         {gameState === "active" && (
           <>
@@ -755,13 +781,18 @@ export default function PlayPage() {
 
   if (gameState === "processing") {
     return (
-      <LoadingScreen status={processingStatus} progress={processingProgress} />
+      <>
+        {turnstileWidget}
+        <LoadingScreen status={processingStatus} progress={processingProgress} />
+      </>
     );
   }
 
   // ---- Result screen ----
   if (resultData) {
     return (
+      <>
+      {turnstileWidget}
       <ResultScreen
         resultData={resultData}
         rankingData={rankingData}
@@ -771,7 +802,9 @@ export default function PlayPage() {
         onShareVideo={handleShareVideo}
         onTryAgain={handleTryAgain}
         onGoHome={handleGoHome}
+        submitError={submitError}
       />
+      </>
     );
   }
 

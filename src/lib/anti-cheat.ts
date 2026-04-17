@@ -171,9 +171,18 @@ function estimateV0FromSamples(
   freefallStartT: number,
 ): number {
   const LAUNCH_ACCEL_THRESHOLD = 12;
-  const baseline = mean(
-    samples.slice(0, Math.min(10, samples.length)).map((s) => s.magnitude),
-  );
+
+  // Find calibration region: samples before the first high-magnitude launch spike
+  let launchIdx = samples.length;
+  for (let i = 0; i < samples.length; i++) {
+    if (samples[i].magnitude > LAUNCH_ACCEL_THRESHOLD) {
+      launchIdx = i;
+      break;
+    }
+  }
+  const calibrationSamples = samples.slice(0, Math.max(1, launchIdx));
+  const baseline = mean(calibrationSamples.map((s) => s.magnitude));
+
   let v0 = 0;
   let integrating = false;
   for (let i = 1; i < samples.length; i++) {
@@ -190,22 +199,53 @@ function estimateV0FromSamples(
   return Math.max(0, v0);
 }
 
-/** Find freefall boundaries in the sensor stream */
+/** Find freefall boundaries mirroring client's detection logic in sensor.ts */
 function findFreefallBoundaries(
   samples: readonly AccelSample[],
 ): { start: number; end: number } {
   let freefallStart = -1;
   let freefallEnd = -1;
+  let launchDetected = false;
+  let consecutiveLow = 0;
+  let candidateStart = -1;
   let inFreefall = false;
+  let landingConfirmCount = 0;
+  let firstHighIdx = -1;
 
   for (let i = 0; i < samples.length; i++) {
-    if (!inFreefall && samples[i].magnitude < FREEFALL_MAGNITUDE_THRESHOLD) {
-      freefallStart = i;
-      inFreefall = true;
+    const mag = samples[i].magnitude;
+
+    if (!launchDetected) {
+      if (mag > LAUNCH_MAGNITUDE_THRESHOLD) {
+        launchDetected = true;
+      }
+      continue;
     }
-    if (inFreefall && samples[i].magnitude >= LANDING_MAGNITUDE_THRESHOLD) {
-      freefallEnd = i;
-      break;
+
+    if (!inFreefall) {
+      if (mag < FREEFALL_MAGNITUDE_THRESHOLD) {
+        if (consecutiveLow === 0) candidateStart = i;
+        consecutiveLow++;
+        if (consecutiveLow >= 2) {
+          freefallStart = candidateStart;
+          inFreefall = true;
+        }
+      } else {
+        consecutiveLow = 0;
+        candidateStart = -1;
+      }
+    } else {
+      if (mag > LANDING_MAGNITUDE_THRESHOLD) {
+        if (landingConfirmCount === 0) firstHighIdx = i;
+        landingConfirmCount++;
+        if (landingConfirmCount >= 2) {
+          freefallEnd = firstHighIdx;
+          break;
+        }
+      } else {
+        landingConfirmCount = 0;
+        firstHighIdx = -1;
+      }
     }
   }
 
@@ -256,7 +296,12 @@ function checkHeightDeviation(
 }
 
 function checkNoisePattern(samples: readonly AccelSample[]): CheckResult {
-  if (samples.length < 10) {
+  const { start, end } = findFreefallBoundaries(samples);
+  const freefallSamples = start >= 0 && end > start
+    ? samples.slice(start, end + 1)
+    : samples;
+
+  if (freefallSamples.length < 10) {
     return {
       name: "noise_pattern",
       passed: true,
@@ -265,7 +310,7 @@ function checkNoisePattern(samples: readonly AccelSample[]): CheckResult {
     };
   }
 
-  const magnitudes = samples.map((s) => s.magnitude);
+  const magnitudes = freefallSamples.map((s) => s.magnitude);
   const sd = stdDev(magnitudes);
 
   const suspiciouslyPerfect = sd < NOISE_STD_MIN;

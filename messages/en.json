@@ -67,7 +67,8 @@
     "noVideo": "Video unavailable for this throw.",
     "worldRank": "WORLD RANK",
     "countryRank": "COUNTRY RANK",
-    "backToTop": "Back to TOP"
+    "backToTop": "Back to TOP",
+    "scoreNotSaved": "Score not saved"
   },
   "ranking": {
     "heading": "Rankings",

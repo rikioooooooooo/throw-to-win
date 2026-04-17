@@ -146,8 +146,17 @@ export function useCamera(): UseCameraReturn {
             width: { ideal: 1920 },
             frameRate: { ideal: 60 },
           },
-          audio: true,
+          audio: false,
         });
+
+        try {
+          const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          for (const track of audioStream.getAudioTracks()) {
+            stream.addTrack(track);
+          }
+        } catch {
+          // Audio unavailable — proceed with video-only
+        }
 
         // Enumerate devices and build lens list (labels available after permission)
         const currentTrack = stream.getVideoTracks()[0];
@@ -179,8 +188,14 @@ export function useCamera(): UseCameraReturn {
               try {
                 const uwStream = await navigator.mediaDevices.getUserMedia({
                   video: { deviceId: { exact: ultraWide.id } },
-                  audio: true,
+                  audio: false,
                 });
+                try {
+                  const uwAudio = await navigator.mediaDevices.getUserMedia({ audio: true });
+                  for (const track of uwAudio.getAudioTracks()) {
+                    uwStream.addTrack(track);
+                  }
+                } catch { /* audio unavailable */ }
                 stream.getTracks().forEach((t) => t.stop());
                 const uwTrack = uwStream.getVideoTracks()[0];
                 if (uwTrack) {
@@ -237,8 +252,14 @@ export function useCamera(): UseCameraReturn {
         // then tune resolution/frameRate via applyConstraints afterwards.
         const newStream = await navigator.mediaDevices.getUserMedia({
           video: { deviceId: { exact: lensId } },
-          audio: true,
+          audio: false,
         });
+        try {
+          const lensAudio = await navigator.mediaDevices.getUserMedia({ audio: true });
+          for (const track of lensAudio.getAudioTracks()) {
+            newStream.addTrack(track);
+          }
+        } catch { /* audio unavailable */ }
 
         // Best-effort: request high resolution + frameRate without forcing aspect ratio.
         // Width-only keeps the camera's native aspect ratio → native FOV.

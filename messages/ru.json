@@ -67,7 +67,8 @@
     "noVideo": "Видео для этого броска недоступно.",
     "worldRank": "МИРОВОЙ РЕЙТИНГ",
     "countryRank": "РЕЙТИНГ СТРАНЫ",
-    "backToTop": "На главную"
+    "backToTop": "На главную",
+    "scoreNotSaved": "Результат не сохранен"
   },
   "ranking": {
     "heading": "Рейтинг",

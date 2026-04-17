@@ -60,6 +60,7 @@ export type ThrowPhase =
   | "launched" // launch spike detected, transitioning to freefall
   | "freefall"
   | "landed"
+  | "unsupported" // no devicemotion events received (sensor unavailable)
   | "error";
 
 /** Throw detection result */

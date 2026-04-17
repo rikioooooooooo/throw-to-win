@@ -67,7 +67,8 @@
     "noVideo": "इस थ्रो का वीडियो उपलब्ध नहीं है।",
     "worldRank": "विश्व रैंकिंग",
     "countryRank": "देश रैंकिंग",
-    "backToTop": "होम पर वापस"
+    "backToTop": "होम पर वापस",
+    "scoreNotSaved": "स्कोर सेव नहीं हुआ"
   },
   "ranking": {
     "heading": "रैंकिंग",

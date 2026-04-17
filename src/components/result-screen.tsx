@@ -30,6 +30,7 @@ type ResultScreenProps = {
   readonly onShareVideo: () => void;
   readonly onTryAgain: () => void;
   readonly onGoHome: () => void;
+  readonly submitError?: boolean;
 };
 
 export function ResultScreen({
@@ -41,6 +42,7 @@ export function ResultScreen({
   onShareVideo,
   onTryAgain,
   onGoHome,
+  submitError,
 }: ResultScreenProps) {
   const t = useTranslations();
   const router = useRouter();
@@ -73,6 +75,8 @@ export function ResultScreen({
   }, []);
 
   useEffect(() => {
+    if (!rankingData) return;
+
     let cancelled = false;
 
     async function fetchRankings() {
@@ -102,7 +106,7 @@ export function ResultScreen({
 
     fetchRankings();
     return () => { cancelled = true; };
-  }, []);
+  }, [rankingData]);
 
   const goToRanking = () => router.push(`/${locale}/ranking`);
 
@@ -155,6 +159,14 @@ export function ResultScreen({
         <p className="text-muted/40 text-[13px] tracking-[0.1em] mb-6 animate-fade-in-up delay-160">
           {t("result.airtime")}: <span className="text-foreground height-number">{resultData.airtime.toFixed(2)}s</span>
         </p>
+
+        {submitError && !rankingData && (
+          <p
+            className="text-muted/50 text-[12px] tracking-widest mb-4 animate-fade-in-up delay-240"
+          >
+            {t("result.scoreNotSaved")}
+          </p>
+        )}
 
         {rankingData && (
           <div className="flex gap-4 mb-8 w-full animate-fade-in-up delay-240">

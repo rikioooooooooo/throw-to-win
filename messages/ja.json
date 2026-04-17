@@ -67,7 +67,8 @@
     "noVideo": "この投擲の動画は利用できません。",
     "worldRank": "世界ランキング",
     "countryRank": "国内ランキング",
-    "backToTop": "TOPに戻る"
+    "backToTop": "TOPに戻る",
+    "scoreNotSaved": "スコア未保存"
   },
   "ranking": {
     "heading": "ランキング",

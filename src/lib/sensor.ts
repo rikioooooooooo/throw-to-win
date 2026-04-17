@@ -48,6 +48,8 @@ export class ThrowDetector {
   private firstLandingSampleTime = 0;
   private estimatedV0 = 0;
   private maxRealtimeHeight = 0;
+  private sensorTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private receivedMotionEvent = false;
 
   constructor(callback: SensorCallback) {
     this.callback = callback;
@@ -87,9 +89,11 @@ export class ThrowDetector {
     this.samples = [];
     this.freefallCandidateStart = 0;
     this.launchTime = 0;
+    this.receivedMotionEvent = false;
     this.callback(this.phase);
 
     this.handler = (event: DeviceMotionEvent) => {
+      this.receivedMotionEvent = true;
       const accel = event.accelerationIncludingGravity;
       if (!accel || accel.x === null || accel.y === null || accel.z === null)
         return;
@@ -111,6 +115,14 @@ export class ThrowDetector {
     };
 
     window.addEventListener("devicemotion", this.handler, { passive: true });
+
+    this.sensorTimeoutId = setTimeout(() => {
+      this.sensorTimeoutId = null;
+      if (!this.receivedMotionEvent && this.phase === "calibrating") {
+        this.phase = "unsupported";
+        this.callback(this.phase);
+      }
+    }, 3000);
   }
 
   private processPhase(magnitude: number, now: number): void {
@@ -166,7 +178,8 @@ export class ThrowDetector {
         }
 
         // Timeout: if no freefall detected within 1s, it was a false launch
-        if (now - this.launchTime > LAUNCH_TIMEOUT_MS) {
+        // Skip timeout if there's an active freefall candidate being confirmed
+        if (this.freefallCandidateStart === 0 && now - this.launchTime > LAUNCH_TIMEOUT_MS) {
           this.phase = "waiting-throw";
           this.freefallCandidateStart = 0;
           this.callback(this.phase);
@@ -250,6 +263,7 @@ export class ThrowDetector {
       return;
     }
     this.phase = "waiting-throw";
+    this.samples = [];
     this.freefallCandidateStart = 0;
     this.launchTime = 0;
     this.launchConfirmCount = 0;
@@ -352,6 +366,10 @@ export class ThrowDetector {
       window.removeEventListener("devicemotion", this.handler);
       this.handler = null;
     }
+    if (this.sensorTimeoutId !== null) {
+      clearTimeout(this.sensorTimeoutId);
+      this.sensorTimeoutId = null;
+    }
     this.phase = "idle";
   }
 
@@ -367,6 +385,7 @@ export class ThrowDetector {
     this.firstLandingSampleTime = 0;
     this.estimatedV0 = 0;
     this.maxRealtimeHeight = 0;
+    this.receivedMotionEvent = false;
     this.phase = "idle";
   }
 }

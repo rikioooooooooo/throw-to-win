@@ -67,7 +67,8 @@
     "noVideo": "Video für diesen Wurf nicht verfügbar.",
     "worldRank": "WELTRANGLISTE",
     "countryRank": "LANDESRANGLISTE",
-    "backToTop": "Zuruck"
+    "backToTop": "Zuruck",
+    "scoreNotSaved": "Ergebnis nicht gespeichert"
   },
   "ranking": {
     "heading": "Rangliste",

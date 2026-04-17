@@ -67,7 +67,8 @@
     "noVideo": "이번 던지기 영상을 사용할 수 없습니다.",
     "worldRank": "세계 랭킹",
     "countryRank": "국내 랭킹",
-    "backToTop": "TOP으로"
+    "backToTop": "TOP으로",
+    "scoreNotSaved": "점수 미저장"
   },
   "ranking": {
     "heading": "랭킹",

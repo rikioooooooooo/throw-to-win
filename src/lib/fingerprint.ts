@@ -1,10 +1,28 @@
 "use client";
 
+const FALLBACK_FP_KEY = "ttw_fallback_fp";
+
+function djb2Hash(str: string): string {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash + str.charCodeAt(i)) >>> 0;
+  }
+  return hash.toString(16).padStart(8, "0");
+}
+
 async function sha256Hex(data: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const buffer = await crypto.subtle.digest("SHA-256", encoder.encode(data));
-  const hashArray = Array.from(new Uint8Array(buffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  try {
+    const encoder = new TextEncoder();
+    const buffer = await crypto.subtle.digest("SHA-256", encoder.encode(data));
+    const hashArray = Array.from(new Uint8Array(buffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  } catch {
+    let result = "";
+    for (let i = 0; i < data.length; i += 64) {
+      result += djb2Hash(data.slice(i, i + 64));
+    }
+    return result.slice(0, 64);
+  }
 }
 
 function getCanvasFingerprint(): string {
@@ -61,14 +79,26 @@ function getScreenFingerprint(): string {
 }
 
 export async function generateFingerprint(): Promise<string> {
-  const components = [
-    getCanvasFingerprint(),
-    getAudioFingerprint(),
-    getScreenFingerprint(),
-    navigator.userAgent,
-    Intl.DateTimeFormat().resolvedOptions().timeZone,
-    navigator.language,
-  ];
+  try {
+    const components = [
+      getCanvasFingerprint(),
+      getAudioFingerprint(),
+      getScreenFingerprint(),
+      navigator.userAgent,
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+      navigator.language,
+    ];
 
-  return sha256Hex(components.join("|"));
+    return await sha256Hex(components.join("|"));
+  } catch {
+    try {
+      const stored = localStorage.getItem(FALLBACK_FP_KEY);
+      if (stored) return stored;
+      const id = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      localStorage.setItem(FALLBACK_FP_KEY, id);
+      return id;
+    } catch {
+      return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    }
+  }
 }

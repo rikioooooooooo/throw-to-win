@@ -67,7 +67,8 @@
     "noVideo": "Vidéo non disponible pour ce lancer.",
     "worldRank": "RANG MONDIAL",
     "countryRank": "RANG NATIONAL",
-    "backToTop": "Retour"
+    "backToTop": "Retour",
+    "scoreNotSaved": "Score non sauvegarde"
   },
   "ranking": {
     "heading": "Classement",
