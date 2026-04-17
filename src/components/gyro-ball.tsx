@@ -125,26 +125,24 @@ export function GyroBars({ className }: GyroBarsProps) {
 
       const cx = cw / 2;
       const cy = ch / 2;
-      // Spread covers full screen edge-to-edge (0.85 = beyond visible area)
-      const spreadX = cw * 0.85;
-      const spreadY = ch * 0.85;
+      // All layers spread across the full screen uniformly.
+      // Depth is conveyed by size + parallax speed + opacity alone,
+      // NOT by convergence toward center — so edges have depth too.
+      const spreadX = cw * 0.65;
+      const spreadY = ch * 0.65;
 
       for (const pole of poles) {
-        // Perspective convergence: far layers converge toward center
-        // nearest → full spread, furthest → 10% (tighter for deeper feel)
-        const convergence = 0.10 + (1 - pole.z) * 0.90;
-
         const perspectiveScale = 1 / (0.15 + pole.z * 0.85);
         const parallaxFactor = (1 - pole.z) * MAX_SHIFT;
 
-        const sx = cx + pole.wx * spreadX * convergence + tiltX * parallaxFactor;
-        const sy = cy + pole.wy * spreadY * convergence + tiltY * parallaxFactor * 0.6;
+        // Same spread for all layers — depth only from size/parallax/alpha
+        const sx = cx + pole.wx * spreadX + tiltX * parallaxFactor;
+        const sy = cy + pole.wy * spreadY + tiltY * parallaxFactor * 0.6;
 
         // Radius: near=big, far=tiny
         const radius = 4.5 * perspectiveScale;
 
-        // Depth fog: gentler curve so far layers stay visible longer
-        // nearest → alpha ~0.42, furthest → alpha ~0.05
+        // Depth fog: gentler curve, far layers still visible
         const depthFog = Math.pow(1 - pole.z, 1.2);
         const alpha = 0.05 + depthFog * 0.38;
 
