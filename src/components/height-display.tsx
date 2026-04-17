@@ -72,7 +72,7 @@ export function HeightDisplay({
           style={{
             color: isAtPeak ? peakColor : "#ffffff",
             textShadow: isAtPeak
-              ? undefined
+              ? "0 0 20px currentColor"
               : "0 2px 12px rgba(0, 0, 0, 0.9), 0 4px 24px rgba(0, 0, 0, 0.7)",
             transition: "color 0.2s ease-out",
           }}

@@ -54,7 +54,7 @@ export default function LandingPage() {
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center">
         <h1
           className="animate-fade-in-up text-center leading-[0.82] tracking-[0.08em] uppercase text-foreground font-normal"
-          style={{ fontSize: "clamp(3.2rem, 15vw, 6.5rem)" }}
+          style={{ fontSize: "clamp(3.2rem, 15vw, 6.5rem)", textShadow: "0 0 40px rgba(0,250,154,0.15)" }}
         >
           THROW
           <br />
@@ -68,11 +68,10 @@ export default function LandingPage() {
         {/* CTA — tight to subtitle, not stuck at bottom */}
         <button
           onClick={handleStart}
-          className="mt-10 w-full max-w-[320px] bg-accent text-black cta-text text-[15px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100 animate-fade-in-up delay-160"
+          className="mt-10 w-full max-w-[320px] bg-accent text-black cta-text text-[15px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100 animate-fade-in-up delay-160 neon-glow"
           style={{
             borderRadius: "16px",
             height: "58px",
-            boxShadow: "0 4px 20px rgba(0, 250, 154, 0.2)",
           }}
         >
           {t("landing.start")}

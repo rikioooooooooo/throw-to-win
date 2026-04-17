@@ -67,13 +67,19 @@ body {
 .height-number {
   font-weight: 400;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.05em;
   line-height: 0.9;
 }
 
 .cta-text {
   font-weight: 600;
   text-transform: uppercase;
+}
+
+/* ---- Neon Glow ---- */
+
+.neon-glow {
+  box-shadow: 0 0 24px rgba(0, 250, 154, 0.3), 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 /* ---- Text Effects ---- */

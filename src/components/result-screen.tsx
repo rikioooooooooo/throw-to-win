@@ -1,14 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import { formatHeight } from "@/lib/physics";
-import { getDisplayName, saveDisplayName, loadData } from "@/lib/storage";
+import { loadData } from "@/lib/storage";
 import { CountUpHeight } from "@/components/count-up-height";
-import { generateFingerprint } from "@/lib/fingerprint";
 import { SlowMoPlayer } from "@/components/slow-mo-player";
-import { NameInput } from "@/components/name-input";
 import { RankingList } from "@/components/ranking-list";
 import { useRankings } from "@/hooks/use-rankings";
 import type { HeightTier } from "@/components/height-display";
@@ -62,36 +59,12 @@ export function ResultScreen({
   const t = useTranslations();
   const router = useRouter();
   const locale = useLocale();
-  const [displayName, setDisplayName] = useState(() =>
-    typeof window !== "undefined" ? getDisplayName() : "",
-  );
-  const [savingName, setSavingName] = useState(false);
   const rankings = useRankings({ limit: 10, enabled: !!rankingData });
   const [todayStats] = useState(() => {
     if (typeof window === "undefined") return { todayBest: 0, streakDays: 0 };
     const d = loadData();
     return { todayBest: d.stats.todayBest, streakDays: d.stats.streakDays };
   });
-
-  const handleSaveName = useCallback(async (name: string) => {
-    setSavingName(true);
-    try {
-      const fingerprint = await generateFingerprint();
-      const res = await fetch("/api/profile", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deviceFingerprint: fingerprint, displayName: name }),
-      });
-      if (res.ok) {
-        saveDisplayName(name);
-        setDisplayName(name);
-      }
-    } catch {
-      // silent
-    } finally {
-      setSavingName(false);
-    }
-  }, []);
 
   const tierColor =
     tierInfo?.isBreakthrough
@@ -129,6 +102,7 @@ export function ResultScreen({
               style={{
                 color: tierColor,
                 fontSize: "clamp(5rem, 28vw, 9rem)",
+                textShadow: "0 0 30px currentColor",
               }}
             />
             <span
@@ -237,25 +211,13 @@ export function ResultScreen({
           </div>
         )}
 
-        {/* Name input */}
-        {!displayName && (
-          <div className="w-full max-w-[260px] mb-5 animate-fade-in-up delay-320">
-            <NameInput
-              currentName={displayName}
-              onSave={handleSaveName}
-              saving={savingName}
-            />
-          </div>
-        )}
-
         {/* ---- Primary CTA ---- */}
         <button
           onClick={onTryAgain}
-          className="w-full max-w-[260px] bg-accent text-black cta-text text-[15px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100 animate-fade-in-up delay-320"
+          className="w-full max-w-[260px] bg-accent text-black cta-text text-[15px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100 animate-fade-in-up delay-320 neon-glow"
           style={{
             borderRadius: "16px",
             height: "58px",
-            boxShadow: "0 4px 20px rgba(0, 250, 154, 0.2)",
           }}
         >
           {t("result.tryAgain")}
@@ -287,7 +249,7 @@ export function ResultScreen({
         {/* Near-miss */}
         {tierInfo?.nearMiss && (
           <p
-            className="mt-4 text-muted/70 text-[13px] tracking-[0.05em]"
+            className="mt-4 text-accent/70 text-[13px] tracking-[0.05em]"
             style={{ animation: "fade-in 0.4s ease-out 0.8s both" }}
           >
             {tierInfo.nearMiss.type === "tier"
