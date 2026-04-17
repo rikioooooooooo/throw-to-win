@@ -146,19 +146,91 @@ export function GyroBars({ className }: GyroBarsProps) {
         ctx.fill();
       }
 
-      // Vignette (cached — only 1 gradient create per resize)
-      if (vignetteSizeRef.current.w !== cw || vignetteSizeRef.current.h !== ch) {
-        const diag = Math.sqrt(cx * cx + cy * cy);
-        const grad = ctx.createRadialGradient(cx, cy, diag * 0.3, cx, cy, diag);
-        grad.addColorStop(0, "rgba(5, 5, 8, 0)");
-        grad.addColorStop(0.7, "rgba(5, 5, 8, 0.15)");
-        grad.addColorStop(1, "rgba(5, 5, 8, 0.5)");
-        vignetteRef.current = grad;
-        vignetteSizeRef.current = { w: cw, h: ch };
+      // --- Box walls: appear when tilting, opposite side becomes visible ---
+      // Tilt right (tiltX>0) → left wall visible, etc.
+      const WALL_MAX = 80; // max wall depth in px at extreme tilt
+      const WALL_COLOR = "0, 250, 154";
+      const WALL_LINES = 6; // horizontal grid lines per wall
+
+      // Left wall (visible when tiltX > 0)
+      if (tiltX > 0.05) {
+        const w = Math.min(WALL_MAX, tiltX * WALL_MAX);
+        const wallAlpha = Math.min(0.12, tiltX * 0.1);
+        const grad = ctx.createLinearGradient(0, 0, w, 0);
+        grad.addColorStop(0, `rgba(${WALL_COLOR}, ${wallAlpha.toFixed(3)})`);
+        grad.addColorStop(1, `rgba(${WALL_COLOR}, 0)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, ch);
+        // Grid lines on wall
+        ctx.strokeStyle = `rgba(${WALL_COLOR}, ${(wallAlpha * 0.6).toFixed(3)})`;
+        ctx.lineWidth = 0.5;
+        for (let i = 1; i <= WALL_LINES; i++) {
+          const ly = (i / (WALL_LINES + 1)) * ch;
+          ctx.beginPath();
+          ctx.moveTo(0, ly);
+          ctx.lineTo(w * 0.8, ly);
+          ctx.stroke();
+        }
       }
-      if (vignetteRef.current) {
-        ctx.fillStyle = vignetteRef.current;
-        ctx.fillRect(0, 0, cw, ch);
+
+      // Right wall (visible when tiltX < -0.05)
+      if (tiltX < -0.05) {
+        const w = Math.min(WALL_MAX, -tiltX * WALL_MAX);
+        const wallAlpha = Math.min(0.12, -tiltX * 0.1);
+        const grad = ctx.createLinearGradient(cw, 0, cw - w, 0);
+        grad.addColorStop(0, `rgba(${WALL_COLOR}, ${wallAlpha.toFixed(3)})`);
+        grad.addColorStop(1, `rgba(${WALL_COLOR}, 0)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(cw - w, 0, w, ch);
+        ctx.strokeStyle = `rgba(${WALL_COLOR}, ${(wallAlpha * 0.6).toFixed(3)})`;
+        ctx.lineWidth = 0.5;
+        for (let i = 1; i <= WALL_LINES; i++) {
+          const ly = (i / (WALL_LINES + 1)) * ch;
+          ctx.beginPath();
+          ctx.moveTo(cw, ly);
+          ctx.lineTo(cw - w * 0.8, ly);
+          ctx.stroke();
+        }
+      }
+
+      // Top wall (visible when tiltY > 0.05)
+      if (tiltY > 0.05) {
+        const h = Math.min(WALL_MAX, tiltY * WALL_MAX);
+        const wallAlpha = Math.min(0.12, tiltY * 0.1);
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, `rgba(${WALL_COLOR}, ${wallAlpha.toFixed(3)})`);
+        grad.addColorStop(1, `rgba(${WALL_COLOR}, 0)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, cw, h);
+        ctx.strokeStyle = `rgba(${WALL_COLOR}, ${(wallAlpha * 0.6).toFixed(3)})`;
+        ctx.lineWidth = 0.5;
+        for (let i = 1; i <= WALL_LINES; i++) {
+          const lx = (i / (WALL_LINES + 1)) * cw;
+          ctx.beginPath();
+          ctx.moveTo(lx, 0);
+          ctx.lineTo(lx, h * 0.8);
+          ctx.stroke();
+        }
+      }
+
+      // Bottom wall (visible when tiltY < -0.05)
+      if (tiltY < -0.05) {
+        const h = Math.min(WALL_MAX, -tiltY * WALL_MAX);
+        const wallAlpha = Math.min(0.12, -tiltY * 0.1);
+        const grad = ctx.createLinearGradient(0, ch, 0, ch - h);
+        grad.addColorStop(0, `rgba(${WALL_COLOR}, ${wallAlpha.toFixed(3)})`);
+        grad.addColorStop(1, `rgba(${WALL_COLOR}, 0)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, ch - h, cw, h);
+        ctx.strokeStyle = `rgba(${WALL_COLOR}, ${(wallAlpha * 0.6).toFixed(3)})`;
+        ctx.lineWidth = 0.5;
+        for (let i = 1; i <= WALL_LINES; i++) {
+          const lx = (i / (WALL_LINES + 1)) * cw;
+          ctx.beginPath();
+          ctx.moveTo(lx, ch);
+          ctx.lineTo(lx, ch - h * 0.8);
+          ctx.stroke();
+        }
       }
 
       rafRef.current = requestAnimationFrame(draw);
