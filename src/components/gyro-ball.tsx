@@ -17,10 +17,10 @@ type Pole = {
   readonly z: number;  // depth: 0=closest, 1=furthest
 };
 
-const GRID_COLS = 11;
-const GRID_ROWS = 18;
-const DEPTH_LAYERS = 8;
-const MAX_SHIFT = 80;
+const GRID_COLS = 15;
+const GRID_ROWS = 24;
+const DEPTH_LAYERS = 12;
+const MAX_SHIFT = 90;
 const LERP = 0.06;
 const GYRO_TIMEOUT_MS = 2000;
 
@@ -125,27 +125,28 @@ export function GyroBars({ className }: GyroBarsProps) {
 
       const cx = cw / 2;
       const cy = ch / 2;
-      const spreadX = cw * 0.6;
-      const spreadY = ch * 0.6;
+      // Spread covers full screen edge-to-edge (0.85 = beyond visible area)
+      const spreadX = cw * 0.85;
+      const spreadY = ch * 0.85;
 
       for (const pole of poles) {
         // Perspective convergence: far layers converge toward center
-        // z=0.125 (nearest) → full spread, z=1 (furthest) → 15% spread
-        const convergence = 0.15 + (1 - pole.z) * 0.85;
+        // nearest → full spread, furthest → 10% (tighter for deeper feel)
+        const convergence = 0.10 + (1 - pole.z) * 0.90;
 
-        const perspectiveScale = 1 / (0.2 + pole.z * 0.8);
+        const perspectiveScale = 1 / (0.15 + pole.z * 0.85);
         const parallaxFactor = (1 - pole.z) * MAX_SHIFT;
 
         const sx = cx + pole.wx * spreadX * convergence + tiltX * parallaxFactor;
         const sy = cy + pole.wy * spreadY * convergence + tiltY * parallaxFactor * 0.6;
 
-        // Radius: near=big, far=tiny (more dramatic range)
-        const radius = 4.0 * perspectiveScale;
+        // Radius: near=big, far=tiny
+        const radius = 4.5 * perspectiveScale;
 
-        // Depth fog: far layers fade out significantly
-        // z=0.125 → alpha ~0.40, z=1.0 → alpha ~0.03
-        const depthFog = Math.pow(1 - pole.z, 1.5);
-        const alpha = 0.03 + depthFog * 0.38;
+        // Depth fog: gentler curve so far layers stay visible longer
+        // nearest → alpha ~0.42, furthest → alpha ~0.05
+        const depthFog = Math.pow(1 - pole.z, 1.2);
+        const alpha = 0.05 + depthFog * 0.38;
 
         if (sx < -radius || sx > cw + radius || sy < -radius || sy > ch + radius) continue;
 
@@ -155,13 +156,13 @@ export function GyroBars({ className }: GyroBarsProps) {
         ctx.fill();
       }
 
-      // Vignette: radial gradient darkening edges → "tunnel" depth feel
+      // Vignette: subtle — just enough to hint at depth, not hide edges
       if (vignetteSizeRef.current.w !== cw || vignetteSizeRef.current.h !== ch) {
         const diag = Math.sqrt(cx * cx + cy * cy);
-        const grad = ctx.createRadialGradient(cx, cy, diag * 0.3, cx, cy, diag);
+        const grad = ctx.createRadialGradient(cx, cy, diag * 0.5, cx, cy, diag);
         grad.addColorStop(0, "rgba(5, 5, 8, 0)");
-        grad.addColorStop(0.7, "rgba(5, 5, 8, 0.15)");
-        grad.addColorStop(1, "rgba(5, 5, 8, 0.5)");
+        grad.addColorStop(0.8, "rgba(5, 5, 8, 0.06)");
+        grad.addColorStop(1, "rgba(5, 5, 8, 0.2)");
         vignetteRef.current = grad;
         vignetteSizeRef.current = { w: cw, h: ch };
       }
