@@ -4,40 +4,35 @@ import { useEffect, useRef, useCallback } from "react";
 
 /**
  * Gyroscope parallax: bars extending straight toward the viewer from depth.
- * You see their circular cross-sections. Tilting shifts perspective —
- * closer bars move more, distant bars less, creating a 3D window illusion.
+ * Circular cross-sections with perspective convergence, depth fog, and vignette.
  */
 
 type GyroBarsProps = {
   readonly className?: string;
 };
 
-/** Pole in 3D space — position is fixed, only projection changes with tilt */
 type Pole = {
-  /** World-space grid position (normalized -1..1) */
-  readonly wx: number;
+  readonly wx: number; // world-space grid position (-1..1)
   readonly wy: number;
-  /** Depth: 0 = closest to screen, 1 = furthest */
-  readonly z: number;
+  readonly z: number;  // depth: 0=closest, 1=furthest
 };
 
-const GRID_COLS = 9;
-const GRID_ROWS = 14;
-const DEPTH_LAYERS = 5;
-const MAX_SHIFT = 60; // px shift at full tilt for nearest layer
-const LERP = 0.08;
+const GRID_COLS = 11;
+const GRID_ROWS = 18;
+const DEPTH_LAYERS = 8;
+const MAX_SHIFT = 80;
+const LERP = 0.06;
 const GYRO_TIMEOUT_MS = 2000;
 
-/** Build a grid of poles across multiple depth layers */
 function createPoles(): readonly Pole[] {
   const poles: Pole[] = [];
   for (let d = 0; d < DEPTH_LAYERS; d++) {
-    const z = (d + 1) / DEPTH_LAYERS; // 0.2 .. 1.0
+    const z = (d + 1) / DEPTH_LAYERS;
     for (let row = 0; row < GRID_ROWS; row++) {
       for (let col = 0; col < GRID_COLS; col++) {
         poles.push({
-          wx: (col / (GRID_COLS - 1)) * 2 - 1,  // -1..1
-          wy: (row / (GRID_ROWS - 1)) * 2 - 1,  // -1..1
+          wx: (col / (GRID_COLS - 1)) * 2 - 1,
+          wy: (row / (GRID_ROWS - 1)) * 2 - 1,
           z,
         });
       }
@@ -54,6 +49,8 @@ export function GyroBars({ className }: GyroBarsProps) {
   const hasGyroRef = useRef(false);
   const rafRef = useRef(0);
   const polesRef = useRef<readonly Pole[]>(createPoles());
+  const vignetteRef = useRef<CanvasGradient | null>(null);
+  const vignetteSizeRef = useRef({ w: 0, h: 0 });
 
   const setCanvasRef = useCallback((node: HTMLCanvasElement | null) => {
     canvasRef.current = node;
@@ -65,12 +62,13 @@ export function GyroBars({ className }: GyroBarsProps) {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const handleOrientation = (e: DeviceOrientationEvent) => {
+      // Skip null values — iOS sometimes fires events with null,
+      // which would snap the parallax to center (the "reset" bug)
+      if (e.gamma == null || e.beta == null) return;
       hasGyroRef.current = true;
-      const gamma = e.gamma ?? 0;
-      const beta = e.beta ?? 0;
       targetRef.current = {
-        x: Math.max(-1, Math.min(1, gamma / 40)),
-        y: Math.max(-1, Math.min(1, (beta - 50) / 40)),
+        x: Math.max(-1, Math.min(1, e.gamma / 40)),
+        y: Math.max(-1, Math.min(1, (e.beta - 50) / 40)),
       };
     };
     window.addEventListener("deviceorientation", handleOrientation);
@@ -82,13 +80,14 @@ export function GyroBars({ className }: GyroBarsProps) {
 
     const dpr = window.devicePixelRatio || 1;
     const resize = () => {
-      const p = canvas.parentElement;
-      if (!p) return;
-      const r = p.getBoundingClientRect();
-      canvas.width = r.width * dpr;
-      canvas.height = r.height * dpr;
-      canvas.style.width = `${r.width}px`;
-      canvas.style.height = `${r.height}px`;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      // Invalidate vignette cache
+      vignetteSizeRef.current = { w: 0, h: 0 };
     };
     resize();
     window.addEventListener("resize", resize);
@@ -100,9 +99,8 @@ export function GyroBars({ className }: GyroBarsProps) {
     const poles = polesRef.current;
 
     const draw = (now: number) => {
-      const p = canvas.parentElement;
-      if (!p) { rafRef.current = requestAnimationFrame(draw); return; }
-      const { width: cw, height: ch } = p.getBoundingClientRect();
+      const cw = window.innerWidth;
+      const ch = window.innerHeight;
       if (cw === 0 || ch === 0) { rafRef.current = requestAnimationFrame(draw); return; }
 
       if (useFallback) {
@@ -127,33 +125,49 @@ export function GyroBars({ className }: GyroBarsProps) {
 
       const cx = cw / 2;
       const cy = ch / 2;
-      // Spread: how far the grid extends on screen
-      const spreadX = cw * 0.55;
-      const spreadY = ch * 0.55;
+      const spreadX = cw * 0.6;
+      const spreadY = ch * 0.6;
 
       for (const pole of poles) {
-        // Perspective: closer (small z) → bigger shift, bigger circle
-        // Far (z=1) → small shift, small circle
-        const perspectiveScale = 1 / (0.3 + pole.z * 0.7);
+        // Perspective convergence: far layers converge toward center
+        // z=0.125 (nearest) → full spread, z=1 (furthest) → 15% spread
+        const convergence = 0.15 + (1 - pole.z) * 0.85;
+
+        const perspectiveScale = 1 / (0.2 + pole.z * 0.8);
         const parallaxFactor = (1 - pole.z) * MAX_SHIFT;
 
-        // Screen position: grid position * spread + parallax shift from tilt
-        const sx = cx + pole.wx * spreadX * (0.5 + pole.z * 0.5) + tiltX * parallaxFactor;
-        const sy = cy + pole.wy * spreadY * (0.5 + pole.z * 0.5) + tiltY * parallaxFactor * 0.6;
+        const sx = cx + pole.wx * spreadX * convergence + tiltX * parallaxFactor;
+        const sy = cy + pole.wy * spreadY * convergence + tiltY * parallaxFactor * 0.6;
 
-        // Circle radius: closer = bigger, more substantial
-        const radius = 3.5 * perspectiveScale;
+        // Radius: near=big, far=tiny (more dramatic range)
+        const radius = 4.0 * perspectiveScale;
 
-        // Opacity: closer = much more visible for clear depth separation
-        const alpha = 0.08 + (1 - pole.z) * 0.35;
+        // Depth fog: far layers fade out significantly
+        // z=0.125 → alpha ~0.40, z=1.0 → alpha ~0.03
+        const depthFog = Math.pow(1 - pole.z, 1.5);
+        const alpha = 0.03 + depthFog * 0.38;
 
-        // Skip if off-screen
         if (sx < -radius || sx > cw + radius || sy < -radius || sy > ch + radius) continue;
 
         ctx.beginPath();
         ctx.arc(sx, sy, radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0, 250, 154, ${alpha})`;
+        ctx.fillStyle = `rgba(0, 250, 154, ${alpha.toFixed(3)})`;
         ctx.fill();
+      }
+
+      // Vignette: radial gradient darkening edges → "tunnel" depth feel
+      if (vignetteSizeRef.current.w !== cw || vignetteSizeRef.current.h !== ch) {
+        const diag = Math.sqrt(cx * cx + cy * cy);
+        const grad = ctx.createRadialGradient(cx, cy, diag * 0.3, cx, cy, diag);
+        grad.addColorStop(0, "rgba(5, 5, 8, 0)");
+        grad.addColorStop(0.7, "rgba(5, 5, 8, 0.15)");
+        grad.addColorStop(1, "rgba(5, 5, 8, 0.5)");
+        vignetteRef.current = grad;
+        vignetteSizeRef.current = { w: cw, h: ch };
+      }
+      if (vignetteRef.current) {
+        ctx.fillStyle = vignetteRef.current;
+        ctx.fillRect(0, 0, cw, ch);
       }
 
       rafRef.current = requestAnimationFrame(draw);
