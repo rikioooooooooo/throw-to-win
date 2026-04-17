@@ -72,7 +72,7 @@ export default function LandingPage() {
           style={{
             borderRadius: "16px",
             height: "58px",
-            boxShadow: "0 4px 20px rgba(178, 255, 0, 0.2)",
+            boxShadow: "0 4px 20px rgba(0, 250, 154, 0.2)",
           }}
         >
           {t("landing.start")}

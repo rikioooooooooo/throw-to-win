@@ -104,7 +104,7 @@ export function ResultScreen({
               className="label-text text-[11px] tracking-[0.25em] text-accent mb-5"
               style={{
                 animation: "spring-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both",
-                backgroundColor: "rgba(178, 255, 0, 0.08)",
+                backgroundColor: "rgba(0, 250, 154, 0.08)",
                 border: "1px solid var(--color-accent)",
                 borderRadius: "8px",
                 padding: "4px 12px",
@@ -128,7 +128,7 @@ export function ResultScreen({
               className="text-[22px] ml-0.5"
               style={{
                 color: resultTier === "personal-best"
-                  ? "rgba(178, 255, 0, 0.35)"
+                  ? "rgba(0, 250, 154, 0.35)"
                   : "var(--color-muted)",
               }}
             >
@@ -242,7 +242,7 @@ export function ResultScreen({
           style={{
             borderRadius: "16px",
             height: "58px",
-            boxShadow: "0 4px 20px rgba(178, 255, 0, 0.2)",
+            boxShadow: "0 4px 20px rgba(0, 250, 154, 0.2)",
           }}
         >
           {t("result.tryAgain")}

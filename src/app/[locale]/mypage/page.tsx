@@ -29,7 +29,7 @@ export default function MyPage() {
       <header
         className="px-5 py-5 flex items-center justify-between sticky top-0 z-10 safe-top"
         style={{
-          backgroundColor: "rgba(10, 10, 15, 0.85)",
+          backgroundColor: "rgba(5, 5, 8, 0.88)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
           borderBottom: "1px solid var(--color-border-subtle)",
@@ -136,7 +136,7 @@ export default function MyPage() {
                     : "text-muted"
                 }`}
                 style={{
-                  backgroundColor: sortBy === "date" ? "rgba(178, 255, 0, 0.08)" : "var(--color-surface)",
+                  backgroundColor: sortBy === "date" ? "rgba(0, 250, 154, 0.08)" : "var(--color-surface)",
                   border: sortBy === "date" ? "1px solid var(--color-accent)" : "1px solid var(--color-border-subtle)",
                   borderRadius: "10px",
                 }}
@@ -151,7 +151,7 @@ export default function MyPage() {
                     : "text-muted"
                 }`}
                 style={{
-                  backgroundColor: sortBy === "height" ? "rgba(178, 255, 0, 0.08)" : "var(--color-surface)",
+                  backgroundColor: sortBy === "height" ? "rgba(0, 250, 154, 0.08)" : "var(--color-surface)",
                   border: sortBy === "height" ? "1px solid var(--color-accent)" : "1px solid var(--color-border-subtle)",
                   borderRadius: "10px",
                 }}
@@ -181,7 +181,7 @@ export default function MyPage() {
                   key={record.id}
                   className="flex items-center justify-between p-4"
                   style={{
-                    backgroundColor: record.isPersonalBest ? "rgba(178, 255, 0, 0.04)" : "var(--color-surface)",
+                    backgroundColor: record.isPersonalBest ? "rgba(0, 250, 154, 0.04)" : "var(--color-surface)",
                     border: record.isPersonalBest ? "1px solid var(--color-accent)" : "1px solid var(--color-border-subtle)",
                     borderRadius: "12px",
                     opacity: 0,
