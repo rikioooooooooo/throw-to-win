@@ -53,7 +53,7 @@ export function NameInput({ currentName, onSave, saving }: NameInputProps) {
         <button
           type="submit"
           disabled={!canSave || saving}
-          className="px-5 py-3 label-text text-[11px] tracking-widest text-white active:scale-[0.97] transition-transform disabled:opacity-30"
+          className="px-5 py-3 label-text text-[11px] tracking-widest text-black active:scale-[0.97] transition-transform disabled:opacity-30"
           style={{
             backgroundColor: "var(--color-accent)",
             borderRadius: "10px",

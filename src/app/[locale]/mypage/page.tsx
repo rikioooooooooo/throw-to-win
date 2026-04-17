@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, useParams } from "next/navigation";
-import { loadData, getSortedThrows } from "@/lib/storage";
+import { loadData, getSortedThrows, getDisplayName, saveDisplayName } from "@/lib/storage";
 import { formatHeight, formatAirtime } from "@/lib/physics";
 import { getTierForHeight } from "@/lib/tiers";
+import { generateFingerprint } from "@/lib/fingerprint";
+import { NameInput } from "@/components/name-input";
 import type { ThrowRecord } from "@/lib/types";
 
 export default function MyPage() {
@@ -17,11 +19,35 @@ export default function MyPage() {
     if (typeof window === "undefined") return { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0, todayDateISO: "", todayBest: 0, streakDays: 0, lastActiveDateISO: "" };
     return loadData().stats;
   });
+  const [displayName, setDisplayName] = useState(() =>
+    typeof window !== "undefined" ? getDisplayName() : "",
+  );
+  const [savingName, setSavingName] = useState(false);
   const [sortBy, setSortBy] = useState<"date" | "height">("date");
   const throws: readonly ThrowRecord[] = useMemo(() => {
     if (typeof window === "undefined") return [];
     return getSortedThrows(sortBy);
   }, [sortBy]);
+
+  const handleSaveName = useCallback(async (name: string) => {
+    setSavingName(true);
+    try {
+      const fingerprint = await generateFingerprint();
+      const res = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deviceFingerprint: fingerprint, displayName: name }),
+      });
+      if (res.ok) {
+        saveDisplayName(name);
+        setDisplayName(name);
+      }
+    } catch {
+      // silent
+    } finally {
+      setSavingName(false);
+    }
+  }, []);
 
   return (
     <main className="flex-1 flex flex-col min-h-screen safe-bottom">
@@ -141,6 +167,15 @@ export default function MyPage() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Name editing */}
+        <div className="mb-8 animate-fade-in-up delay-160">
+          <NameInput
+            currentName={displayName}
+            onSave={handleSaveName}
+            saving={savingName}
+          />
         </div>
 
         {/* Sort toggle + throw list */}
