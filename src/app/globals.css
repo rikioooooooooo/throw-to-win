@@ -7,14 +7,14 @@
 
 @theme inline {
   /* ── Base ── */
-  --color-background: #0A0A0F;
-  --color-surface: #15151E;
-  --color-surface-elevated: #1E1E2A;
+  --color-background: #050508;
+  --color-surface: #0D0D14;
+  --color-surface-elevated: #141420;
   --color-foreground: #F0F0F5;
-  --color-muted: #6B6B80;
+  --color-muted: #5A5A70;
 
   /* ── Accent ── */
-  --color-accent: #B2FF00;
+  --color-accent: #00FA9A;
   --color-accent-gold: #FFB800;
   --color-accent-blue: #3B82F6;
   --color-error: #FF4444;
