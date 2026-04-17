@@ -207,7 +207,7 @@ export default function TestPage() {
 
     // Test compositing: draw video + overlay
     ctx.drawImage(video, 0, 0, vw, vh);
-    ctx.fillStyle = "#ff2d2d";
+    ctx.fillStyle = "#00FA9A";
     ctx.font = `bold ${Math.round(vw * 0.07)}px sans-serif`;
     ctx.textAlign = "center";
     ctx.fillText("TEST", vw / 2, vh * 0.08);
