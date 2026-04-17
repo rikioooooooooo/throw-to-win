@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, useParams } from "next/navigation";
 import { useThrowDetection } from "@/hooks/use-throw-detection";
@@ -17,6 +17,7 @@ import {
   type VerifyResponse,
 } from "@/lib/challenge";
 import type { ThrowResult, VideoProcessingStatus } from "@/lib/types";
+import { getTierForHeight, checkTierBreakthrough, getNearMissMessage } from "@/lib/tiers";
 import { PermissionRequest } from "@/components/permission-request";
 import { Countdown, type CountdownStep } from "@/components/countdown";
 import { HeightDisplay, type HeightTier } from "@/components/height-display";
@@ -94,6 +95,8 @@ export default function PlayPage() {
   const finishTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   /** Survives overlay state resets — holds the v0 trajectory peak for the result handler */
   const v0PeakRef = useRef(0);
+  /** Track PB before this throw for tier breakthrough detection */
+  const prevBestRef = useRef(0);
   const overlayStateRef = useRef<{
     mode: "idle" | "countdown" | "height";
     countdownText: string;
@@ -298,18 +301,23 @@ export default function PlayPage() {
 
   // Preload ffmpeg + generate fingerprint + fetch Turnstile config
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
     preloadFFmpeg();
     generateFingerprint().then((fp) => {
-      fingerprintRef.current = fp;
+      if (!signal.aborted) fingerprintRef.current = fp;
     });
-    fetch("/api/config/")
+    fetch("/api/config/", { signal })
       .then((r) => r.json())
       .then((data: { turnstileSiteKey?: string }) => {
-        if (data.turnstileSiteKey) {
+        if (!signal.aborted && data.turnstileSiteKey) {
           setTurnstileSiteKey(data.turnstileSiteKey);
         }
       })
       .catch(() => {});
+
+    return () => controller.abort();
   }, []);
 
   // Cleanup Wake Lock on unmount
@@ -446,6 +454,7 @@ export default function PlayPage() {
       // (isPersonalBest state was set earlier for the camera-phase UI,
       // but the useCallback closure may hold a stale value)
       const pbBeforeAdd = loadData().stats.personalBest;
+      prevBestRef.current = pbBeforeAdd;
       const isPB = throwResult.heightMeters > pbBeforeAdd;
 
       addThrowRecord(
@@ -576,12 +585,24 @@ export default function PlayPage() {
     }
   }, [resultData, locale]);
 
+  // ---- Compute tier info for result ----
+  const tierInfo = useMemo(() => {
+    if (!resultData) return null;
+    const current = getTierForHeight(resultData.height);
+    const prevBest = prevBestRef.current;
+    const isBreakthrough = checkTierBreakthrough(prevBest, resultData.height) !== null;
+    const newBest = Math.max(prevBest, resultData.height);
+    const nearMiss = getNearMissMessage(resultData.height, newBest);
+    return { current, isBreakthrough, nearMiss };
+  }, [resultData]);
+
   // ---- Determine height tier for result ----
-  const getResultTier = (): HeightTier => {
+  const resultTier: HeightTier = useMemo(() => {
     if (!resultData) return "normal";
+    if (tierInfo?.isBreakthrough) return "rank-update";
     if (resultData.isPersonalBest) return "personal-best";
     return "normal";
-  };
+  }, [resultData, tierInfo]);
 
   // ---- Render by game state ----
 
@@ -680,7 +701,7 @@ export default function PlayPage() {
               </p>
               <button
                 onClick={handleStartCountdown}
-                className="w-full py-4 bg-accent text-white cta-text text-[16px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100"
+                className="w-full py-4 bg-accent text-black cta-text text-[16px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100"
                 style={{ borderRadius: "14px", height: "56px" }}
               >
                 {t("prepare.startButton")}
@@ -705,7 +726,7 @@ export default function PlayPage() {
             </p>
             <button
               onClick={handleGoHome}
-              className="py-3 px-8 bg-accent text-white cta-text text-[14px] tracking-widest"
+              className="py-3 px-8 bg-accent text-black cta-text text-[14px] tracking-widest"
               style={{ borderRadius: "14px" }}
             >
               {t("result.backToTop")}
@@ -723,11 +744,14 @@ export default function PlayPage() {
               isAtPeak={!!peakResult}
               tier={
                 peakResult
-                  ? isPersonalBest
-                    ? "personal-best"
-                    : "normal"
+                  ? tierInfo?.isBreakthrough
+                    ? "rank-update"
+                    : isPersonalBest
+                      ? "personal-best"
+                      : "normal"
                   : "normal"
               }
+              tierColor={tierInfo?.current.color}
             />
 
             {/* Phase status badges */}
@@ -735,7 +759,7 @@ export default function PlayPage() {
               <>
                 {phase === "freefall" && (
                   <div
-                    className="absolute top-4 right-4 safe-top z-30 px-3 py-1.5 text-accent label-text text-[10px] tracking-widest animate-pulse-red"
+                    className="absolute top-4 right-4 safe-top z-30 px-3 py-1.5 text-accent label-text text-[10px] tracking-widest animate-pulse-accent"
                     style={{
                       backgroundColor: "rgba(0, 0, 0, 0.5)",
                       backdropFilter: "blur(8px)",
@@ -797,7 +821,8 @@ export default function PlayPage() {
         resultData={resultData}
         rankingData={rankingData}
         videoUrl={videoUrl}
-        resultTier={getResultTier()}
+        resultTier={resultTier}
+        tierInfo={tierInfo}
         onSaveVideo={handleSaveVideo}
         onShareVideo={handleShareVideo}
         onTryAgain={handleTryAgain}

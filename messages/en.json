@@ -68,14 +68,30 @@
     "worldRank": "WORLD RANK",
     "countryRank": "COUNTRY RANK",
     "backToTop": "Back to TOP",
-    "scoreNotSaved": "Score not saved"
+    "scoreNotSaved": "Score not saved",
+    "nearMissTier": "{remaining}m to {tier}",
+    "nearMissPB": "{remaining}m to beat your best"
+  },
+  "tier": {
+    "rookie": "Rookie",
+    "iron": "Iron",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platinum": "Platinum",
+    "emerald": "Emerald",
+    "diamond": "Diamond",
+    "master": "Master",
+    "legend": "Legend",
+    "new": "NEW!"
   },
   "ranking": {
     "heading": "Rankings",
     "seeMore": "See More",
     "world": "World",
     "country": "Country",
-    "back": "Back"
+    "back": "Back",
+    "viewRanking": "View Rankings"
   },
   "profile": {
     "nameLabel": "DISPLAY NAME",

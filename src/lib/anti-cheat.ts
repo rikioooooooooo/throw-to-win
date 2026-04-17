@@ -1,6 +1,6 @@
 import type { AccelSample } from "./types";
+import { GRAVITY } from "./physics";
 
-const GRAVITY = 9.81;
 const MIN_SAMPLE_RATE_HZ = 40;
 const MAX_DT_COEFFICIENT_OF_VARIATION = 0.6;
 const CALIBRATION_MAGNITUDE_MIN = 8.5;

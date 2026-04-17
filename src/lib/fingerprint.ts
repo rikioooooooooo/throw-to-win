@@ -78,12 +78,39 @@ function getScreenFingerprint(): string {
   ].join(",");
 }
 
+function getHardwareFingerprint(): string {
+  return [
+    navigator.hardwareConcurrency ?? 0,
+    navigator.maxTouchPoints ?? 0,
+    navigator.platform ?? "",
+    (navigator as unknown as { deviceMemory?: number }).deviceMemory ?? 0,
+  ].join(",");
+}
+
+function getGLFingerprint(): string {
+  try {
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl") ?? canvas.getContext("experimental-webgl");
+    if (!gl || !(gl instanceof WebGLRenderingContext)) return "no-gl";
+    const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+    if (!debugInfo) return "no-debug";
+    return [
+      gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL),
+      gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL),
+    ].join(",");
+  } catch {
+    return "gl-error";
+  }
+}
+
 export async function generateFingerprint(): Promise<string> {
   try {
     const components = [
       getCanvasFingerprint(),
       getAudioFingerprint(),
       getScreenFingerprint(),
+      getHardwareFingerprint(),
+      getGLFingerprint(),
       navigator.userAgent,
       Intl.DateTimeFormat().resolvedOptions().timeZone,
       navigator.language,

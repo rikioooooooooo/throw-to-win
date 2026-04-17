@@ -68,14 +68,30 @@
     "worldRank": "世界ランキング",
     "countryRank": "国内ランキング",
     "backToTop": "TOPに戻る",
-    "scoreNotSaved": "スコア未保存"
+    "scoreNotSaved": "スコア未保存",
+    "nearMissTier": "あと {remaining}m で {tier}",
+    "nearMissPB": "あと {remaining}m で自己ベスト更新"
+  },
+  "tier": {
+    "rookie": "Rookie",
+    "iron": "Iron",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platinum": "Platinum",
+    "emerald": "Emerald",
+    "diamond": "Diamond",
+    "master": "Master",
+    "legend": "Legend",
+    "new": "NEW!"
   },
   "ranking": {
     "heading": "ランキング",
     "seeMore": "もっと見る",
     "world": "世界",
     "country": "国内",
-    "back": "戻る"
+    "back": "戻る",
+    "viewRanking": "ランキングを見る"
   },
   "profile": {
     "nameLabel": "表示名",

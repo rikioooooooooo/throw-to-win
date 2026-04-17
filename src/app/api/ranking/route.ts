@@ -48,18 +48,6 @@ export async function GET(request: Request) {
       params.length === 3
         ? stmt.bind(params[0], params[1], params[2])
         : stmt.bind(params[0], params[1]);
-    const result = await bound.all<DeviceRankRow>();
-    const rows: DeviceRankRow[] = result.results ?? [];
-
-    const rankings = rows.map((row, index) => ({
-      rank: offset + index + 1,
-      deviceId: anonymizeDeviceId(row.id),
-      displayName: row.display_name || "",
-      heightMeters: row.personal_best,
-      totalThrows: row.total_throws,
-      country: row.country,
-      lastSeen: row.last_seen,
-    }));
 
     const countQuery =
       scope === "country" && country
@@ -71,7 +59,24 @@ export async function GET(request: Request) {
       scope === "country" && country
         ? countStmt.bind(country)
         : countStmt;
-    const countResult = await countBound.first<{ total: number }>();
+
+    // Run data + count queries in parallel
+    const [result, countResult] = await Promise.all([
+      bound.all<DeviceRankRow>(),
+      countBound.first<{ total: number }>(),
+    ]);
+
+    const rows: DeviceRankRow[] = result.results ?? [];
+
+    const rankings = rows.map((row, index) => ({
+      rank: offset + index + 1,
+      deviceId: anonymizeDeviceId(row.id),
+      displayName: row.display_name || "",
+      heightMeters: row.personal_best,
+      totalThrows: row.total_throws,
+      country: row.country,
+      lastSeen: row.last_seen,
+    }));
 
     const yourCountry = request.headers.get("cf-ipcountry") ?? "XX";
 

@@ -68,14 +68,30 @@
     "worldRank": "世界排名",
     "countryRank": "國內排名",
     "backToTop": "返回首頁",
-    "scoreNotSaved": "成績未儲存"
+    "scoreNotSaved": "成績未儲存",
+    "nearMissTier": "距 {tier} 還差 {remaining}m",
+    "nearMissPB": "距個人最佳還差 {remaining}m"
+  },
+  "tier": {
+    "rookie": "Rookie",
+    "iron": "Iron",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platinum": "Platinum",
+    "emerald": "Emerald",
+    "diamond": "Diamond",
+    "master": "Master",
+    "legend": "Legend",
+    "new": "NEW!"
   },
   "ranking": {
     "heading": "排名",
     "seeMore": "查看更多",
     "world": "世界",
     "country": "國內",
-    "back": "返回"
+    "back": "返回",
+    "viewRanking": "查看排名"
   },
   "profile": {
     "nameLabel": "顯示名稱",

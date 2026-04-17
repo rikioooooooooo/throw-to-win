@@ -106,6 +106,9 @@ export function updateSettings(
   return next;
 }
 
+/** Maximum stored throw records — prevents localStorage from growing unbounded */
+const MAX_STORED_THROWS = 200;
+
 /** Add a throw record and recompute stats */
 export function addThrowRecord(
   heightMeters: number,
@@ -123,7 +126,13 @@ export function addThrowRecord(
     submittedToRanking: false,
   };
 
-  const throws: readonly ThrowRecord[] = [...data.throws, record];
+  // Cap throws at MAX_STORED_THROWS — drop oldest first
+  const allThrows = [...data.throws, record];
+  const throws: readonly ThrowRecord[] =
+    allThrows.length > MAX_STORED_THROWS
+      ? allThrows.slice(allThrows.length - MAX_STORED_THROWS)
+      : allThrows;
+
   const stats: UserStats = {
     personalBest: isPersonalBest ? heightMeters : data.stats.personalBest,
     totalThrows: data.stats.totalThrows + 1,

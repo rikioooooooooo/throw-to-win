@@ -16,6 +16,7 @@ export type VerifyResponse = {
   readonly countryRank: number;
   readonly totalThrows: number;
   readonly country: string;
+  readonly personalBest?: number;
 };
 
 export type ChallengeError =

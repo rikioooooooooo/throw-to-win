@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { formatHeight } from "@/lib/physics";
 import { getDisplayName, saveDisplayName } from "@/lib/storage";
 import { generateFingerprint } from "@/lib/fingerprint";
 import { SlowMoPlayer } from "@/components/slow-mo-player";
-import { RankingList, type RankEntry } from "@/components/ranking-list";
 import { NameInput } from "@/components/name-input";
+import { RankingList } from "@/components/ranking-list";
+import { useRankings } from "@/hooks/use-rankings";
 import type { HeightTier } from "@/components/height-display";
 import type { VerifyResponse } from "@/lib/challenge";
 
@@ -21,11 +22,22 @@ type ResultData = {
   readonly ffmpegProcessed: boolean;
 };
 
+type TierInfo = {
+  readonly current: { readonly id: string; readonly color: string };
+  readonly isBreakthrough: boolean;
+  readonly nearMiss: {
+    readonly type: "tier" | "pb";
+    readonly remaining: number;
+    readonly targetName: string;
+  } | null;
+};
+
 type ResultScreenProps = {
   readonly resultData: ResultData;
   readonly rankingData: VerifyResponse | null;
   readonly videoUrl: string | null;
   readonly resultTier: HeightTier;
+  readonly tierInfo: TierInfo | null;
   readonly onSaveVideo: () => void;
   readonly onShareVideo: () => void;
   readonly onTryAgain: () => void;
@@ -38,6 +50,7 @@ export function ResultScreen({
   rankingData,
   videoUrl,
   resultTier,
+  tierInfo,
   onSaveVideo,
   onShareVideo,
   onTryAgain,
@@ -47,12 +60,11 @@ export function ResultScreen({
   const t = useTranslations();
   const router = useRouter();
   const locale = useLocale();
-  const [worldEntries, setWorldEntries] = useState<readonly RankEntry[]>([]);
-  const [countryEntries, setCountryEntries] = useState<readonly RankEntry[]>([]);
   const [displayName, setDisplayName] = useState(() =>
     typeof window !== "undefined" ? getDisplayName() : "",
   );
   const [savingName, setSavingName] = useState(false);
+  const rankings = useRankings({ limit: 10, enabled: !!rankingData });
 
   const handleSaveName = useCallback(async (name: string) => {
     setSavingName(true);
@@ -74,142 +86,95 @@ export function ResultScreen({
     }
   }, []);
 
-  useEffect(() => {
-    if (!rankingData) return;
-
-    let cancelled = false;
-
-    async function fetchRankings() {
-      try {
-        const worldRes = await fetch("/api/ranking?scope=world&limit=10");
-        if (!worldRes.ok) return;
-        const worldData = await worldRes.json() as {
-          rankings: RankEntry[];
-          yourCountry: string;
-        };
-        if (cancelled) return;
-        setWorldEntries(worldData.rankings);
-
-        if (worldData.yourCountry && worldData.yourCountry !== "XX") {
-          const countryRes = await fetch(
-            `/api/ranking?scope=country&country=${worldData.yourCountry}&limit=10`,
-          );
-          if (countryRes.ok) {
-            const countryData = await countryRes.json() as { rankings: RankEntry[] };
-            if (!cancelled) setCountryEntries(countryData.rankings);
-          }
-        }
-      } catch {
-        // silent
-      }
-    }
-
-    fetchRankings();
-    return () => { cancelled = true; };
-  }, [rankingData]);
-
-  const goToRanking = () => router.push(`/${locale}/ranking`);
-
   const tierColor =
-    resultTier === "rank-update"
-      ? "var(--color-accent-gold)"
+    tierInfo?.isBreakthrough
+      ? tierInfo.current.color
       : resultTier === "personal-best"
         ? "var(--color-accent)"
         : "var(--color-foreground)";
 
   return (
     <main className="fixed inset-0 z-10 flex flex-col items-center bg-background overflow-y-auto safe-top safe-bottom">
-      <div className="flex-1 flex flex-col items-center px-5 py-10 w-full max-w-md">
-        {resultData.isPersonalBest && (
-          <div
-            className="mb-6 px-4 py-2 label-text text-[10px] tracking-widest text-accent animate-fade-in-up"
-            style={{
-              border: "1px solid var(--color-accent)",
-              borderRadius: "8px",
-            }}
-          >
-            {t("result.newRecord")}
-          </div>
-        )}
+      <div className="flex-1 flex flex-col items-center px-6 py-8 w-full max-w-md">
 
-        <div className="text-center mb-2 animate-fade-in-up delay-80">
-          <p className="label-text text-muted/40 text-[10px] tracking-[0.2em] mb-4">
-            {t("result.height")}
-          </p>
+        {/* ---- Height hero ---- */}
+        <div className="text-center mt-4 mb-1 animate-fade-in-up">
+          {resultData.isPersonalBest && (
+            <p
+              className="label-text text-[11px] tracking-[0.25em] text-accent mb-5"
+              style={{
+                animation: "spring-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both",
+                backgroundColor: "rgba(178, 255, 0, 0.08)",
+                border: "1px solid var(--color-accent)",
+                borderRadius: "8px",
+                padding: "4px 12px",
+              }}
+            >
+              {t("result.newRecord")}
+            </p>
+          )}
+
           <div className="flex items-baseline justify-center">
             <span
-              className="height-number text-[clamp(4rem,20vw,6rem)] leading-none"
-              style={{ color: tierColor }}
+              className="height-number leading-none"
+              style={{
+                color: tierColor,
+                fontSize: "clamp(5rem, 28vw, 9rem)",
+              }}
             >
               {formatHeight(resultData.height)}
             </span>
             <span
-              className="text-[24px] ml-1"
+              className="text-[22px] ml-0.5"
               style={{
                 color: resultTier === "personal-best"
-                  ? "rgba(255, 45, 45, 0.5)"
+                  ? "rgba(178, 255, 0, 0.35)"
                   : "var(--color-muted)",
               }}
             >
               m
             </span>
           </div>
+
+          {/* Tier badge */}
+          {tierInfo && (
+            <div
+              className="mt-3 flex items-center justify-center gap-2"
+              style={{ animation: "badge-appear 0.3s ease-out 0.3s both" }}
+            >
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-full"
+                style={{ backgroundColor: tierInfo.current.color, boxShadow: `0 0 8px ${tierInfo.current.color}` }}
+              />
+              <span
+                className="text-[14px] font-semibold tracking-[0.15em] uppercase"
+                style={{ color: tierInfo.current.color }}
+              >
+                {t(`tier.${tierInfo.current.id}`)}
+              </span>
+              {tierInfo.isBreakthrough && (
+                <span className="text-accent text-[12px] font-bold tracking-wider">{t("tier.new")}</span>
+              )}
+            </div>
+          )}
         </div>
 
-        <p className="text-muted/40 text-[13px] tracking-[0.1em] mb-6 animate-fade-in-up delay-160">
-          {t("result.airtime")}: <span className="text-foreground height-number">{resultData.airtime.toFixed(2)}s</span>
+        <p className="text-muted/60 text-[14px] tracking-[0.15em] mb-5 animate-fade-in-up delay-80">
+          {resultData.airtime.toFixed(2)}
+          <span className="text-[10px] ml-0.5">s</span>
         </p>
 
         {submitError && !rankingData && (
-          <p
-            className="text-muted/50 text-[12px] tracking-widest mb-4 animate-fade-in-up delay-240"
-          >
+          <p className="text-muted/60 text-[13px] tracking-widest mb-4">
             {t("result.scoreNotSaved")}
           </p>
         )}
 
-        {rankingData && (
-          <div className="flex gap-4 mb-8 w-full animate-fade-in-up delay-240">
-            <div
-              className="flex-1 p-4 text-center"
-              style={{
-                backgroundColor: "var(--color-surface)",
-                border: "1px solid var(--color-border-subtle)",
-                borderRadius: "12px",
-              }}
-            >
-              <p className="label-text text-[9px] tracking-[0.2em] text-muted/50 mb-2">
-                {t("result.worldRank")}
-              </p>
-              <span className="height-number text-[24px] text-foreground">
-                #{rankingData.worldRank}
-              </span>
-            </div>
-            <div
-              className="flex-1 p-4 text-center"
-              style={{
-                backgroundColor: "var(--color-surface)",
-                border: "1px solid var(--color-border-subtle)",
-                borderRadius: "12px",
-              }}
-            >
-              <p className="label-text text-[9px] tracking-[0.2em] text-muted/50 mb-2">
-                {t("result.countryRank")}
-              </p>
-              <span className="height-number text-[24px] text-foreground">
-                #{rankingData.countryRank}
-              </span>
-            </div>
-          </div>
-        )}
-
+        {/* ---- Video ---- */}
         {videoUrl && (
           <div
-            className="w-full max-w-[280px] mb-8 relative overflow-hidden animate-fade-in-up delay-240"
-            style={{
-              backgroundColor: "var(--color-surface)",
-              borderRadius: "12px",
-            }}
+            className="w-full max-w-[260px] mb-5 relative overflow-hidden animate-fade-in-up delay-160"
+            style={{ borderRadius: "14px" }}
           >
             {resultData.ffmpegProcessed ? (
               <video
@@ -220,7 +185,7 @@ export function ResultScreen({
                 muted
                 loop
                 className="w-full aspect-[9/16] object-cover"
-                style={{ borderRadius: "12px" }}
+                style={{ borderRadius: "14px" }}
               />
             ) : (
               <SlowMoPlayer
@@ -233,13 +198,13 @@ export function ResultScreen({
           </div>
         )}
 
+        {/* Video action buttons — secondary style */}
         {resultData.videoBlob && (
-          <div className="grid grid-cols-2 gap-2 mb-6 w-full max-w-[280px] animate-fade-in-up delay-320">
+          <div className="grid grid-cols-2 gap-2 mb-5 w-full max-w-[260px] animate-fade-in-up delay-240">
             <button
               onClick={onSaveVideo}
-              className="py-4 text-foreground label-text text-[10px] tracking-widest active:scale-[0.97] transition-transform"
+              className="py-3 text-foreground/60 text-[12px] tracking-widest uppercase active:scale-[0.97] transition-all hover:text-foreground"
               style={{
-                backgroundColor: "var(--color-surface)",
                 border: "1px solid var(--color-border-subtle)",
                 borderRadius: "10px",
               }}
@@ -248,9 +213,8 @@ export function ResultScreen({
             </button>
             <button
               onClick={onShareVideo}
-              className="py-4 text-foreground label-text text-[10px] tracking-widest active:scale-[0.97] transition-transform"
+              className="py-3 text-foreground/60 text-[12px] tracking-widest uppercase active:scale-[0.97] transition-all hover:text-foreground"
               style={{
-                backgroundColor: "var(--color-surface)",
                 border: "1px solid var(--color-border-subtle)",
                 borderRadius: "10px",
               }}
@@ -262,7 +226,7 @@ export function ResultScreen({
 
         {/* Name input */}
         {!displayName && (
-          <div className="w-full mb-6 animate-fade-in-up delay-320">
+          <div className="w-full max-w-[260px] mb-5 animate-fade-in-up delay-320">
             <NameInput
               currentName={displayName}
               onSave={handleSaveName}
@@ -271,39 +235,82 @@ export function ResultScreen({
           </div>
         )}
 
-        {/* Ranking lists */}
-        {(worldEntries.length > 0 || countryEntries.length > 0) && (
-          <div className="w-full mb-6 animate-fade-in-up delay-320">
-            {worldEntries.length > 0 && (
+        {/* ---- Primary CTA ---- */}
+        <button
+          onClick={onTryAgain}
+          className="w-full max-w-[260px] bg-accent text-black cta-text text-[15px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100 animate-fade-in-up delay-320"
+          style={{
+            borderRadius: "16px",
+            height: "58px",
+            boxShadow: "0 4px 20px rgba(178, 255, 0, 0.2)",
+          }}
+        >
+          {t("result.tryAgain")}
+        </button>
+
+        {/* ---- Rank context ---- */}
+        {rankingData && (
+          <div className="mt-5 flex flex-col items-center animate-fade-in delay-480">
+            <div className="flex items-center gap-3 text-[14px]">
+              <span className="text-foreground/80 height-number">#{rankingData.worldRank}</span>
+              <span className="text-muted/60 text-[12px]">WORLD</span>
+              {rankingData.country && rankingData.country !== "XX" && (
+                <>
+                  <span className="text-muted/40">·</span>
+                  <span className="text-foreground/80 height-number">#{rankingData.countryRank}</span>
+                  <span className="text-muted/60 text-[12px]">{rankingData.country}</span>
+                </>
+              )}
+            </div>
+            <button
+              onClick={() => router.push(`/${locale}/ranking`)}
+              className="mt-1.5 text-muted/60 text-[12px] tracking-[0.1em] hover:text-foreground/50 transition-colors"
+            >
+              {t("ranking.viewRanking")} →
+            </button>
+          </div>
+        )}
+
+        {/* Near-miss */}
+        {tierInfo?.nearMiss && (
+          <p
+            className="mt-4 text-muted/70 text-[13px] tracking-[0.05em]"
+            style={{ animation: "fade-in 0.4s ease-out 0.8s both" }}
+          >
+            {tierInfo.nearMiss.type === "tier"
+              ? t("result.nearMissTier", {
+                  remaining: tierInfo.nearMiss.remaining,
+                  tier: t(`tier.${tierInfo.nearMiss.targetName}`),
+                })
+              : t("result.nearMissPB", {
+                  remaining: tierInfo.nearMiss.remaining,
+                })
+            }
+          </p>
+        )}
+
+        {/* Rankings */}
+        {!rankings.loading && (rankings.world.length > 0 || rankings.country.length > 0) && (
+          <div className="w-full mt-6 animate-fade-in delay-560">
+            {rankings.world.length > 0 && (
               <RankingList
                 title={t("landing.worldRanking")}
-                entries={worldEntries}
-                actionLabel={t("ranking.seeMore")}
-                onAction={goToRanking}
+                entries={rankings.world}
               />
             )}
-            {countryEntries.length > 0 && (
+            {rankings.country.length > 0 && (
               <RankingList
                 title={t("landing.countryRanking")}
-                entries={countryEntries}
-                actionLabel={t("ranking.seeMore")}
-                onAction={goToRanking}
+                entries={rankings.country}
               />
             )}
           </div>
         )}
 
-        <button
-          onClick={onTryAgain}
-          className="w-full max-w-[280px] py-4 bg-accent text-white cta-text text-[16px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100 animate-fade-in-up delay-400"
-          style={{ borderRadius: "14px", height: "56px" }}
-        >
-          {t("result.tryAgain")}
-        </button>
-
+        {/* Ghost back button */}
         <button
           onClick={onGoHome}
-          className="mt-3 w-full max-w-[280px] py-4 text-muted label-text text-[12px] tracking-widest active:scale-[0.97] transition-all duration-100 hover:text-foreground animate-fade-in-up delay-400"
+          className="mt-4 text-muted/50 text-[12px] tracking-[0.15em] uppercase active:scale-[0.97] transition-all hover:text-muted/70"
         >
           {t("result.backToTop")}
         </button>

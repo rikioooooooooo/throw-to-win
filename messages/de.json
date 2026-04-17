@@ -68,14 +68,30 @@
     "worldRank": "WELTRANGLISTE",
     "countryRank": "LANDESRANGLISTE",
     "backToTop": "Zuruck",
-    "scoreNotSaved": "Ergebnis nicht gespeichert"
+    "scoreNotSaved": "Ergebnis nicht gespeichert",
+    "nearMissTier": "Noch {remaining}m bis {tier}",
+    "nearMissPB": "Noch {remaining}m bis zu deinem Rekord"
+  },
+  "tier": {
+    "rookie": "Rookie",
+    "iron": "Iron",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platinum": "Platinum",
+    "emerald": "Emerald",
+    "diamond": "Diamond",
+    "master": "Master",
+    "legend": "Legend",
+    "new": "NEW!"
   },
   "ranking": {
     "heading": "Rangliste",
     "seeMore": "Mehr sehen",
     "world": "Welt",
     "country": "Land",
-    "back": "Zuruck"
+    "back": "Zuruck",
+    "viewRanking": "Rangliste anzeigen"
   },
   "profile": {
     "nameLabel": "NAME",

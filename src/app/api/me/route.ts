@@ -45,23 +45,24 @@ export async function GET(request: Request) {
       });
     }
 
-    const worldRankRow = await env.DB.prepare(
-      "SELECT COUNT(*) as rank FROM devices WHERE personal_best > ?",
-    )
-      .bind(device.personal_best)
-      .first<{ rank: number }>();
-
-    const countryRankRow = await env.DB.prepare(
-      "SELECT COUNT(*) as rank FROM devices WHERE personal_best > ? AND country = ?",
-    )
-      .bind(device.personal_best, device.country)
-      .first<{ rank: number }>();
-
-    const recentResult = await env.DB.prepare(
-      "SELECT id, height_meters, airtime_seconds, country, anomaly_score, created_at FROM throws WHERE device_id = ? ORDER BY created_at DESC LIMIT 20",
-    )
-      .bind(deviceId)
-      .all<ThrowRow>();
+    // Run rank + history queries in parallel
+    const [worldRankRow, countryRankRow, recentResult] = await Promise.all([
+      env.DB.prepare(
+        "SELECT COUNT(*) as rank FROM devices WHERE personal_best > ?",
+      )
+        .bind(device.personal_best)
+        .first<{ rank: number }>(),
+      env.DB.prepare(
+        "SELECT COUNT(*) as rank FROM devices WHERE personal_best > ? AND country = ?",
+      )
+        .bind(device.personal_best, device.country)
+        .first<{ rank: number }>(),
+      env.DB.prepare(
+        "SELECT id, height_meters, airtime_seconds, country, anomaly_score, created_at FROM throws WHERE device_id = ? ORDER BY created_at DESC LIMIT 20",
+      )
+        .bind(deviceId)
+        .all<ThrowRow>(),
+    ]);
     const throwRows: ThrowRow[] = recentResult.results ?? [];
 
     const recentThrows = throwRows.map((row) => ({

@@ -8,12 +8,14 @@ type HeightDisplayProps = {
   height: number;
   isAtPeak: boolean;
   tier?: HeightTier;
+  tierColor?: string;
 };
 
 export function HeightDisplay({
   height,
   isAtPeak,
   tier = "normal",
+  tierColor,
 }: HeightDisplayProps) {
   const wasAtPeakRef = useRef(false);
 
@@ -38,7 +40,7 @@ export function HeightDisplay({
 
   const peakColor =
     tier === "rank-update"
-      ? "var(--color-accent-gold)"
+      ? (tierColor ?? "var(--color-accent-gold)")
       : tier === "personal-best"
         ? "var(--color-accent)"
         : "var(--color-foreground)";
@@ -60,7 +62,7 @@ export function HeightDisplay({
         style={
           isAtPeak
             ? {
-                animation: `${animationName} ${animationDuration} cubic-bezier(0.16, 1, 0.3, 1) forwards`,
+                animation: `${animationName} ${animationDuration} cubic-bezier(0.16, 1, 0.3, 1) forwards, landing-bounce 0.3s ease-out 0.1s both`,
               }
             : undefined
         }
@@ -82,9 +84,9 @@ export function HeightDisplay({
           style={{
             color: isAtPeak
               ? tier === "rank-update"
-                ? "rgba(255, 184, 0, 0.5)"
+                ? (tierColor ? `${tierColor}80` : "rgba(255, 184, 0, 0.5)")
                 : tier === "personal-best"
-                  ? "rgba(255, 45, 45, 0.5)"
+                  ? "rgba(255, 107, 53, 0.5)"
                   : "var(--color-muted)"
               : "var(--color-muted)",
             textShadow: "0 2px 12px rgba(0, 0, 0, 0.9), 0 4px 24px rgba(0, 0, 0, 0.7)",

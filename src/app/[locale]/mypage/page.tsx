@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, useParams } from "next/navigation";
 import { loadData, getSortedThrows } from "@/lib/storage";
 import { formatHeight, formatAirtime } from "@/lib/physics";
+import { getTierForHeight } from "@/lib/tiers";
 import type { ThrowRecord } from "@/lib/types";
 
 export default function MyPage() {
@@ -28,7 +29,7 @@ export default function MyPage() {
       <header
         className="px-5 py-5 flex items-center justify-between sticky top-0 z-10 safe-top"
         style={{
-          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          backgroundColor: "rgba(10, 10, 15, 0.85)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
           borderBottom: "1px solid var(--color-border-subtle)",
@@ -54,40 +55,45 @@ export default function MyPage() {
         <div className="w-11" />
       </header>
 
-      <div className="flex-1 overflow-y-auto px-5 py-8">
+      <div className="flex-1 overflow-y-auto px-6 py-8">
         {/* Stats grid */}
-        <div className="grid grid-cols-2 gap-4 mb-10 animate-fade-in-up">
-          {/* Personal best — full width card with accent */}
+        <div className="grid grid-cols-2 gap-3 mb-10 animate-fade-in-up">
+          {/* Personal best — full width, tier-colored glow */}
           <div
             className="col-span-2 p-5"
             style={{
-              backgroundColor: "var(--color-surface)",
-              border: "1px solid var(--color-accent)",
-              borderRadius: "14px",
+              background: `linear-gradient(135deg, ${getTierForHeight(stats.personalBest).color}08 0%, transparent 60%) var(--color-surface)`,
+              border: `1px solid ${getTierForHeight(stats.personalBest).color}40`,
+              borderRadius: "16px",
+              boxShadow: `0 2px 16px ${getTierForHeight(stats.personalBest).color}10`,
             }}
           >
-            <p className="label-text text-[10px] tracking-[0.2em] text-accent mb-2">
-              {t("personalBest")}
-            </p>
-            <div className="flex items-end">
+            <div className="flex items-center gap-2 mb-3">
               <span
-                className="height-number text-[48px] text-foreground leading-none"
-              >
+                className="inline-block w-2 h-2 rounded-full"
+                style={{ backgroundColor: getTierForHeight(stats.personalBest).color }}
+              />
+              <p className="label-text text-[11px] tracking-[0.2em]" style={{ color: getTierForHeight(stats.personalBest).color }}>
+                {t("personalBest")}
+              </p>
+            </div>
+            <div className="flex items-end">
+              <span className="height-number text-[52px] text-foreground leading-none">
                 {formatHeight(stats.personalBest)}
               </span>
-              <span className="text-[18px] text-muted ml-1 mb-1">{t("meters")}</span>
+              <span className="text-[16px] text-muted/60 ml-1 mb-1">{t("meters")}</span>
             </div>
           </div>
 
           <div
             className="p-4"
             style={{
-              backgroundColor: "var(--color-surface)",
+              background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 50%) var(--color-surface)",
               border: "1px solid var(--color-border-subtle)",
               borderRadius: "14px",
             }}
           >
-            <p className="label-text text-[10px] tracking-[0.15em] text-muted mb-2">
+            <p className="label-text text-[11px] tracking-[0.15em] text-muted/70 mb-2">
               {t("totalThrows")}
             </p>
             <span className="height-number text-[28px] text-foreground leading-none">
@@ -98,19 +104,19 @@ export default function MyPage() {
           <div
             className="p-4"
             style={{
-              backgroundColor: "var(--color-surface)",
+              background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 50%) var(--color-surface)",
               border: "1px solid var(--color-border-subtle)",
               borderRadius: "14px",
             }}
           >
-            <p className="label-text text-[10px] tracking-[0.15em] text-muted mb-2">
+            <p className="label-text text-[11px] tracking-[0.15em] text-muted/70 mb-2">
               {t("totalAirtime")}
             </p>
             <div className="flex items-end">
               <span className="height-number text-[28px] text-foreground leading-none">
                 {formatAirtime(stats.totalAirtimeSeconds)}
               </span>
-              <span className="text-[12px] text-muted ml-1">{t("seconds")}</span>
+              <span className="text-[12px] text-muted/60 ml-1">{t("seconds")}</span>
             </div>
           </div>
         </div>
@@ -130,7 +136,7 @@ export default function MyPage() {
                     : "text-muted"
                 }`}
                 style={{
-                  backgroundColor: sortBy === "date" ? "rgba(255, 45, 45, 0.1)" : "var(--color-surface)",
+                  backgroundColor: sortBy === "date" ? "rgba(178, 255, 0, 0.08)" : "var(--color-surface)",
                   border: sortBy === "date" ? "1px solid var(--color-accent)" : "1px solid var(--color-border-subtle)",
                   borderRadius: "10px",
                 }}
@@ -145,7 +151,7 @@ export default function MyPage() {
                     : "text-muted"
                 }`}
                 style={{
-                  backgroundColor: sortBy === "height" ? "rgba(255, 45, 45, 0.1)" : "var(--color-surface)",
+                  backgroundColor: sortBy === "height" ? "rgba(178, 255, 0, 0.08)" : "var(--color-surface)",
                   border: sortBy === "height" ? "1px solid var(--color-accent)" : "1px solid var(--color-border-subtle)",
                   borderRadius: "10px",
                 }}
@@ -175,7 +181,7 @@ export default function MyPage() {
                   key={record.id}
                   className="flex items-center justify-between p-4"
                   style={{
-                    backgroundColor: record.isPersonalBest ? "rgba(255, 45, 45, 0.05)" : "var(--color-surface)",
+                    backgroundColor: record.isPersonalBest ? "rgba(178, 255, 0, 0.04)" : "var(--color-surface)",
                     border: record.isPersonalBest ? "1px solid var(--color-accent)" : "1px solid var(--color-border-subtle)",
                     borderRadius: "12px",
                     opacity: 0,
@@ -183,7 +189,7 @@ export default function MyPage() {
                   }}
                 >
                   <div className="flex flex-col">
-                    <span className="label-text text-[10px] tracking-[0.15em] text-muted mb-1">
+                    <span className="label-text text-[11px] tracking-[0.15em] text-muted mb-1">
                       {new Date(record.timestamp).toLocaleDateString(locale, {
                         month: "short",
                         day: "numeric",
@@ -207,7 +213,7 @@ export default function MyPage() {
                   </div>
                   {record.isPersonalBest && (
                     <div
-                      className="px-2.5 py-1 bg-accent text-white label-text text-[11px] tracking-wider"
+                      className="px-2.5 py-1 bg-accent text-black label-text text-[11px] tracking-wider"
                       style={{ borderRadius: "6px" }}
                     >
                       PB

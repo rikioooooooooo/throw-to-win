@@ -137,7 +137,7 @@ export function PermissionRequest({ onGranted }: PermissionRequestProps) {
         <button
           onClick={handleGrant}
           disabled={requesting}
-          className="w-full py-5 bg-accent text-white cta-text text-[16px] tracking-[0.15em] disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] transition-all duration-75"
+          className="w-full py-5 bg-accent text-black cta-text text-[16px] tracking-[0.15em] disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97] transition-all duration-75"
           style={{ borderRadius: "14px" }}
         >
           {requesting

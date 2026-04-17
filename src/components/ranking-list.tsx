@@ -1,6 +1,7 @@
 "use client";
 
 import { formatHeight } from "@/lib/physics";
+import { getTierForHeight } from "@/lib/tiers";
 
 /** Convert ISO 3166-1 alpha-2 country code to flag emoji (e.g. "JP" → "🇯🇵") */
 function countryFlag(code: string): string {
@@ -64,6 +65,10 @@ export function RankingList({
             >
               {entry.rank}
             </span>
+            <span
+              className="inline-block w-1.5 h-1.5 rounded-full mr-1.5 flex-shrink-0"
+              style={{ backgroundColor: getTierForHeight(entry.heightMeters).color }}
+            />
             <span className="text-[12px] flex-1 truncate" style={{
               color: entry.displayName ? "var(--color-foreground)" : "var(--color-muted)",
               opacity: entry.displayName ? 0.7 : 0.5,

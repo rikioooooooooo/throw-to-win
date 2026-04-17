@@ -68,14 +68,30 @@
     "worldRank": "विश्व रैंकिंग",
     "countryRank": "देश रैंकिंग",
     "backToTop": "होम पर वापस",
-    "scoreNotSaved": "स्कोर सेव नहीं हुआ"
+    "scoreNotSaved": "स्कोर सेव नहीं हुआ",
+    "nearMissTier": "{tier} तक बस {remaining}m बाकी",
+    "nearMissPB": "अपना रिकॉर्ड तोड़ने में बस {remaining}m बाकी"
+  },
+  "tier": {
+    "rookie": "Rookie",
+    "iron": "Iron",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platinum": "Platinum",
+    "emerald": "Emerald",
+    "diamond": "Diamond",
+    "master": "Master",
+    "legend": "Legend",
+    "new": "NEW!"
   },
   "ranking": {
     "heading": "रैंकिंग",
     "seeMore": "और देखें",
     "world": "विश्व",
     "country": "देश",
-    "back": "वापस"
+    "back": "वापस",
+    "viewRanking": "रैंकिंग देखें"
   },
   "profile": {
     "nameLabel": "नाम",

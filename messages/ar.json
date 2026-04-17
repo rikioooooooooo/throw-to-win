@@ -68,14 +68,30 @@
     "worldRank": "التصنيف العالمي",
     "countryRank": "التصنيف المحلي",
     "backToTop": "العودة للرئيسية",
-    "scoreNotSaved": "لم يتم حفظ النتيجة"
+    "scoreNotSaved": "لم يتم حفظ النتيجة",
+    "nearMissTier": "باقي {remaining}م لـ {tier}",
+    "nearMissPB": "باقي {remaining}م لتحطيم رقمك القياسي"
+  },
+  "tier": {
+    "rookie": "Rookie",
+    "iron": "Iron",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platinum": "Platinum",
+    "emerald": "Emerald",
+    "diamond": "Diamond",
+    "master": "Master",
+    "legend": "Legend",
+    "new": "NEW!"
   },
   "ranking": {
     "heading": "التصنيف",
     "seeMore": "عرض المزيد",
     "world": "العالم",
     "country": "البلد",
-    "back": "رجوع"
+    "back": "رجوع",
+    "viewRanking": "عرض التصنيف"
   },
   "profile": {
     "nameLabel": "الاسم",

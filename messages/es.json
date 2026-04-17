@@ -68,14 +68,30 @@
     "worldRank": "RANKING MUNDIAL",
     "countryRank": "RANKING NACIONAL",
     "backToTop": "Volver al inicio",
-    "scoreNotSaved": "Puntuacion no guardada"
+    "scoreNotSaved": "Puntuacion no guardada",
+    "nearMissTier": "A {remaining}m de {tier}",
+    "nearMissPB": "A {remaining}m de tu mejor marca"
+  },
+  "tier": {
+    "rookie": "Rookie",
+    "iron": "Iron",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platinum": "Platinum",
+    "emerald": "Emerald",
+    "diamond": "Diamond",
+    "master": "Master",
+    "legend": "Legend",
+    "new": "NEW!"
   },
   "ranking": {
     "heading": "Rankings",
     "seeMore": "Ver mas",
     "world": "Mundo",
     "country": "Pais",
-    "back": "Volver"
+    "back": "Volver",
+    "viewRanking": "Ver clasificación"
   },
   "profile": {
     "nameLabel": "NOMBRE",

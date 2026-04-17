@@ -7,6 +7,8 @@ import type { AccelSample } from "@/lib/types";
 /** Physical limits — anything beyond these is fabricated */
 const MAX_HEIGHT_METERS = 30;
 const MAX_AIRTIME_SECONDS = 5;
+/** Maximum clock skew allowed between client and server (5 minutes) */
+const MAX_TIMESTAMP_SKEW_MS = 5 * 60 * 1000;
 
 type VerifyBody = {
   nonce?: string;
@@ -39,6 +41,14 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         { error: "Missing or invalid fields" },
+        { status: 400 },
+      );
+    }
+
+    // Reject stale timestamps to prevent replay attacks
+    if (Math.abs(Date.now() - body.timestamp) > MAX_TIMESTAMP_SKEW_MS) {
+      return NextResponse.json(
+        { error: "Timestamp too far from server time" },
         { status: 400 },
       );
     }
@@ -119,30 +129,22 @@ export async function POST(request: Request) {
 
     // 5. Persist throw + device data (atomic upsert, nonce already claimed in step 1)
     const country = request.headers.get("cf-ipcountry") ?? "XX";
-
-    await env.DB.prepare(
-      `INSERT INTO devices (id, total_throws, personal_best, country)
-       VALUES (?, 1, ?, ?)
-       ON CONFLICT(id) DO UPDATE SET
-         last_seen = datetime('now'),
-         total_throws = total_throws + 1,
-         personal_best = MAX(personal_best, excluded.personal_best),
-         country = excluded.country`,
-    )
-      .bind(body.deviceFingerprint, verifiedHeight, country)
-      .run();
-
-    const updatedDevice = await env.DB.prepare(
-      "SELECT personal_best FROM devices WHERE id = ?",
-    )
-      .bind(body.deviceFingerprint)
-      .first<{ personal_best: number }>();
-
     const throwId = crypto.randomUUID();
-    await env.DB.prepare(
-      "INSERT INTO throws (id, device_id, height_meters, airtime_seconds, country, challenge_nonce, anomaly_score) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    )
-      .bind(
+
+    // Batch: upsert device + insert throw in a single round-trip
+    await env.DB.batch([
+      env.DB.prepare(
+        `INSERT INTO devices (id, first_seen, last_seen, total_throws, personal_best, country, flagged)
+         VALUES (?, datetime('now'), datetime('now'), 1, ?, ?, 0)
+         ON CONFLICT(id) DO UPDATE SET
+           last_seen = datetime('now'),
+           total_throws = total_throws + 1,
+           personal_best = MAX(personal_best, excluded.personal_best),
+           country = excluded.country`,
+      ).bind(body.deviceFingerprint, verifiedHeight, country),
+      env.DB.prepare(
+        "INSERT INTO throws (id, device_id, height_meters, airtime_seconds, country, challenge_nonce, anomaly_score) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      ).bind(
         throwId,
         body.deviceFingerprint,
         verifiedHeight,
@@ -150,27 +152,33 @@ export async function POST(request: Request) {
         country,
         body.nonce,
         antiCheatResult.anomalyScore,
-      )
-      .run();
+      ),
+    ]);
 
-    // 7. Calculate ranks (against device personal_best)
+    // 7. Fetch updated personal_best + ranks in parallel
+    const [updatedDevice, worldRankRow, countryRankRow, totalThrowsRow] =
+      await Promise.all([
+        env.DB.prepare(
+          "SELECT personal_best FROM devices WHERE id = ?",
+        )
+          .bind(body.deviceFingerprint)
+          .first<{ personal_best: number }>(),
+        env.DB.prepare(
+          "SELECT COUNT(*) as rank FROM devices WHERE personal_best > ?",
+        )
+          .bind(verifiedHeight)
+          .first<{ rank: number }>(),
+        env.DB.prepare(
+          "SELECT COUNT(*) as rank FROM devices WHERE personal_best > ? AND country = ?",
+        )
+          .bind(verifiedHeight, country)
+          .first<{ rank: number }>(),
+        env.DB.prepare(
+          "SELECT COUNT(*) as total FROM throws",
+        ).first<{ total: number }>(),
+      ]);
+
     const updatedBest = updatedDevice?.personal_best ?? verifiedHeight;
-
-    const worldRankRow = await env.DB.prepare(
-      "SELECT COUNT(*) as rank FROM devices WHERE personal_best > ?",
-    )
-      .bind(updatedBest)
-      .first<{ rank: number }>();
-
-    const countryRankRow = await env.DB.prepare(
-      "SELECT COUNT(*) as rank FROM devices WHERE personal_best > ? AND country = ?",
-    )
-      .bind(updatedBest, country)
-      .first<{ rank: number }>();
-
-    const totalThrowsRow = await env.DB.prepare(
-      "SELECT COUNT(*) as total FROM throws",
-    ).first<{ total: number }>();
 
     return NextResponse.json({
       id: throwId,
@@ -179,6 +187,7 @@ export async function POST(request: Request) {
       countryRank: (countryRankRow?.rank ?? 0) + 1,
       totalThrows: totalThrowsRow?.total ?? 0,
       country,
+      personalBest: updatedBest,
     });
   } catch {
     return NextResponse.json(

@@ -68,14 +68,30 @@
     "worldRank": "МИРОВОЙ РЕЙТИНГ",
     "countryRank": "РЕЙТИНГ СТРАНЫ",
     "backToTop": "На главную",
-    "scoreNotSaved": "Результат не сохранен"
+    "scoreNotSaved": "Результат не сохранен",
+    "nearMissTier": "Ещё {remaining}м до {tier}",
+    "nearMissPB": "Ещё {remaining}м до личного рекорда"
+  },
+  "tier": {
+    "rookie": "Rookie",
+    "iron": "Iron",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platinum": "Platinum",
+    "emerald": "Emerald",
+    "diamond": "Diamond",
+    "master": "Master",
+    "legend": "Legend",
+    "new": "NEW!"
   },
   "ranking": {
     "heading": "Рейтинг",
     "seeMore": "Показать ещё",
     "world": "Мир",
     "country": "Страна",
-    "back": "Назад"
+    "back": "Назад",
+    "viewRanking": "Посмотреть рейтинг"
   },
   "profile": {
     "nameLabel": "ИМЯ",

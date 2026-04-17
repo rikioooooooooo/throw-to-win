@@ -62,7 +62,7 @@ export function ConsentModal({ onAgree, onDisagree }: ConsentModalProps) {
         >
           <button
             onClick={onAgree}
-            className="w-full py-4 bg-accent text-white cta-text text-[16px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-75"
+            className="w-full py-4 bg-accent text-black cta-text text-[16px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-75"
             style={{ borderRadius: "14px" }}
           >
             {t("agree")}

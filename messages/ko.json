@@ -68,14 +68,30 @@
     "worldRank": "세계 랭킹",
     "countryRank": "국내 랭킹",
     "backToTop": "TOP으로",
-    "scoreNotSaved": "점수 미저장"
+    "scoreNotSaved": "점수 미저장",
+    "nearMissTier": "{tier}까지 {remaining}m 남음",
+    "nearMissPB": "자기 최고까지 {remaining}m 남음"
+  },
+  "tier": {
+    "rookie": "Rookie",
+    "iron": "Iron",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platinum": "Platinum",
+    "emerald": "Emerald",
+    "diamond": "Diamond",
+    "master": "Master",
+    "legend": "Legend",
+    "new": "NEW!"
   },
   "ranking": {
     "heading": "랭킹",
     "seeMore": "더 보기",
     "world": "세계",
     "country": "국내",
-    "back": "뒤로"
+    "back": "뒤로",
+    "viewRanking": "랭킹 보기"
   },
   "profile": {
     "nameLabel": "표시 이름",

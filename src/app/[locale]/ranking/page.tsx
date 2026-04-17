@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import { RankingList, type RankEntry } from "@/components/ranking-list";
+import { RankingList } from "@/components/ranking-list";
+import { useRankings } from "@/hooks/use-rankings";
 
 type Tab = "world" | "country";
 
@@ -12,48 +13,9 @@ export default function RankingPage() {
   const router = useRouter();
   const locale = useLocale();
   const [tab, setTab] = useState<Tab>("world");
-  const [worldEntries, setWorldEntries] = useState<readonly RankEntry[]>([]);
-  const [countryEntries, setCountryEntries] = useState<readonly RankEntry[]>([]);
-  const [yourCountry, setYourCountry] = useState("");
-  const [loading, setLoading] = useState(true);
+  const rankings = useRankings({ limit: 100 });
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      try {
-        const worldRes = await fetch("/api/ranking?scope=world&limit=100");
-        if (!worldRes.ok) return;
-        const worldData = await worldRes.json() as {
-          rankings: RankEntry[];
-          yourCountry: string;
-        };
-        if (cancelled) return;
-
-        setWorldEntries(worldData.rankings);
-        setYourCountry(worldData.yourCountry);
-
-        if (worldData.yourCountry && worldData.yourCountry !== "XX") {
-          const countryRes = await fetch(
-            `/api/ranking?scope=country&country=${worldData.yourCountry}&limit=100`,
-          );
-          if (countryRes.ok) {
-            const countryData = await countryRes.json() as { rankings: RankEntry[] };
-            if (!cancelled) setCountryEntries(countryData.rankings);
-          }
-        }
-      } catch {
-        // silent
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    load();
-    return () => { cancelled = true; };
-  }, []);
-
-  const entries = tab === "world" ? worldEntries : countryEntries;
+  const entries = tab === "world" ? rankings.world : rankings.country;
   const title = tab === "world" ? t("landing.worldRanking") : t("landing.countryRanking");
 
   return (
@@ -107,13 +69,13 @@ export default function RankingPage() {
           }}
         >
           {t("ranking.country")}
-          {yourCountry && yourCountry !== "XX" && (
-            <span className="ml-1 text-[9px] opacity-60">({yourCountry})</span>
+          {rankings.yourCountry && rankings.yourCountry !== "XX" && (
+            <span className="ml-1 text-[11px] opacity-70">({rankings.yourCountry})</span>
           )}
         </button>
       </div>
 
-      {loading ? (
+      {rankings.loading ? (
         <p className="text-center text-muted text-[13px] py-12">{t("common.loading")}</p>
       ) : entries.length === 0 ? (
         <p className="text-center text-muted text-[13px] py-12">{t("landing.noRankings")}</p>
