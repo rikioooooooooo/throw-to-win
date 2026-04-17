@@ -18,11 +18,13 @@ type Pole = {
   readonly z: number;
 };
 
-const GRID_COLS = 11;
-const GRID_ROWS = 18;
+const GRID_COLS = 15;
+const GRID_ROWS = 26;
 const DEPTH_LAYERS = 8;
-const MAX_SHIFT = 80;
+const MAX_SHIFT = 150;
 const GYRO_TIMEOUT_MS = 2000;
+/** Grid extends beyond -1..1 so poles are always available off-screen */
+const GRID_RANGE = 1.8;
 
 function createPoles(): readonly Pole[] {
   const poles: Pole[] = [];
@@ -31,8 +33,8 @@ function createPoles(): readonly Pole[] {
     for (let row = 0; row < GRID_ROWS; row++) {
       for (let col = 0; col < GRID_COLS; col++) {
         poles.push({
-          wx: (col / (GRID_COLS - 1)) * 2 - 1,
-          wy: (row / (GRID_ROWS - 1)) * 2 - 1,
+          wx: (col / (GRID_COLS - 1)) * 2 * GRID_RANGE - GRID_RANGE,
+          wy: (row / (GRID_ROWS - 1)) * 2 * GRID_RANGE - GRID_RANGE,
           z,
         });
       }
@@ -63,9 +65,10 @@ export function GyroBars({ className }: GyroBarsProps) {
     const handleOrientation = (e: DeviceOrientationEvent) => {
       if (e.gamma == null || e.beta == null) return;
       hasGyroRef.current = true;
+      // No clamping — let extreme tilts produce extreme parallax
       targetRef.current = {
-        x: Math.max(-1, Math.min(1, e.gamma / 40)),
-        y: Math.max(-1, Math.min(1, (e.beta - 50) / 40)),
+        x: e.gamma / 35,
+        y: (e.beta - 50) / 35,
       };
     };
     window.addEventListener("deviceorientation", handleOrientation);
@@ -128,7 +131,7 @@ export function GyroBars({ className }: GyroBarsProps) {
         const parallaxFactor = (1 - pole.z) * MAX_SHIFT;
 
         const sx = cx + pole.wx * spreadX * convergence + tiltX * parallaxFactor;
-        const sy = cy + pole.wy * spreadY * convergence + tiltY * parallaxFactor * 0.6;
+        const sy = cy + pole.wy * spreadY * convergence + tiltY * parallaxFactor;
 
         const radius = 4.0 * perspectiveScale;
 
