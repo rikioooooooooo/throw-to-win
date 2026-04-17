@@ -30,6 +30,10 @@ export type UserStats = {
   readonly personalBest: number;
   readonly totalThrows: number;
   readonly totalAirtimeSeconds: number;
+  readonly todayDateISO: string;       // "2026-04-17" local date
+  readonly todayBest: number;           // today's highest throw
+  readonly streakDays: number;          // consecutive throw days
+  readonly lastActiveDateISO: string;   // last throw date
 };
 
 /** Full localStorage schema */

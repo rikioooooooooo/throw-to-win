@@ -31,7 +31,7 @@ const EMPTY_DATA: AppData = {
   consent: { agreed: false, agreedAt: "", version: CONSENT_VERSION },
   settings: { cameraDirection: "rear", locale: DEFAULT_LOCALE },
   throws: [],
-  stats: { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0 },
+  stats: { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0, todayDateISO: "", todayBest: 0, streakDays: 0, lastActiveDateISO: "" },
 };
 
 /** Check if localStorage is available */
@@ -54,7 +54,15 @@ export function loadData(): AppData {
     const parsed = JSON.parse(raw) as AppData;
     // Ensure userId exists
     if (!parsed.userId) return initData();
-    return parsed;
+    // Backward compatibility: fill missing stats fields
+    const stats: UserStats = {
+      ...parsed.stats,
+      todayDateISO: parsed.stats.todayDateISO ?? "",
+      todayBest: parsed.stats.todayBest ?? 0,
+      streakDays: parsed.stats.streakDays ?? 0,
+      lastActiveDateISO: parsed.stats.lastActiveDateISO ?? "",
+    };
+    return { ...parsed, stats };
   } catch {
     return initData();
   }
@@ -133,10 +141,45 @@ export function addThrowRecord(
       ? allThrows.slice(allThrows.length - MAX_STORED_THROWS)
       : allThrows;
 
+  const todayISO = new Date().toLocaleDateString('sv-SE'); // "2026-04-17" format (ISO)
+  const prevDate = data.stats.lastActiveDateISO;
+  const prevToday = data.stats.todayDateISO;
+
+  // Today's best
+  const isSameDay = prevToday === todayISO;
+  const todayBest = isSameDay
+    ? Math.max(data.stats.todayBest, heightMeters)
+    : heightMeters;
+
+  // Streak calculation
+  let streakDays: number;
+  if (!prevDate) {
+    // First ever throw
+    streakDays = 1;
+  } else {
+    const prevMs = new Date(prevDate).getTime();
+    const todayMs = new Date(todayISO).getTime();
+    const dayDiff = Math.round((todayMs - prevMs) / (24 * 60 * 60 * 1000));
+    if (dayDiff === 0) {
+      // Same day — streak unchanged
+      streakDays = data.stats.streakDays;
+    } else if (dayDiff === 1) {
+      // Consecutive day — streak increments
+      streakDays = data.stats.streakDays + 1;
+    } else {
+      // Gap — streak resets
+      streakDays = 1;
+    }
+  }
+
   const stats: UserStats = {
     personalBest: isPersonalBest ? heightMeters : data.stats.personalBest,
     totalThrows: data.stats.totalThrows + 1,
     totalAirtimeSeconds: data.stats.totalAirtimeSeconds + airtimeSeconds,
+    todayDateISO: todayISO,
+    todayBest,
+    streakDays,
+    lastActiveDateISO: todayISO,
   };
 
   const next: AppData = { ...data, throws, stats };
