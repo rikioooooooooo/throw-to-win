@@ -1,322 +1,128 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef } from "react";
 
-type GyroBallProps = {
-  className?: string;
-};
+/**
+ * Invisible heavy ball physics — vibration only, no visual.
+ * Creates the illusion of a heavy ball rattling inside the phone
+ * by triggering haptic feedback on wall collisions proportional to impact speed.
+ */
 
-type Ball = {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
-  trail: Array<{ x: number; y: number }>;
-};
-
-const BALL_RADII = [12, 14, 15, 16, 18];
-const TRAIL_LENGTH = 5;
-const RESTITUTION = 0.5;
-const AIR_FRICTION = 0.995;
-const GRAVITY_SCALE = 0.15;
-const HAPTIC_THROTTLE_MS = 50;
-const GYRO_TIMEOUT_MS = 2000;
+const RESTITUTION = 0.6;
+const FRICTION = 0.997;
+const GRAVITY_SCALE = 800; // px/s² per degree of tilt — heavier feel
 const FIXED_DT = 1 / 60;
+const HAPTIC_THROTTLE_MS = 30;
+const GYRO_TIMEOUT_MS = 1500;
+/** Minimum impact speed (px/s) to trigger vibration */
+const MIN_IMPACT_SPEED = 40;
 
-function vibrate(durationMs: number, lastVibrateRef: React.MutableRefObject<number>): void {
-  const now = performance.now();
-  if (now - lastVibrateRef.current < HAPTIC_THROTTLE_MS) return;
-  if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
-    navigator.vibrate(durationMs);
-  }
-  lastVibrateRef.current = now;
+/** Map impact speed to vibration duration (ms). Heavier hit = longer buzz. */
+function impactToVibeDuration(speed: number): number {
+  if (speed < MIN_IMPACT_SPEED) return 0;
+  // 40 px/s → 3ms, 400+ px/s → 25ms, clamped
+  return Math.min(25, Math.round(3 + (speed - MIN_IMPACT_SPEED) * 0.055));
 }
 
-function createBalls(width: number, height: number): Ball[] {
-  return BALL_RADII.map((radius) => ({
-    x: radius + Math.random() * (width - radius * 2),
-    y: radius + Math.random() * (height - radius * 2),
-    vx: (Math.random() - 0.5) * 60,
-    vy: (Math.random() - 0.5) * 60,
-    radius,
-    trail: [],
-  }));
-}
-
-function resolveWallCollisions(
-  ball: Ball,
-  w: number,
-  h: number,
-  lastVibrateRef: React.MutableRefObject<number>,
-): void {
-  if (ball.x - ball.radius < 0) {
-    ball.x = ball.radius;
-    ball.vx = Math.abs(ball.vx) * RESTITUTION;
-    vibrate(8, lastVibrateRef);
-  } else if (ball.x + ball.radius > w) {
-    ball.x = w - ball.radius;
-    ball.vx = -Math.abs(ball.vx) * RESTITUTION;
-    vibrate(8, lastVibrateRef);
-  }
-  if (ball.y - ball.radius < 0) {
-    ball.y = ball.radius;
-    ball.vy = Math.abs(ball.vy) * RESTITUTION;
-    vibrate(8, lastVibrateRef);
-  } else if (ball.y + ball.radius > h) {
-    ball.y = h - ball.radius;
-    ball.vy = -Math.abs(ball.vy) * RESTITUTION;
-    vibrate(8, lastVibrateRef);
-  }
-}
-
-function resolveBallCollisions(
-  balls: Ball[],
-  lastVibrateRef: React.MutableRefObject<number>,
-): void {
-  for (let i = 0; i < balls.length; i++) {
-    for (let j = i + 1; j < balls.length; j++) {
-      const a = balls[i];
-      const b = balls[j];
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const distSq = dx * dx + dy * dy;
-      const minDist = a.radius + b.radius;
-
-      if (distSq < minDist * minDist && distSq > 0) {
-        const dist = Math.sqrt(distSq);
-        const nx = dx / dist;
-        const ny = dy / dist;
-
-        // Separate overlapping balls
-        const overlap = (minDist - dist) / 2;
-        a.x -= nx * overlap;
-        a.y -= ny * overlap;
-        b.x += nx * overlap;
-        b.y += ny * overlap;
-
-        // Elastic velocity exchange along collision normal
-        const dvx = a.vx - b.vx;
-        const dvy = a.vy - b.vy;
-        const dot = dvx * nx + dvy * ny;
-
-        if (dot > 0) {
-          a.vx -= dot * nx;
-          a.vy -= dot * ny;
-          b.vx += dot * nx;
-          b.vy += dot * ny;
-          vibrate(4, lastVibrateRef);
-        }
-      }
-    }
-  }
-}
-
-function drawBalls(ctx: CanvasRenderingContext2D, balls: readonly Ball[]): void {
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-  for (const ball of balls) {
-    // Draw trail (fading older positions)
-    for (let t = 0; t < ball.trail.length; t++) {
-      const pos = ball.trail[t];
-      const alpha = ((t + 1) / ball.trail.length) * 0.08;
-      ctx.beginPath();
-      ctx.arc(pos.x, pos.y, ball.radius * 0.8, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(0, 250, 154, ${alpha})`;
-      ctx.fill();
-    }
-
-    // Draw ball with glow
-    ctx.save();
-    ctx.shadowColor = "rgba(0, 250, 154, 0.2)";
-    ctx.shadowBlur = 8;
-
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(0, 250, 154, 0.15)";
-    ctx.fill();
-    ctx.strokeStyle = "rgba(0, 250, 154, 0.3)";
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    ctx.restore();
-  }
-}
-
-export function GyroBall({ className }: GyroBallProps) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const ballsRef = useRef<Ball[]>([]);
+export function GyroBall() {
+  const ballRef = useRef({ x: 0, y: 0, vx: 0, vy: 0 });
   const gravityRef = useRef({ x: 0, y: 0 });
   const hasGyroRef = useRef(false);
-  const gyroTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const useFallbackRef = useRef(false);
   const lastVibrateRef = useRef(0);
   const rafRef = useRef(0);
-  const accumulatorRef = useRef(0);
+  const accRef = useRef(0);
   const lastTimeRef = useRef(0);
-  const startTimeRef = useRef(0);
-  const reducedMotionRef = useRef(false);
+  const sizeRef = useRef({ w: 0, h: 0 });
 
-  const setCanvasRef = useCallback((node: HTMLCanvasElement | null) => {
-    canvasRef.current = node;
-  }, []);
-
-  // Device orientation listener
   useEffect(() => {
+    // Reduced motion: skip entirely
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // No vibration API: skip entirely
+    if (typeof navigator.vibrate !== "function") return;
+
     const handleOrientation = (e: DeviceOrientationEvent) => {
       hasGyroRef.current = true;
-      const gamma = e.gamma ?? 0; // left-right tilt
-      const beta = e.beta ?? 0;   // front-back tilt
+      // gamma: left-right tilt (-90..90), beta: front-back tilt (-180..180)
       gravityRef.current = {
-        x: gamma * GRAVITY_SCALE,
-        y: beta * GRAVITY_SCALE,
+        x: (e.gamma ?? 0) * GRAVITY_SCALE / 60,
+        y: (e.beta ?? 0) * GRAVITY_SCALE / 60,
       };
     };
 
     window.addEventListener("deviceorientation", handleOrientation);
 
-    // Fallback timer: if no gyro events fire within 2s, enable drift mode
-    gyroTimerRef.current = setTimeout(() => {
+    // If no gyro events within timeout, clean up — no fallback drift
+    // (vibration without gyro input would feel random and weird)
+    const gyroTimer = setTimeout(() => {
       if (!hasGyroRef.current) {
-        useFallbackRef.current = true;
+        cancelAnimationFrame(rafRef.current);
+        window.removeEventListener("deviceorientation", handleOrientation);
       }
     }, GYRO_TIMEOUT_MS);
 
-    return () => {
-      window.removeEventListener("deviceorientation", handleOrientation);
-      if (gyroTimerRef.current !== null) {
-        clearTimeout(gyroTimerRef.current);
-      }
-    };
-  }, []);
-
-  // Animation loop
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    // Check reduced motion preference
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      reducedMotionRef.current = true;
-    }
-
-    const updateCanvasSize = () => {
-      const parent = canvas.parentElement;
-      if (!parent) return;
-      const rect = parent.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
-
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      }
-
-      // Reinitialize balls if canvas is valid size
-      if (rect.width > 0 && rect.height > 0 && ballsRef.current.length === 0) {
-        ballsRef.current = createBalls(rect.width, rect.height);
-      }
-    };
-
-    updateCanvasSize();
+    // Initialize ball at center
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    sizeRef.current = { w, h };
+    ballRef.current = { x: w / 2, y: h / 2, vx: 0, vy: 0 };
 
     const handleResize = () => {
-      updateCanvasSize();
+      sizeRef.current = { w: window.innerWidth, h: window.innerHeight };
     };
     window.addEventListener("resize", handleResize);
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const doVibrate = (speed: number) => {
+      const dur = impactToVibeDuration(speed);
+      if (dur <= 0) return;
+      const now = performance.now();
+      if (now - lastVibrateRef.current < HAPTIC_THROTTLE_MS) return;
+      navigator.vibrate(dur);
+      lastVibrateRef.current = now;
+    };
 
-    // Static render for reduced motion
-    if (reducedMotionRef.current) {
-      const parent = canvas.parentElement;
-      if (parent) {
-        const rect = parent.getBoundingClientRect();
-        if (ballsRef.current.length === 0) {
-          ballsRef.current = createBalls(rect.width, rect.height);
-        }
-        drawBalls(ctx, ballsRef.current);
-      }
-      return () => {
-        window.removeEventListener("resize", handleResize);
-      };
-    }
-
-    startTimeRef.current = performance.now();
     lastTimeRef.current = performance.now();
-    accumulatorRef.current = 0;
 
     const loop = (now: number) => {
-      const parent = canvas.parentElement;
-      if (!parent) {
-        rafRef.current = requestAnimationFrame(loop);
-        return;
-      }
-      const rect = parent.getBoundingClientRect();
-      const w = rect.width;
-      const h = rect.height;
-
-      if (w === 0 || h === 0) {
-        rafRef.current = requestAnimationFrame(loop);
-        return;
-      }
-
-      const frameTime = Math.min((now - lastTimeRef.current) / 1000, 0.1);
+      const dt = Math.min((now - lastTimeRef.current) / 1000, 0.1);
       lastTimeRef.current = now;
-      accumulatorRef.current += frameTime;
+      accRef.current += dt;
 
-      // Update fallback gravity if no gyroscope
-      if (useFallbackRef.current) {
-        const elapsed = (now - startTimeRef.current) / 1000;
-        gravityRef.current = {
-          x: Math.sin(elapsed * 0.3) * 2,
-          y: Math.cos(elapsed * 0.5) * 2,
-        };
-      }
-
+      const { w, h } = sizeRef.current;
       const gx = gravityRef.current.x;
       const gy = gravityRef.current.y;
-      const balls = ballsRef.current;
+      const ball = ballRef.current;
 
-      // Fixed timestep physics
-      while (accumulatorRef.current >= FIXED_DT) {
-        for (const ball of balls) {
-          ball.vx += gx * FIXED_DT;
-          ball.vy += gy * FIXED_DT;
-          ball.vx *= AIR_FRICTION;
-          ball.vy *= AIR_FRICTION;
-          ball.x += ball.vx * FIXED_DT;
-          ball.y += ball.vy * FIXED_DT;
+      while (accRef.current >= FIXED_DT) {
+        ball.vx += gx;
+        ball.vy += gy;
+        ball.vx *= FRICTION;
+        ball.vy *= FRICTION;
+        ball.x += ball.vx * FIXED_DT;
+        ball.y += ball.vy * FIXED_DT;
+
+        // Wall collisions — vibrate proportional to impact speed
+        if (ball.x < 0) {
+          doVibrate(Math.abs(ball.vx));
+          ball.x = 0;
+          ball.vx = Math.abs(ball.vx) * RESTITUTION;
+        } else if (ball.x > w) {
+          doVibrate(Math.abs(ball.vx));
+          ball.x = w;
+          ball.vx = -Math.abs(ball.vx) * RESTITUTION;
+        }
+        if (ball.y < 0) {
+          doVibrate(Math.abs(ball.vy));
+          ball.y = 0;
+          ball.vy = Math.abs(ball.vy) * RESTITUTION;
+        } else if (ball.y > h) {
+          doVibrate(Math.abs(ball.vy));
+          ball.y = h;
+          ball.vy = -Math.abs(ball.vy) * RESTITUTION;
         }
 
-        for (const ball of balls) {
-          resolveWallCollisions(ball, w, h, lastVibrateRef);
-        }
-
-        resolveBallCollisions(balls, lastVibrateRef);
-
-        // Clamp positions
-        for (const ball of balls) {
-          ball.x = Math.max(ball.radius, Math.min(w - ball.radius, ball.x));
-          ball.y = Math.max(ball.radius, Math.min(h - ball.radius, ball.y));
-        }
-
-        accumulatorRef.current -= FIXED_DT;
+        accRef.current -= FIXED_DT;
       }
 
-      // Update trails
-      for (const ball of balls) {
-        ball.trail.push({ x: ball.x, y: ball.y });
-        if (ball.trail.length > TRAIL_LENGTH) {
-          ball.trail.shift();
-        }
-      }
-
-      drawBalls(ctx, balls);
       rafRef.current = requestAnimationFrame(loop);
     };
 
@@ -324,15 +130,12 @@ export function GyroBall({ className }: GyroBallProps) {
 
     return () => {
       cancelAnimationFrame(rafRef.current);
+      clearTimeout(gyroTimer);
+      window.removeEventListener("deviceorientation", handleOrientation);
       window.removeEventListener("resize", handleResize);
     };
   }, []);
 
-  return (
-    <canvas
-      ref={setCanvasRef}
-      className={className}
-      aria-hidden="true"
-    />
-  );
+  // Renders nothing — haptics only
+  return null;
 }
