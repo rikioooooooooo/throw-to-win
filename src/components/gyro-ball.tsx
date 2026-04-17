@@ -144,11 +144,11 @@ export function GyroBars({ className }: GyroBarsProps) {
       ctx.lineTo(fBR.x, fBR.y);
       ctx.lineTo(fBL.x, fBL.y);
       ctx.closePath();
-      ctx.fillStyle = `rgba(${AC}, 0.03)`;
+      ctx.fillStyle = `rgba(${AC}, 0.06)`;
       ctx.fill();
 
       // Floor grid lines
-      ctx.strokeStyle = `rgba(${AC}, 0.04)`;
+      ctx.strokeStyle = `rgba(${AC}, 0.10)`;
       ctx.lineWidth = 0.5;
       const floorW = fTR.x - fTL.x;
       const floorH = fBL.y - fTL.y;
@@ -171,7 +171,7 @@ export function GyroBars({ className }: GyroBarsProps) {
 
       // --- 2. Walls (trapezoids from screen edge to floor edge) ---
       // Left wall
-      const leftWallAlpha = Math.max(0, Math.min(0.08, tiltX * 0.06));
+      const leftWallAlpha = Math.max(0, Math.min(0.20, tiltX * 0.15));
       if (leftWallAlpha > 0.003) {
         ctx.beginPath();
         ctx.moveTo(sTL.x, sTL.y);
@@ -184,7 +184,7 @@ export function GyroBars({ className }: GyroBarsProps) {
       }
 
       // Right wall
-      const rightWallAlpha = Math.max(0, Math.min(0.08, -tiltX * 0.06));
+      const rightWallAlpha = Math.max(0, Math.min(0.20, -tiltX * 0.15));
       if (rightWallAlpha > 0.003) {
         ctx.beginPath();
         ctx.moveTo(sTR.x, sTR.y);
@@ -197,7 +197,7 @@ export function GyroBars({ className }: GyroBarsProps) {
       }
 
       // Top wall
-      const topWallAlpha = Math.max(0, Math.min(0.08, tiltY * 0.06));
+      const topWallAlpha = Math.max(0, Math.min(0.20, tiltY * 0.15));
       if (topWallAlpha > 0.003) {
         ctx.beginPath();
         ctx.moveTo(sTL.x, sTL.y);
@@ -210,7 +210,7 @@ export function GyroBars({ className }: GyroBarsProps) {
       }
 
       // Bottom wall
-      const bottomWallAlpha = Math.max(0, Math.min(0.08, -tiltY * 0.06));
+      const bottomWallAlpha = Math.max(0, Math.min(0.20, -tiltY * 0.15));
       if (bottomWallAlpha > 0.003) {
         ctx.beginPath();
         ctx.moveTo(sBL.x, sBL.y);
@@ -249,8 +249,8 @@ export function GyroBars({ className }: GyroBarsProps) {
       }
 
       // --- 4. Edge lines (box corners — on top of everything) ---
-      ctx.strokeStyle = `rgba(${AC}, 0.15)`;
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = `rgba(${AC}, 0.30)`;
+      ctx.lineWidth = 1.5;
 
       // TL corner
       ctx.beginPath(); ctx.moveTo(sTL.x, sTL.y); ctx.lineTo(fTL.x, fTL.y); ctx.stroke();
@@ -262,7 +262,7 @@ export function GyroBars({ className }: GyroBarsProps) {
       ctx.beginPath(); ctx.moveTo(sBR.x, sBR.y); ctx.lineTo(fBR.x, fBR.y); ctx.stroke();
 
       // Floor border
-      ctx.strokeStyle = `rgba(${AC}, 0.08)`;
+      ctx.strokeStyle = `rgba(${AC}, 0.18)`;
       ctx.beginPath();
       ctx.moveTo(fTL.x, fTL.y);
       ctx.lineTo(fTR.x, fTR.y);
