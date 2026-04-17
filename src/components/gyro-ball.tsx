@@ -3,34 +3,49 @@
 import { useEffect, useRef, useCallback } from "react";
 
 /**
- * Gyroscope-driven parallax vertical bars.
- * Creates the illusion that the phone screen is a window into a 3D space
- * with evenly-spaced vertical poles standing behind it.
- * Tilting the phone shifts perspective — closer poles move more, far poles less.
+ * Gyroscope parallax: bars extending straight toward the viewer from depth.
+ * You see their circular cross-sections. Tilting shifts perspective —
+ * closer bars move more, distant bars less, creating a 3D window illusion.
  */
 
 type GyroBarsProps = {
   readonly className?: string;
 };
 
-// Depth layers — each has poles at a different Z-distance from the "window"
-const LAYERS = [
-  { z: 0.15, opacity: 0.04, width: 6 },
-  { z: 0.3,  opacity: 0.06, width: 4.5 },
-  { z: 0.5,  opacity: 0.08, width: 3 },
-  { z: 0.75, opacity: 0.10, width: 2 },
-  { z: 1.0,  opacity: 0.12, width: 1.5 },
-] as const;
+/** Pole in 3D space — position is fixed, only projection changes with tilt */
+type Pole = {
+  /** World-space grid position (normalized -1..1) */
+  readonly wx: number;
+  readonly wy: number;
+  /** Depth: 0 = closest to screen, 1 = furthest */
+  readonly z: number;
+};
 
-/** How many poles per layer across the visible width */
-const POLES_PER_SCREEN = 12;
-/** Extra poles rendered off-screen on each side so tilting doesn't reveal gaps */
-const OVERSHOOT = 8;
-/** Max parallax shift in px at full tilt */
-const MAX_SHIFT = 120;
-const GYRO_TIMEOUT_MS = 2000;
-/** Smoothing factor — lower = smoother but laggier (0-1) */
+const GRID_COLS = 9;
+const GRID_ROWS = 14;
+const DEPTH_LAYERS = 5;
+const MAX_SHIFT = 60; // px shift at full tilt for nearest layer
 const LERP = 0.08;
+const GYRO_TIMEOUT_MS = 2000;
+
+/** Build a grid of poles across multiple depth layers */
+function createPoles(): readonly Pole[] {
+  const poles: Pole[] = [];
+  for (let d = 0; d < DEPTH_LAYERS; d++) {
+    const z = (d + 1) / DEPTH_LAYERS; // 0.2 .. 1.0
+    for (let row = 0; row < GRID_ROWS; row++) {
+      for (let col = 0; col < GRID_COLS; col++) {
+        poles.push({
+          wx: (col / (GRID_COLS - 1)) * 2 - 1,  // -1..1
+          wy: (row / (GRID_ROWS - 1)) * 2 - 1,  // -1..1
+          z,
+        });
+      }
+    }
+  }
+  // Sort far-to-near so near poles draw on top
+  return poles.sort((a, b) => b.z - a.z);
+}
 
 export function GyroBars({ className }: GyroBarsProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -38,6 +53,7 @@ export function GyroBars({ className }: GyroBarsProps) {
   const currentRef = useRef({ x: 0, y: 0 });
   const hasGyroRef = useRef(false);
   const rafRef = useRef(0);
+  const polesRef = useRef<readonly Pole[]>(createPoles());
 
   const setCanvasRef = useCallback((node: HTMLCanvasElement | null) => {
     canvasRef.current = node;
@@ -46,19 +62,15 @@ export function GyroBars({ className }: GyroBarsProps) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    // --- Device orientation ---
     const handleOrientation = (e: DeviceOrientationEvent) => {
       hasGyroRef.current = true;
-      const gamma = e.gamma ?? 0; // left-right: -90..90
-      const beta = e.beta ?? 0;   // front-back: -180..180
-      // Normalize to -1..1, clamped
+      const gamma = e.gamma ?? 0;
+      const beta = e.beta ?? 0;
       targetRef.current = {
-        x: Math.max(-1, Math.min(1, gamma / 45)),
-        y: Math.max(-1, Math.min(1, (beta - 45) / 45)),
-        // beta resting is ~45° when phone held naturally, so subtract 45
+        x: Math.max(-1, Math.min(1, gamma / 40)),
+        y: Math.max(-1, Math.min(1, (beta - 50) / 40)),
       };
     };
     window.addEventListener("deviceorientation", handleOrientation);
@@ -68,9 +80,7 @@ export function GyroBars({ className }: GyroBarsProps) {
       if (!hasGyroRef.current) useFallback = true;
     }, GYRO_TIMEOUT_MS);
 
-    // --- Canvas setup ---
     const dpr = window.devicePixelRatio || 1;
-
     const resize = () => {
       const p = canvas.parentElement;
       if (!p) return;
@@ -87,6 +97,7 @@ export function GyroBars({ className }: GyroBarsProps) {
     if (!ctx) return;
 
     const startTime = performance.now();
+    const poles = polesRef.current;
 
     const draw = (now: number) => {
       const p = canvas.parentElement;
@@ -94,12 +105,11 @@ export function GyroBars({ className }: GyroBarsProps) {
       const { width: cw, height: ch } = p.getBoundingClientRect();
       if (cw === 0 || ch === 0) { rafRef.current = requestAnimationFrame(draw); return; }
 
-      // Fallback: gentle drift
       if (useFallback) {
         const t = (now - startTime) / 1000;
         targetRef.current = {
-          x: Math.sin(t * 0.4) * 0.3,
-          y: Math.cos(t * 0.6) * 0.15,
+          x: Math.sin(t * 0.35) * 0.25,
+          y: Math.cos(t * 0.5) * 0.12,
         };
       }
 
@@ -109,42 +119,41 @@ export function GyroBars({ className }: GyroBarsProps) {
         y: currentRef.current.y + (targetRef.current.y - currentRef.current.y) * LERP,
       };
 
-      const shiftX = currentRef.current.x * MAX_SHIFT;
-      const shiftY = currentRef.current.y * MAX_SHIFT * 0.3; // vertical shift is subtler
+      const tiltX = currentRef.current.x;
+      const tiltY = currentRef.current.y;
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, cw, ch);
 
-      // Draw each depth layer (far to near)
-      for (const layer of LAYERS) {
-        const parallaxX = shiftX * layer.z;
-        const parallaxY = shiftY * layer.z;
+      const cx = cw / 2;
+      const cy = ch / 2;
+      // Spread: how far the grid extends on screen
+      const spreadX = cw * 0.55;
+      const spreadY = ch * 0.55;
 
-        // Pole spacing based on screen width
-        const spacing = cw / POLES_PER_SCREEN;
-        const totalPoles = POLES_PER_SCREEN + OVERSHOOT * 2;
+      for (const pole of poles) {
+        // Perspective: closer (small z) → bigger shift, bigger circle
+        // Far (z=1) → small shift, small circle
+        const perspectiveScale = 1 / (0.3 + pole.z * 0.7);
+        const parallaxFactor = (1 - pole.z) * MAX_SHIFT;
 
-        // Base offset so poles are centered, plus parallax
-        const baseX = -OVERSHOOT * spacing + parallaxX;
+        // Screen position: grid position * spread + parallax shift from tilt
+        const sx = cx + pole.wx * spreadX * (0.5 + pole.z * 0.5) + tiltX * parallaxFactor;
+        const sy = cy + pole.wy * spreadY * (0.5 + pole.z * 0.5) + tiltY * parallaxFactor * 0.6;
 
-        ctx.fillStyle = `rgba(0, 250, 154, ${layer.opacity})`;
+        // Circle radius: closer = bigger
+        const radius = 2.5 * perspectiveScale;
 
-        for (let i = 0; i < totalPoles; i++) {
-          const x = baseX + i * spacing + spacing / 2;
+        // Opacity: closer = more visible
+        const alpha = 0.04 + (1 - pole.z) * 0.10;
 
-          // Slight vertical perspective: poles closer to edge are a bit shorter
-          const distFromCenter = Math.abs(x - cw / 2) / (cw / 2);
-          const heightScale = 1 - distFromCenter * 0.08;
-          const poleH = ch * heightScale;
-          const poleY = (ch - poleH) / 2 + parallaxY;
+        // Skip if off-screen
+        if (sx < -radius || sx > cw + radius || sy < -radius || sy > ch + radius) continue;
 
-          ctx.fillRect(
-            Math.round(x - layer.width / 2),
-            Math.round(poleY),
-            layer.width,
-            Math.round(poleH),
-          );
-        }
+        ctx.beginPath();
+        ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 250, 154, ${alpha})`;
+        ctx.fill();
       }
 
       rafRef.current = requestAnimationFrame(draw);
