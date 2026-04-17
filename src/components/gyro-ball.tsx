@@ -109,7 +109,8 @@ export function GyroBars({ className }: GyroBarsProps) {
       const ch = window.innerHeight;
       if (cw === 0 || ch === 0) { rafRef.current = requestAnimationFrame(draw); return; }
 
-      if (useFallback) {
+      // Fallback drift — but stop if gyro permission is granted mid-session
+      if (useFallback && !hasGyroRef.current) {
         const t = (now - startTime) / 1000;
         targetRef.current = {
           x: Math.sin(t * 0.35) * 0.25,

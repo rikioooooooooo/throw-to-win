@@ -47,17 +47,18 @@ export default function LandingPage() {
 
   const tier = getTierForHeight(stats.personalBest);
 
-  // iOS DeviceOrientation permission — must be the FIRST call in a user gesture.
-  // Request on first tap anywhere on the landing page.
+  // iOS gyroscope permission — request on first tap.
+  // requestPermission() MUST be the absolute first API call in the handler.
   const gyroRequestedRef = useRef(false);
   const handleGyroPermission = useCallback(() => {
-    if (gyroRequestedRef.current) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rp = (DeviceOrientationEvent as any).requestPermission;
-    if (typeof rp === "function") {
-      gyroRequestedRef.current = true;
-      (rp as () => Promise<string>)().catch(() => {});
-    }
+    if (typeof (DeviceMotionEvent as any).requestPermission !== "function") return;
+    if (gyroRequestedRef.current) return;
+    gyroRequestedRef.current = true;
+    // Use DeviceMotionEvent (not Orientation) — iOS grants both together,
+    // and we know this API works from the play page permission flow.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (DeviceMotionEvent as any).requestPermission().catch(() => {});
   }, []);
 
   return (
