@@ -3,8 +3,12 @@
 import { useEffect, useRef, useCallback } from "react";
 
 /**
- * Gyroscope parallax: bars extending straight toward the viewer from depth.
- * Circular cross-sections with perspective convergence, depth fog, and vignette.
+ * Gyroscope parallax poles with realistic depth cues:
+ * - 3D-lit circular cross-sections (radial gradient highlight)
+ * - Atmospheric perspective (near=green, far=blue-green haze)
+ * - Staggered grid (odd rows offset for natural feel)
+ * - Non-linear parallax response
+ * - Perspective convergence + depth fog + vignette
  */
 
 type GyroBarsProps = {
@@ -12,16 +16,16 @@ type GyroBarsProps = {
 };
 
 type Pole = {
-  readonly wx: number; // world-space grid position (-1..1)
+  readonly wx: number;
   readonly wy: number;
-  readonly z: number;  // depth: 0=closest, 1=furthest
+  readonly z: number;
 };
 
 const GRID_COLS = 11;
 const GRID_ROWS = 18;
 const DEPTH_LAYERS = 8;
-const MAX_SHIFT = 80;
-const LERP = 0.06;
+const MAX_SHIFT = 90;
+const LERP = 0.07;
 const GYRO_TIMEOUT_MS = 2000;
 
 function createPoles(): readonly Pole[] {
@@ -30,15 +34,16 @@ function createPoles(): readonly Pole[] {
     const z = (d + 1) / DEPTH_LAYERS;
     for (let row = 0; row < GRID_ROWS; row++) {
       for (let col = 0; col < GRID_COLS; col++) {
+        // Stagger: odd rows shift half a column right
+        const stagger = row % 2 === 1 ? 1 / (GRID_COLS - 1) : 0;
         poles.push({
-          wx: (col / (GRID_COLS - 1)) * 2 - 1,
+          wx: (col / (GRID_COLS - 1)) * 2 - 1 + stagger,
           wy: (row / (GRID_ROWS - 1)) * 2 - 1,
           z,
         });
       }
     }
   }
-  // Sort far-to-near so near poles draw on top
   return poles.sort((a, b) => b.z - a.z);
 }
 
@@ -62,8 +67,6 @@ export function GyroBars({ className }: GyroBarsProps) {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const handleOrientation = (e: DeviceOrientationEvent) => {
-      // Skip null values — iOS sometimes fires events with null,
-      // which would snap the parallax to center (the "reset" bug)
       if (e.gamma == null || e.beta == null) return;
       hasGyroRef.current = true;
       targetRef.current = {
@@ -86,7 +89,6 @@ export function GyroBars({ className }: GyroBarsProps) {
       canvas.height = h * dpr;
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
-      // Invalidate vignette cache
       vignetteSizeRef.current = { w: 0, h: 0 };
     };
     resize();
@@ -97,6 +99,10 @@ export function GyroBars({ className }: GyroBarsProps) {
 
     const startTime = performance.now();
     const poles = polesRef.current;
+
+    // Light direction (top-left, normalized)
+    const lightX = -0.5;
+    const lightY = -0.7;
 
     const draw = (now: number) => {
       const cw = window.innerWidth;
@@ -111,14 +117,16 @@ export function GyroBars({ className }: GyroBarsProps) {
         };
       }
 
-      // Smooth interpolation
       currentRef.current = {
         x: currentRef.current.x + (targetRef.current.x - currentRef.current.x) * LERP,
         y: currentRef.current.y + (targetRef.current.y - currentRef.current.y) * LERP,
       };
 
-      const tiltX = currentRef.current.x;
-      const tiltY = currentRef.current.y;
+      // Non-linear response: gentle near center, stronger at edges
+      const rawX = currentRef.current.x;
+      const rawY = currentRef.current.y;
+      const tiltX = Math.sign(rawX) * Math.pow(Math.abs(rawX), 0.7);
+      const tiltY = Math.sign(rawY) * Math.pow(Math.abs(rawY), 0.7);
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, cw, ch);
@@ -129,33 +137,51 @@ export function GyroBars({ className }: GyroBarsProps) {
       const spreadY = ch * 0.6;
 
       for (const pole of poles) {
-        // Perspective convergence: far layers converge toward center
-        // z=0.125 (nearest) → full spread, z=1 (furthest) → 15% spread
         const convergence = 0.15 + (1 - pole.z) * 0.85;
-
         const perspectiveScale = 1 / (0.2 + pole.z * 0.8);
         const parallaxFactor = (1 - pole.z) * MAX_SHIFT;
 
         const sx = cx + pole.wx * spreadX * convergence + tiltX * parallaxFactor;
         const sy = cy + pole.wy * spreadY * convergence + tiltY * parallaxFactor * 0.6;
 
-        // Radius: near=big, far=tiny (more dramatic range)
         const radius = 4.0 * perspectiveScale;
-
-        // Depth fog: far layers fade out significantly
-        // z=0.125 → alpha ~0.40, z=1.0 → alpha ~0.03
-        const depthFog = Math.pow(1 - pole.z, 1.5);
-        const alpha = 0.03 + depthFog * 0.38;
 
         if (sx < -radius || sx > cw + radius || sy < -radius || sy > ch + radius) continue;
 
+        // Depth fog alpha
+        const depthFog = Math.pow(1 - pole.z, 1.5);
+        const alpha = 0.03 + depthFog * 0.40;
+
+        // Atmospheric perspective: near=pure green, far=blue-shifted
+        // Near: rgb(0, 250, 154) → Far: rgb(40, 180, 200)
+        const nearness = 1 - pole.z;
+        const r = Math.round(40 - nearness * 40);
+        const g = Math.round(180 + nearness * 70);
+        const b = Math.round(200 - nearness * 46);
+
+        // 3D lighting: radial gradient to simulate lit cylinder top
+        // Highlight offset from center based on light direction
+        const hlOffX = lightX * radius * 0.35;
+        const hlOffY = lightY * radius * 0.35;
+
+        const grad = ctx.createRadialGradient(
+          sx + hlOffX, sy + hlOffY, 0,
+          sx, sy, radius,
+        );
+        // Highlight (brighter center)
+        grad.addColorStop(0, `rgba(${r + 60}, ${g + 40}, ${b + 30}, ${Math.min(1, alpha * 1.8).toFixed(3)})`);
+        // Mid
+        grad.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(3)})`);
+        // Edge shadow (darker)
+        grad.addColorStop(1, `rgba(${Math.max(0, r - 20)}, ${Math.max(0, g - 40)}, ${b}, ${(alpha * 0.5).toFixed(3)})`);
+
         ctx.beginPath();
         ctx.arc(sx, sy, radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0, 250, 154, ${alpha.toFixed(3)})`;
+        ctx.fillStyle = grad;
         ctx.fill();
       }
 
-      // Vignette: radial gradient darkening edges → "tunnel" depth feel
+      // Vignette
       if (vignetteSizeRef.current.w !== cw || vignetteSizeRef.current.h !== ch) {
         const diag = Math.sqrt(cx * cx + cy * cy);
         const grad = ctx.createRadialGradient(cx, cy, diag * 0.3, cx, cy, diag);
