@@ -52,6 +52,8 @@ export default function PlayPage() {
     peakOffset: number;
     /** Whether ffmpeg slow-mo was applied (if true, skip JS slow-mo) */
     ffmpegProcessed: boolean;
+    /** Height trajectory samples for CountUpHeight replay */
+    samples: { t: number; h: number }[];
   } | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [peakResult, setPeakResult] = useState<ThrowResult | null>(null);
@@ -503,6 +505,18 @@ export default function PlayPage() {
         }
       }
 
+      // Compute height trajectory samples for CountUpHeight replay
+      const throwSamples = sensorSamples
+        .filter(s => s.t >= throwResult.freefallStartTime && s.t <= throwResult.landingTime)
+        .map(s => {
+          const elapsed = (s.t - throwResult.freefallStartTime) / 1000;
+          const v0 = throwResult.estimatedV0;
+          const h = v0 > 0
+            ? Math.max(0, v0 * elapsed - (9.81 * elapsed * elapsed) / 2)
+            : (9.81 * elapsed * elapsed) / 8;
+          return { t: s.t - throwResult.freefallStartTime, h };
+        });
+
       setResultData({
         height: throwResult.heightMeters,
         airtime: throwResult.airtimeSeconds,
@@ -510,6 +524,7 @@ export default function PlayPage() {
         videoBlob: processedBlob,
         peakOffset,
         ffmpegProcessed,
+        samples: throwSamples,
       });
 
       stopPreview();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { formatHeight } from "@/lib/physics";
 
 export type HeightSample = { readonly t: number; readonly h: number };
@@ -12,6 +12,7 @@ type CountUpHeightProps = {
   /** Fallback animation duration in ms when no samples available (default: 1400) */
   duration?: number;
   className?: string;
+  style?: CSSProperties;
 };
 
 /**
@@ -25,12 +26,19 @@ export function CountUpHeight({
   samples,
   duration = 1400,
   className,
+  style,
 }: CountUpHeightProps) {
   const spanRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const el = spanRef.current;
     if (!el) return;
+
+    // Respect prefers-reduced-motion — skip animation entirely
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      el.textContent = formatHeight(target);
+      return;
+    }
 
     // --- Replay mode: use actual throw samples ---
     if (samples && samples.length >= 2) {
@@ -106,7 +114,7 @@ export function CountUpHeight({
   }, [target, samples, duration]);
 
   return (
-    <span ref={spanRef} className={className}>
+    <span ref={spanRef} className={className} style={style}>
       {formatHeight(0)}
     </span>
   );

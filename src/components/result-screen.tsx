@@ -4,7 +4,8 @@ import { useState, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { formatHeight } from "@/lib/physics";
-import { getDisplayName, saveDisplayName } from "@/lib/storage";
+import { getDisplayName, saveDisplayName, loadData } from "@/lib/storage";
+import { CountUpHeight } from "@/components/count-up-height";
 import { generateFingerprint } from "@/lib/fingerprint";
 import { SlowMoPlayer } from "@/components/slow-mo-player";
 import { NameInput } from "@/components/name-input";
@@ -20,6 +21,7 @@ type ResultData = {
   readonly videoBlob: Blob | null;
   readonly peakOffset: number;
   readonly ffmpegProcessed: boolean;
+  readonly samples: readonly { readonly t: number; readonly h: number }[];
 };
 
 type TierInfo = {
@@ -65,6 +67,11 @@ export function ResultScreen({
   );
   const [savingName, setSavingName] = useState(false);
   const rankings = useRankings({ limit: 10, enabled: !!rankingData });
+  const [todayStats] = useState(() => {
+    if (typeof window === "undefined") return { todayBest: 0, streakDays: 0 };
+    const d = loadData();
+    return { todayBest: d.stats.todayBest, streakDays: d.stats.streakDays };
+  });
 
   const handleSaveName = useCallback(async (name: string) => {
     setSavingName(true);
@@ -115,15 +122,15 @@ export function ResultScreen({
           )}
 
           <div className="flex items-baseline justify-center">
-            <span
+            <CountUpHeight
+              target={resultData.height}
+              samples={resultData.samples.length > 0 ? resultData.samples : undefined}
               className="height-number leading-none"
               style={{
                 color: tierColor,
                 fontSize: "clamp(5rem, 28vw, 9rem)",
               }}
-            >
-              {formatHeight(resultData.height)}
-            </span>
+            />
             <span
               className="text-[22px] ml-0.5"
               style={{
@@ -159,10 +166,16 @@ export function ResultScreen({
           )}
         </div>
 
-        <p className="text-muted/60 text-[14px] tracking-[0.15em] mb-5 animate-fade-in-up delay-80">
+        <p className="text-muted/60 text-[14px] tracking-[0.15em] mb-3 animate-fade-in-up delay-80">
           {resultData.airtime.toFixed(2)}
           <span className="text-[10px] ml-0.5">s</span>
         </p>
+
+        {resultData.height >= todayStats.todayBest && todayStats.todayBest > 0 && (
+          <p className="text-accent text-[12px] tracking-[0.1em] mb-3 animate-fade-in-up delay-160">
+            {t("result.todaysBest")}
+          </p>
+        )}
 
         {submitError && !rankingData && (
           <p className="text-muted/60 text-[13px] tracking-widest mb-4">
