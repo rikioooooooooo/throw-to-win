@@ -3,10 +3,12 @@
 import { useEffect, useRef, useCallback } from "react";
 
 /**
- * Gyroscope parallax dots + kosukuma SVG overlay.
- * Circular cross-sections at 8 depth layers with convergence + depth fog + vignette.
- * Kosukuma silhouette drawn as a semi-transparent overlay on top.
+ * 3D box illusion through the phone screen.
+ * Trapezoidal wall gradients, 8 depth-layered dots with per-layer differential damping,
+ * perspective floor grid, vignette, and optional kosukuma subliminal overlay.
  */
+
+const ENABLE_KOSUKUMA = true;
 
 type GyroBarsProps = {
   readonly className?: string;
@@ -15,7 +17,7 @@ type GyroBarsProps = {
 type Pole = {
   readonly wx: number;
   readonly wy: number;
-  readonly z: number;
+  readonly layer: number;
 };
 
 const GRID_COLS = 11;
@@ -23,6 +25,21 @@ const GRID_ROWS = 18;
 const DEPTH_LAYERS = 8;
 const MAX_SHIFT = 80;
 const GYRO_TIMEOUT_MS = 2000;
+
+// Layer 0 (nearest) → Layer 7 (farthest)
+const LAYER_RADIUS_NEAR = 5;
+const LAYER_RADIUS_FAR = 0.7;
+const LAYER_ALPHA_NEAR = 0.42;
+const LAYER_ALPHA_FAR = 0.05;
+const LAYER_COLOR_NEAR = [0, 250, 154] as const;
+const LAYER_COLOR_FAR = [4, 77, 48] as const;
+const LAYER_DAMPING_NEAR = 0.12;
+const LAYER_DAMPING_FAR = 0.03;
+
+const INNER_RECT_RATIO = 0.6;
+const WALL_SHIFT_FACTOR = 12;
+const FLOOR_LINE_COUNT = 6;
+const FLOOR_VP_Y_RATIO = 0.35;
 
 const KOSUKUMA_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 648.37 444.18">
 <path fill="#00fa9a" d="M292,57.07S411.85,1.16,490.27,32.83c37.48,15.14,144.72,78.99,147.82,187.62,3.1,108.63-66.7,158.21-66.7,158.21,0,0-69.33,58.49-149.28,57.7s-78.89-21.17-78.89-21.17l-21.41,2.37-33.97-56.73,40.88-94.62-36.73-209.14"/>
@@ -47,19 +64,35 @@ const KOSUKUMA_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 648.3
 
 function createPoles(): readonly Pole[] {
   const poles: Pole[] = [];
-  for (let d = 0; d < DEPTH_LAYERS; d++) {
-    const z = (d + 1) / DEPTH_LAYERS;
+  for (let layer = 0; layer < DEPTH_LAYERS; layer++) {
     for (let row = 0; row < GRID_ROWS; row++) {
       for (let col = 0; col < GRID_COLS; col++) {
         poles.push({
           wx: (col / (GRID_COLS - 1)) * 2 - 1,
           wy: (row / (GRID_ROWS - 1)) * 2 - 1,
-          z,
+          layer,
         });
       }
     }
   }
-  return poles.sort((a, b) => b.z - a.z);
+  // Sort far to near (layer 7 first, layer 0 last) for correct draw order
+  return poles.sort((a, b) => b.layer - a.layer);
+}
+
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
+
+function lerpColor(
+  near: readonly [number, number, number],
+  far: readonly [number, number, number],
+  t: number,
+): [number, number, number] {
+  return [
+    Math.round(lerp(near[0], far[0], t)),
+    Math.round(lerp(near[1], far[1], t)),
+    Math.round(lerp(near[2], far[2], t)),
+  ];
 }
 
 export function GyroBars({ className }: GyroBarsProps) {
@@ -74,6 +107,9 @@ export function GyroBars({ className }: GyroBarsProps) {
   const vignetteRef = useRef<CanvasGradient | null>(null);
   const vignetteSizeRef = useRef({ w: 0, h: 0 });
   const kumaImgRef = useRef<HTMLImageElement | null>(null);
+  // Per-layer smoothed tilt values
+  const smoothedXRef = useRef(new Float32Array(DEPTH_LAYERS));
+  const smoothedYRef = useRef(new Float32Array(DEPTH_LAYERS));
 
   const setCanvasRef = useCallback((node: HTMLCanvasElement | null) => {
     canvasRef.current = node;
@@ -85,11 +121,16 @@ export function GyroBars({ className }: GyroBarsProps) {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     // Pre-render kosukuma SVG to image
-    const blob = new Blob([KOSUKUMA_SVG], { type: "image/svg+xml" });
-    const url = URL.createObjectURL(blob);
-    const img = new Image();
-    img.onload = () => { kumaImgRef.current = img; URL.revokeObjectURL(url); };
-    img.src = url;
+    if (ENABLE_KOSUKUMA) {
+      const blob = new Blob([KOSUKUMA_SVG], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        kumaImgRef.current = img;
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
+    }
 
     const handleOrientation = (e: DeviceOrientationEvent) => {
       if (e.gamma == null || e.beta == null) return;
@@ -126,12 +167,18 @@ export function GyroBars({ className }: GyroBarsProps) {
 
     const startTime = performance.now();
     const poles = polesRef.current;
+    const smoothedX = smoothedXRef.current;
+    const smoothedY = smoothedYRef.current;
 
     const draw = (now: number) => {
       const cw = window.innerWidth;
       const ch = window.innerHeight;
-      if (cw === 0 || ch === 0) { rafRef.current = requestAnimationFrame(draw); return; }
+      if (cw === 0 || ch === 0) {
+        rafRef.current = requestAnimationFrame(draw);
+        return;
+      }
 
+      // Fallback drift when no gyro
       if (useFallback && !hasGyroRef.current) {
         const t = (now - startTime) / 1000;
         targetRef.current = {
@@ -140,10 +187,18 @@ export function GyroBars({ className }: GyroBarsProps) {
         };
       }
 
-      // Zero-lag
-      currentRef.current = { ...targetRef.current };
+      // Zero-lag: copy target directly (per-layer damping handles smoothing)
+      currentRef.current = { x: targetRef.current.x, y: targetRef.current.y };
       const tiltX = currentRef.current.x;
       const tiltY = currentRef.current.y;
+
+      // Update per-layer smoothed values
+      for (let i = 0; i < DEPTH_LAYERS; i++) {
+        const t = i / (DEPTH_LAYERS - 1);
+        const damping = lerp(LAYER_DAMPING_NEAR, LAYER_DAMPING_FAR, t);
+        smoothedX[i] += (tiltX - smoothedX[i]) * damping;
+        smoothedY[i] += (tiltY - smoothedY[i]) * damping;
+      }
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, cw, ch);
@@ -153,28 +208,84 @@ export function GyroBars({ className }: GyroBarsProps) {
       const spreadX = cw * 0.6;
       const spreadY = ch * 0.6;
 
-      // --- Parallax dots (8 depth layers) ---
+      // Inner rect for wall gradients (shifts with tilt)
+      const innerW = cw * INNER_RECT_RATIO;
+      const innerH = ch * INNER_RECT_RATIO;
+      const innerCx = cx + tiltX * WALL_SHIFT_FACTOR;
+      const innerCy = cy + tiltY * WALL_SHIFT_FACTOR;
+      const innerLeft = innerCx - innerW / 2;
+      const innerRight = innerCx + innerW / 2;
+      const innerTop = innerCy - innerH / 2;
+      const innerBottom = innerCy + innerH / 2;
+
+      // --- 1. Floor grid (behind everything) ---
+      const vpX = innerCx;
+      const vpY = ch * FLOOR_VP_Y_RATIO + tiltY * WALL_SHIFT_FACTOR;
+      ctx.strokeStyle = "rgba(0, 250, 154, 0.025)";
+      ctx.lineWidth = 0.5;
+      const floorBottom = ch;
+      const floorSpan = floorBottom - vpY;
+      for (let i = 0; i < FLOOR_LINE_COUNT; i++) {
+        // Perspective foreshortening: lines closer to VP are spaced tighter
+        const frac = (i + 1) / (FLOOR_LINE_COUNT + 1);
+        const perspY = vpY + floorSpan * (frac * frac);
+        // Horizontal lines that widen with distance from VP
+        const widthFrac = (perspY - vpY) / floorSpan;
+        const halfW = cw * 0.5 * (0.2 + widthFrac * 0.8);
+        ctx.beginPath();
+        ctx.moveTo(vpX - halfW, perspY);
+        ctx.lineTo(vpX + halfW, perspY);
+        ctx.stroke();
+      }
+
+      // --- 2. Trapezoidal wall gradients ---
+      // Top wall
+      drawTrapezoidWall(ctx, cw, ch,
+        0, 0, cw, 0,              // outer edge (top of screen)
+        innerLeft, innerTop, innerRight, innerTop,  // inner edge
+      );
+      // Bottom wall
+      drawTrapezoidWall(ctx, cw, ch,
+        0, ch, cw, ch,
+        innerLeft, innerBottom, innerRight, innerBottom,
+      );
+      // Left wall
+      drawTrapezoidWall(ctx, cw, ch,
+        0, 0, 0, ch,
+        innerLeft, innerTop, innerLeft, innerBottom,
+      );
+      // Right wall
+      drawTrapezoidWall(ctx, cw, ch,
+        cw, 0, cw, ch,
+        innerRight, innerTop, innerRight, innerBottom,
+      );
+
+      // --- 3. Dots (far to near, already sorted) ---
       for (const pole of poles) {
-        const convergence = 0.15 + (1 - pole.z) * 0.85;
-        const perspectiveScale = 1 / (0.2 + pole.z * 0.8);
-        const parallaxFactor = (1 - pole.z) * MAX_SHIFT;
+        const layerT = pole.layer / (DEPTH_LAYERS - 1);
+        const z = (pole.layer + 1) / DEPTH_LAYERS;
+        const convergence = 0.15 + (1 - z) * 0.85;
+        const parallaxFactor = (1 - z) * MAX_SHIFT;
 
-        const sx = cx + pole.wx * spreadX * convergence + tiltX * parallaxFactor;
-        const sy = cy + pole.wy * spreadY * convergence + tiltY * parallaxFactor;
+        const lx = smoothedX[pole.layer];
+        const ly = smoothedY[pole.layer];
 
-        const radius = 4.0 * perspectiveScale;
-        const depthFog = Math.pow(1 - pole.z, 1.5);
-        const alpha = 0.03 + depthFog * 0.38;
+        const sx = cx + pole.wx * spreadX * convergence + lx * parallaxFactor;
+        const sy = cy + pole.wy * spreadY * convergence + ly * parallaxFactor;
+
+        const radius = lerp(LAYER_RADIUS_NEAR, LAYER_RADIUS_FAR, layerT);
+        const alpha = lerp(LAYER_ALPHA_NEAR, LAYER_ALPHA_FAR, layerT);
+        const [cr, cg, cb] = lerpColor(LAYER_COLOR_NEAR, LAYER_COLOR_FAR, layerT);
 
         if (sx < -radius || sx > cw + radius || sy < -radius || sy > ch + radius) continue;
 
         ctx.beginPath();
         ctx.arc(sx, sy, radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0, 250, 154, ${alpha.toFixed(3)})`;
+        ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${alpha.toFixed(3)})`;
         ctx.fill();
       }
 
-      // --- Vignette ---
+      // --- 4. Vignette ---
       if (vignetteSizeRef.current.w !== cw || vignetteSizeRef.current.h !== ch) {
         const diag = Math.sqrt(cx * cx + cy * cy);
         const grad = ctx.createRadialGradient(cx, cy, diag * 0.3, cx, cy, diag);
@@ -189,21 +300,21 @@ export function GyroBars({ className }: GyroBarsProps) {
         ctx.fillRect(0, 0, cw, ch);
       }
 
-      // --- Kosukuma SVG overlay (on top of dots, semi-transparent) ---
-      const kumaImg = kumaImgRef.current;
-      if (kumaImg) {
-        const kumaAspect = 648.37 / 444.18;
-        const kumaW = cw * 0.55;
-        const kumaH = kumaW / kumaAspect;
-        // Slight parallax on the overlay (moves less than near dots)
-        const kumaShift = MAX_SHIFT * 0.3;
-        const kumaX = cx - kumaW / 2 + tiltX * kumaShift;
-        const kumaY = cy - kumaH / 2 + tiltY * kumaShift;
-
-        ctx.save();
-        ctx.globalAlpha = 0.08;
-        ctx.drawImage(kumaImg, kumaX, kumaY, kumaW, kumaH);
-        ctx.restore();
+      // --- 5. Kosukuma subliminal overlay ---
+      if (ENABLE_KOSUKUMA) {
+        const kumaImg = kumaImgRef.current;
+        if (kumaImg) {
+          const kumaAspect = 648.37 / 444.18;
+          const kumaW = cw * 0.55;
+          const kumaH = kumaW / kumaAspect;
+          // Mid-depth parallax (layer 4 speed)
+          const kumaX = cx - kumaW / 2 + smoothedX[4] * MAX_SHIFT * 0.3;
+          const kumaY = cy - kumaH / 2 + smoothedY[4] * MAX_SHIFT * 0.3;
+          ctx.save();
+          ctx.globalAlpha = 0.06;
+          ctx.drawImage(kumaImg, kumaX, kumaY, kumaW, kumaH);
+          ctx.restore();
+        }
       }
 
       rafRef.current = requestAnimationFrame(draw);
@@ -226,4 +337,43 @@ export function GyroBars({ className }: GyroBarsProps) {
       aria-hidden="true"
     />
   );
+}
+
+/**
+ * Draw a single trapezoidal wall with quadratic gradient falloff.
+ * Outer edge = screen edge (opaque end), inner edge = inner rect edge (transparent end).
+ * Uses scanline fill for the trapezoid shape with per-pixel alpha.
+ */
+function drawTrapezoidWall(
+  ctx: CanvasRenderingContext2D,
+  _cw: number,
+  _ch: number,
+  // Outer edge line (two points on screen edge)
+  ox1: number, oy1: number, ox2: number, oy2: number,
+  // Inner edge line (two points on inner rect edge)
+  ix1: number, iy1: number, ix2: number, iy2: number,
+) {
+  ctx.beginPath();
+  ctx.moveTo(ox1, oy1);
+  ctx.lineTo(ox2, oy2);
+  ctx.lineTo(ix2, iy2);
+  ctx.lineTo(ix1, iy1);
+  ctx.closePath();
+
+  // Gradient direction: from outer midpoint to inner midpoint
+  const omx = (ox1 + ox2) / 2;
+  const omy = (oy1 + oy2) / 2;
+  const imx = (ix1 + ix2) / 2;
+  const imy = (iy1 + iy2) / 2;
+
+  const grad = ctx.createLinearGradient(omx, omy, imx, imy);
+  // Quadratic falloff: add multiple stops to simulate t*t curve
+  const steps = 8;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const alpha = 0.06 * (1 - t * t);
+    grad.addColorStop(t, `rgba(0, 250, 154, ${alpha.toFixed(4)})`);
+  }
+  ctx.fillStyle = grad;
+  ctx.fill();
 }
