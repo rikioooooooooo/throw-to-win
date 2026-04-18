@@ -66,8 +66,8 @@ export default function LandingPage() {
   const handleTilt = useCallback((x: number, y: number) => {
     const el = uiWrapperRef.current;
     if (!el) return;
-    const rotY = x * 4;    // ±4 degrees left-right
-    const rotX = -y * 3;   // ±3 degrees up-down
+    const rotY = x * 8;    // ±8 degrees left-right
+    const rotX = -y * 6;   // ±6 degrees up-down
     el.style.transform = `perspective(800px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
   }, []);
 
