@@ -80,34 +80,39 @@ function initDots(
   count: number,
   rng: () => number,
 ): void {
-  const wallRatio = 0.4;
+  // 85% wall/corner, 15% ambient — room feel, not space
   for (let i = 0; i < count; i++) {
     const idx = startIdx + i;
-    // sqrt distribution — more dots at far z
     const zVal = Z_NEAR + (Z_FAR - Z_NEAR) * Math.pow(rng(), 0.5);
     dotZ[idx] = zVal;
 
-    const isWall = rng() < wallRatio;
-    if (isWall) {
-      // Place near a tunnel wall edge
-      if (rng() > 0.5) {
-        // near x edge
-        dotX[idx] =
-          (TUNNEL_W / 2) *
-          (rng() > 0.5 ? 1 : -1) *
-          (0.85 + rng() * 0.15);
-        dotY[idx] = (rng() * 2 - 1) * (TUNNEL_H / 2);
-      } else {
-        // near y edge
-        dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2);
-        dotY[idx] =
-          (TUNNEL_H / 2) *
-          (rng() > 0.5 ? 1 : -1) *
-          (0.85 + rng() * 0.15);
-      }
-    } else {
-      dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2);
+    const r = rng();
+    if (r < 0.20) {
+      // Left wall — x fixed near left edge
+      dotX[idx] = -(TUNNEL_W / 2) * (0.88 + rng() * 0.12);
       dotY[idx] = (rng() * 2 - 1) * (TUNNEL_H / 2);
+    } else if (r < 0.40) {
+      // Right wall
+      dotX[idx] = (TUNNEL_W / 2) * (0.88 + rng() * 0.12);
+      dotY[idx] = (rng() * 2 - 1) * (TUNNEL_H / 2);
+    } else if (r < 0.55) {
+      // Top wall (ceiling)
+      dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2);
+      dotY[idx] = -(TUNNEL_H / 2) * (0.88 + rng() * 0.12);
+    } else if (r < 0.70) {
+      // Bottom wall (floor)
+      dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2);
+      dotY[idx] = (TUNNEL_H / 2) * (0.88 + rng() * 0.12);
+    } else if (r < 0.85) {
+      // Corner edges — where two walls meet (makes box shape visible)
+      const cornerX = (TUNNEL_W / 2) * (rng() > 0.5 ? 1 : -1) * (0.90 + rng() * 0.10);
+      const cornerY = (TUNNEL_H / 2) * (rng() > 0.5 ? 1 : -1) * (0.90 + rng() * 0.10);
+      dotX[idx] = cornerX;
+      dotY[idx] = cornerY;
+    } else {
+      // Ambient — sparse dots in the middle (floating dust)
+      dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2) * 0.6;
+      dotY[idx] = (rng() * 2 - 1) * (TUNNEL_H / 2) * 0.6;
     }
   }
 }
@@ -120,24 +125,25 @@ function resetDot(
   rng: () => number,
 ): void {
   dotZ[idx] = Z_FAR;
-  const isWall = rng() < 0.4;
-  if (isWall) {
-    if (rng() > 0.5) {
-      dotX[idx] =
-        (TUNNEL_W / 2) *
-        (rng() > 0.5 ? 1 : -1) *
-        (0.85 + rng() * 0.15);
-      dotY[idx] = (rng() * 2 - 1) * (TUNNEL_H / 2);
-    } else {
-      dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2);
-      dotY[idx] =
-        (TUNNEL_H / 2) *
-        (rng() > 0.5 ? 1 : -1) *
-        (0.85 + rng() * 0.15);
-    }
-  } else {
-    dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2);
+  const r = rng();
+  if (r < 0.20) {
+    dotX[idx] = -(TUNNEL_W / 2) * (0.88 + rng() * 0.12);
     dotY[idx] = (rng() * 2 - 1) * (TUNNEL_H / 2);
+  } else if (r < 0.40) {
+    dotX[idx] = (TUNNEL_W / 2) * (0.88 + rng() * 0.12);
+    dotY[idx] = (rng() * 2 - 1) * (TUNNEL_H / 2);
+  } else if (r < 0.55) {
+    dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2);
+    dotY[idx] = -(TUNNEL_H / 2) * (0.88 + rng() * 0.12);
+  } else if (r < 0.70) {
+    dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2);
+    dotY[idx] = (TUNNEL_H / 2) * (0.88 + rng() * 0.12);
+  } else if (r < 0.85) {
+    dotX[idx] = (TUNNEL_W / 2) * (rng() > 0.5 ? 1 : -1) * (0.90 + rng() * 0.10);
+    dotY[idx] = (TUNNEL_H / 2) * (rng() > 0.5 ? 1 : -1) * (0.90 + rng() * 0.10);
+  } else {
+    dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2) * 0.6;
+    dotY[idx] = (rng() * 2 - 1) * (TUNNEL_H / 2) * 0.6;
   }
 }
 
