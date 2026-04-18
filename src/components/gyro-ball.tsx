@@ -17,11 +17,12 @@ type Pole = {
   readonly z: number;  // depth: 0=closest, 1=furthest
 };
 
-const GRID_COLS = 14;
-const GRID_ROWS = 24;
+const GRID_COLS = 18;
+const GRID_ROWS = 30;
 const DEPTH_LAYERS = 30;
-const MAX_SHIFT = 150;
+const VANISH_SHIFT = 100; // how far the vanishing point moves on full tilt
 const LERP = 0.12;
+const OVERSHOOT = 1.4; // grid extends 40% beyond screen edges
 const GYRO_TIMEOUT_MS = 2000;
 
 function createPoles(): readonly Pole[] {
@@ -31,8 +32,8 @@ function createPoles(): readonly Pole[] {
     for (let row = 0; row < GRID_ROWS; row++) {
       for (let col = 0; col < GRID_COLS; col++) {
         poles.push({
-          wx: (col / (GRID_COLS - 1)) * 2 - 1,
-          wy: (row / (GRID_ROWS - 1)) * 2 - 1,
+          wx: ((col / (GRID_COLS - 1)) * 2 - 1) * OVERSHOOT,
+          wy: ((row / (GRID_ROWS - 1)) * 2 - 1) * OVERSHOOT,
           z,
         });
       }
@@ -124,23 +125,22 @@ export function GyroBars({ className }: GyroBarsProps) {
 
       const cx = cw / 2;
       const cy = ch / 2;
-      const spreadX = cw * 0.6;
-      const spreadY = ch * 0.6;
+      const spreadX = cw * 0.55;
+      const spreadY = ch * 0.55;
+
+      // Vanishing point shifts with tilt — this IS the parallax.
+      // Dots don't translate; their convergence TARGET moves.
+      const vanishX = cx + tiltX * VANISH_SHIFT;
+      const vanishY = cy + tiltY * VANISH_SHIFT * 0.6;
 
       for (const pole of poles) {
-        // Perspective convergence: far layers converge toward vanishing point
-        // z=0.125 (nearest) → full spread, z=1 (furthest) → nearly a point
         const convergence = 0.01 + (1 - pole.z) * 0.99;
-
         const perspectiveScale = 1 / (0.15 + pole.z * 0.85);
-        const parallaxFactor = (1 - pole.z) * MAX_SHIFT;
 
-        // Rotation-style parallax: shift proportional to dot position
-        // Center stays fixed, edges shift most — like rotating your viewpoint, not sliding camera
-        const baseX = pole.wx * spreadX * convergence;
-        const baseY = pole.wy * spreadY * convergence;
-        const sx = cx + baseX + tiltX * parallaxFactor * (0.3 + Math.abs(pole.wx) * 0.7);
-        const sy = cy + baseY + tiltY * parallaxFactor * (0.3 + Math.abs(pole.wy) * 0.7) * 0.6;
+        // Near dots: spread from vanishing point → stay near screen edges
+        // Far dots: cluster near vanishing point → follow its shift
+        const sx = vanishX + pole.wx * spreadX * convergence;
+        const sy = vanishY + pole.wy * spreadY * convergence;
 
         // Radius: near=visible, far=subpixel speck
         const radius = 3.0 * perspectiveScale;
