@@ -15,10 +15,13 @@
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
     "@opennextjs/cloudflare": "^1.19.1",
+    "@parcel/watcher-linux-x64-glibc": "^2.5.6",
     "next": "16.2.3",
     "next-intl": "^4.9.1",
+    "postprocessing": "^6.39.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "three": "^0.184.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
@@ -26,6 +29,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.184.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
     "puppeteer": "^24.40.0",
