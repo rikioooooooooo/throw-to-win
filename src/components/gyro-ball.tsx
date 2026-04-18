@@ -26,19 +26,24 @@ const GYRO_TIMEOUT_MS = 2000;
 
 function createPoles(): readonly Pole[] {
   const poles: Pole[] = [];
+  // Seeded random for deterministic jitter
+  let seed = 42;
+  const rng = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+
   for (let d = 0; d < DEPTH_LAYERS; d++) {
     const z = (d + 1) / DEPTH_LAYERS;
+    // Jitter amount: larger for far layers (hides grid pattern in the dense center)
+    const jitter = 0.04 + z * 0.06;
     for (let row = 0; row < GRID_ROWS; row++) {
       for (let col = 0; col < GRID_COLS; col++) {
         poles.push({
-          wx: (col / (GRID_COLS - 1)) * 2 - 1,
-          wy: (row / (GRID_ROWS - 1)) * 2 - 1,
+          wx: (col / (GRID_COLS - 1)) * 2 - 1 + (rng() - 0.5) * jitter,
+          wy: (row / (GRID_ROWS - 1)) * 2 - 1 + (rng() - 0.5) * jitter,
           z,
         });
       }
     }
   }
-  // Sort far-to-near so near poles draw on top
   return poles.sort((a, b) => b.z - a.z);
 }
 
