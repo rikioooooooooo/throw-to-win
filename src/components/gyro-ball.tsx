@@ -14,16 +14,16 @@ type GyroBarsProps = {
 };
 
 // ── Constants ──────────────────────────────────────────────
-const TOTAL_DOTS = 2000;
+const TOTAL_DOTS = 6000;
 const FOCAL = 400;
 const Z_NEAR = 30;
-const Z_FAR = 2000;
+const Z_FAR = 2500;
 const TUNNEL_W = 300;
 const TUNNEL_H = 500;
-const FLOW_SPEED = 0; // no animation — depth from gyro + light + size only
-const CAMERA_SHIFT = 12; // very subtle — box is attached to phone, not floating
-const BASE_RADIUS = 2.5;
-const BASE_ALPHA = 0.8;
+const FLOW_SPEED = 0;
+const CAMERA_SHIFT = 15;
+const BASE_RADIUS = 2.2;
+const BASE_ALPHA = 0.85;
 
 const GYRO_TIMEOUT_MS = 2000;
 const SPRING_K = 0.08;
@@ -330,19 +330,19 @@ export function GyroBars({ className }: GyroBarsProps) {
         const onTopWall = dy < -halfH * 0.85;
         const onBottomWall = dy > halfH * 0.85;
 
-        if (onRightWall) alpha *= 1.0 + clamp(tiltX, 0, 1) * 0.8;
-        else if (onLeftWall) alpha *= 1.0 + clamp(-tiltX, 0, 1) * 0.8;
-        if (onBottomWall) alpha *= 1.0 + clamp(tiltY, 0, 1) * 0.6;
-        else if (onTopWall) alpha *= 1.0 + clamp(-tiltY, 0, 1) * 0.6;
+        if (onRightWall) alpha *= 1.0 + clamp(tiltX, 0, 1) * 1.5;
+        else if (onLeftWall) alpha *= 1.0 + clamp(-tiltX, 0, 1) * 1.5;
+        if (onBottomWall) alpha *= 1.0 + clamp(tiltY, 0, 1) * 1.2;
+        else if (onTopWall) alpha *= 1.0 + clamp(-tiltY, 0, 1) * 1.2;
         alpha = clamp(alpha, 0, 1);
 
         const [cr, cg, cb] = colorForZ(z);
 
-        // Glow on near dots
-        if (z < 200) {
-          const glowStrength = (200 - z) / 200;
-          ctx.shadowBlur = glowStrength * 15;
-          ctx.shadowColor = `rgba(${cr}, ${cg}, ${cb}, ${(alpha * 0.5).toFixed(3)})`;
+        // Glow on near dots — stronger, wider range
+        if (z < 350) {
+          const glowStrength = (350 - z) / 350;
+          ctx.shadowBlur = glowStrength * 20;
+          ctx.shadowColor = `rgba(${cr}, ${cg}, ${cb}, ${(alpha * 0.7).toFixed(3)})`;
         } else {
           ctx.shadowBlur = 0;
           ctx.shadowColor = "transparent";
