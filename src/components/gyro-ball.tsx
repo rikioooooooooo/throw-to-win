@@ -21,7 +21,7 @@ const GRID_COLS = 14;
 const GRID_ROWS = 24;
 const DEPTH_LAYERS = 30;
 const MAX_SHIFT = 150;
-const LERP = 0.06;
+const LERP = 0.12;
 const GYRO_TIMEOUT_MS = 2000;
 
 function createPoles(): readonly Pole[] {
@@ -135,8 +135,12 @@ export function GyroBars({ className }: GyroBarsProps) {
         const perspectiveScale = 1 / (0.15 + pole.z * 0.85);
         const parallaxFactor = (1 - pole.z) * MAX_SHIFT;
 
-        const sx = cx + pole.wx * spreadX * convergence + tiltX * parallaxFactor;
-        const sy = cy + pole.wy * spreadY * convergence + tiltY * parallaxFactor * 0.6;
+        // Rotation-style parallax: shift proportional to dot position
+        // Center stays fixed, edges shift most — like rotating your viewpoint, not sliding camera
+        const baseX = pole.wx * spreadX * convergence;
+        const baseY = pole.wy * spreadY * convergence;
+        const sx = cx + baseX + tiltX * parallaxFactor * (0.3 + Math.abs(pole.wx) * 0.7);
+        const sy = cy + baseY + tiltY * parallaxFactor * (0.3 + Math.abs(pole.wy) * 0.7) * 0.6;
 
         // Radius: near=visible, far=subpixel speck
         const radius = 3.0 * perspectiveScale;
