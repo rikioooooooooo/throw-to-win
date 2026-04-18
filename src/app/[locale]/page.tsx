@@ -66,12 +66,11 @@ export default function LandingPage() {
   const handleTilt = useCallback((x: number, y: number) => {
     const el = mainRef.current;
     if (!el) return;
-    // translate3d = guaranteed visible on iOS, perspective+rotate = 3D depth feel
-    const moveX = x * 25;
-    const moveY = y * 18;
-    const rotY = x * 4;
-    const rotX = -y * 3;
-    el.style.transform = `translate3d(${moveX.toFixed(1)}px, ${moveY.toFixed(1)}px, 0) perspective(500px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg)`;
+    const moveX = x * 40;
+    const moveY = y * 30;
+    const rotY = x * 12;
+    const rotX = -y * 8;
+    el.style.transform = `translate3d(${moveX.toFixed(1)}px, ${moveY.toFixed(1)}px, 0) perspective(350px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg)`;
   }, []);
 
   return (
