@@ -72,8 +72,11 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <main ref={mainRef} className="relative flex-1 flex flex-col px-6" onClick={handleGyroPermission} style={{ transformOrigin: "center center", willChange: "transform" }}>
+    <>
+      {/* Canvas OUTSIDE main — stays fixed to viewport, unaffected by main's 3D transform */}
       <GyroBars className="fixed inset-0 z-0 pointer-events-none" onTilt={handleTilt} />
+
+      <main ref={mainRef} className="relative flex-1 flex flex-col px-6" onClick={handleGyroPermission} style={{ transformOrigin: "center center", willChange: "transform" }}>
 
       {/* Top bar */}
       <header className="relative z-10 flex justify-end items-center pt-4">
@@ -195,5 +198,6 @@ export default function LandingPage() {
         />
       )}
     </main>
+    </>
   );
 }
