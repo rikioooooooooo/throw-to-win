@@ -8,7 +8,10 @@ import { formatHeight } from "@/lib/physics";
 import { getTierForHeight } from "@/lib/tiers";
 import { TierIcon } from "@/components/tier-icon";
 import { ConsentModal } from "@/components/consent-modal";
+// Toggle: "dots" = dot parallax, "tunnel" = TikTok nested rectangles
+const BG_MODE: "dots" | "tunnel" = "tunnel";
 import { GyroBars } from "@/components/gyro-ball";
+import { GyroTunnel } from "@/components/gyro-tunnel";
 
 export default function LandingPage() {
   const t = useTranslations();
@@ -63,7 +66,9 @@ export default function LandingPage() {
 
   return (
     <main className="relative flex-1 flex flex-col px-6 overflow-y-auto" onClick={handleGyroPermission}>
-      <GyroBars className="fixed inset-0 z-0 pointer-events-none" />
+      {BG_MODE === "tunnel"
+        ? <GyroTunnel className="fixed inset-0 z-0 pointer-events-none" />
+        : <GyroBars className="fixed inset-0 z-0 pointer-events-none" />}
 
       {/* Top bar */}
       <header className="relative z-10 flex justify-end items-center pt-4">
