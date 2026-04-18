@@ -17,9 +17,9 @@ type Pole = {
   readonly z: number;  // depth: 0=closest, 1=furthest
 };
 
-const GRID_COLS = 11;
-const GRID_ROWS = 18;
-const DEPTH_LAYERS = 8;
+const GRID_COLS = 14;
+const GRID_ROWS = 24;
+const DEPTH_LAYERS = 30;
 const MAX_SHIFT = 80;
 const LERP = 0.06;
 const GYRO_TIMEOUT_MS = 2000;
@@ -133,14 +133,14 @@ export function GyroBars({ className }: GyroBarsProps) {
         // z=0.125 (nearest) → full spread, z=1 (furthest) → nearly a point
         const convergence = 0.01 + (1 - pole.z) * 0.99;
 
-        const perspectiveScale = 1 / (0.2 + pole.z * 0.8);
+        const perspectiveScale = 1 / (0.15 + pole.z * 0.85);
         const parallaxFactor = (1 - pole.z) * MAX_SHIFT;
 
         const sx = cx + pole.wx * spreadX * convergence + tiltX * parallaxFactor;
         const sy = cy + pole.wy * spreadY * convergence + tiltY * parallaxFactor * 0.6;
 
-        // Radius: near=big, far=tiny (more dramatic range)
-        const radius = 4.0 * perspectiveScale;
+        // Radius: near=visible, far=subpixel speck
+        const radius = 3.0 * perspectiveScale;
 
         // Depth fog: far layers fade out significantly
         const depthFog = Math.pow(1 - pole.z, 1.5);
