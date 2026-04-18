@@ -22,8 +22,8 @@ type Dot = {
 
 const TOTAL_DOTS = 1584;
 const DEPTH_LAYERS = 8;
-// No positional parallax — box is fixed to phone.
-// Tilt only changes lighting direction.
+// Subtle positional parallax — just enough to feel depth, not enough to see outside box
+const MAX_SHIFT = 15;
 const GYRO_TIMEOUT_MS = 2000;
 const LAYER_DAMPING_NEAR = 0.12;
 const LAYER_DAMPING_FAR = 0.03;
@@ -38,7 +38,7 @@ const LAYER_COLOR_FAR = [0, 140, 110] as const;
 // Virtual light source — base position (upper center), shifts with tilt
 const LIGHT_BASE_X = 0.0;
 const LIGHT_BASE_Y = -0.6;
-const LIGHT_TILT_FACTOR = 0.8; // how much tilt moves the light
+const LIGHT_TILT_FACTOR = 1.2; // how much tilt moves the light
 const LIGHT_DECAY = 0.6;
 
 // Surface distribution
@@ -248,9 +248,12 @@ export function GyroBars({ className }: GyroBarsProps) {
         const z = (dot.layer + 1) / DEPTH_LAYERS;
         const convergence = 0.15 + (1 - z) * 0.85;
 
-        // No positional parallax — dots stay fixed, only lighting changes
-        const sx = cx + dot.wx * spreadX * convergence;
-        const sy = cy + dot.wy * spreadY * convergence;
+        // Subtle positional parallax (box feels slightly "peekable")
+        const parallaxFactor = (1 - z) * MAX_SHIFT;
+        const lx = smoothedX[dot.layer];
+        const ly = smoothedY[dot.layer];
+        const sx = cx + dot.wx * spreadX * convergence + lx * parallaxFactor;
+        const sy = cy + dot.wy * spreadY * convergence + ly * parallaxFactor;
 
         const radius = lerp(LAYER_RADIUS_NEAR, LAYER_RADIUS_FAR, layerT);
 
@@ -280,9 +283,9 @@ export function GyroBars({ className }: GyroBarsProps) {
         let surfaceFactor = 1.0;
         const tX = smoothedX[3];
         const tY = smoothedY[3];
-        if (dot.surface === "left") surfaceFactor = 1.0 + Math.max(0, -tX) * 0.6;
-        else if (dot.surface === "right") surfaceFactor = 1.0 + Math.max(0, tX) * 0.6;
-        else if (dot.surface === "floor") surfaceFactor = 1.0 + Math.max(0, tY) * 0.4;
+        if (dot.surface === "left") surfaceFactor = 1.0 + Math.max(0, -tX) * 1.2;
+        else if (dot.surface === "right") surfaceFactor = 1.0 + Math.max(0, tX) * 1.2;
+        else if (dot.surface === "floor") surfaceFactor = 1.0 + Math.max(0, tY) * 0.8;
 
         const alpha = baseAlpha * lightFactor * Math.max(0, edgeFactor) * surfaceFactor;
 
