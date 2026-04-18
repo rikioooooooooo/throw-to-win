@@ -20,16 +20,18 @@ type Dot = {
   readonly surface: "floor" | "left" | "right" | "back" | "ambient";
 };
 
-const TOTAL_DOTS = 1584;
+const TOTAL_DOTS = 1800;
 const DEPTH_LAYERS = 8;
-// Subtle positional parallax — just enough to feel depth, not enough to see outside box
-const MAX_SHIFT = 15;
+// iOS 26-style parallax: canvas oversized so edges never visible
+const MAX_SHIFT = 40;
+const OVERSHOOT = 1.3; // dots placed in 130% of screen area
 const GYRO_TIMEOUT_MS = 2000;
-const LAYER_DAMPING_NEAR = 0.12;
-const LAYER_DAMPING_FAR = 0.03;
+// Spring damping: near=fast/snappy, far=slow/heavy
+const SPRING_K = 0.08;       // spring stiffness
+const SPRING_DAMPING = 0.75; // velocity damping (0=no damping, 1=critical)
 
-const LAYER_RADIUS_NEAR = 4.5;
-const LAYER_RADIUS_FAR = 0.6;
+const LAYER_RADIUS_NEAR = 5.5;
+const LAYER_RADIUS_FAR = 0.5;
 const LAYER_ALPHA_NEAR = 0.40;
 const LAYER_ALPHA_FAR = 0.05;
 const LAYER_COLOR_NEAR = [0, 250, 154] as const;
@@ -64,45 +66,44 @@ function createDots(): readonly Dot[] {
   const assignLayer = (depth: number): number =>
     Math.min(DEPTH_LAYERS - 1, Math.max(0, Math.floor(depth * DEPTH_LAYERS)));
 
-  // Floor dots — wy near 1.0, wx spread, depth varies
+  // All dots placed in OVERSHOOT range (1.3x screen) so edges never visible on tilt
+  const R = OVERSHOOT;
+
+  // Floor dots — wy near bottom, wx spread
   for (let i = 0; i < FLOOR_COUNT; i++) {
-    const wx = rng() * 2 - 1;
-    const depth = rng();
     dots.push({
-      wx,
-      wy: 0.7 + rng() * 0.3,
-      layer: assignLayer(depth),
+      wx: (rng() * 2 - 1) * R,
+      wy: (0.7 + rng() * 0.3) * R,
+      layer: assignLayer(rng()),
       surface: "floor",
     });
   }
 
-  // Left wall — wx near -1.0, wy spread, depth varies
+  // Left wall — wx near left
   for (let i = 0; i < LEFT_WALL_COUNT; i++) {
-    const depth = rng();
     dots.push({
-      wx: -0.7 - rng() * 0.3,
-      wy: rng() * 2 - 1,
-      layer: assignLayer(depth),
+      wx: (-0.7 - rng() * 0.3) * R,
+      wy: (rng() * 2 - 1) * R,
+      layer: assignLayer(rng()),
       surface: "left",
     });
   }
 
-  // Right wall — wx near 1.0, wy spread, depth varies
+  // Right wall — wx near right
   for (let i = 0; i < RIGHT_WALL_COUNT; i++) {
-    const depth = rng();
     dots.push({
-      wx: 0.7 + rng() * 0.3,
-      wy: rng() * 2 - 1,
-      layer: assignLayer(depth),
+      wx: (0.7 + rng() * 0.3) * R,
+      wy: (rng() * 2 - 1) * R,
+      layer: assignLayer(rng()),
       surface: "right",
     });
   }
 
-  // Back wall — wx and wy spread, depth fixed at max
+  // Back wall — spread, deepest layer
   for (let i = 0; i < BACK_WALL_COUNT; i++) {
     dots.push({
-      wx: rng() * 2 - 1,
-      wy: rng() * 2 - 1,
+      wx: (rng() * 2 - 1) * R,
+      wy: (rng() * 2 - 1) * R,
       layer: DEPTH_LAYERS - 1,
       surface: "back",
     });
@@ -111,8 +112,8 @@ function createDots(): readonly Dot[] {
   // Ambient (free-floating)
   for (let i = 0; i < AMBIENT_COUNT; i++) {
     dots.push({
-      wx: rng() * 2 - 1,
-      wy: rng() * 2 - 1,
+      wx: (rng() * 2 - 1) * R,
+      wy: (rng() * 2 - 1) * R,
       layer: Math.floor(rng() * DEPTH_LAYERS),
       surface: "ambient",
     });
@@ -149,9 +150,11 @@ export function GyroBars({ className }: GyroBarsProps) {
   const dotsRef = useRef<readonly Dot[]>(createDots());
   const vignetteRef = useRef<CanvasGradient | null>(null);
   const vignetteSizeRef = useRef({ w: 0, h: 0 });
-  // Per-layer smoothed tilt values
-  const smoothedXRef = useRef(new Float32Array(DEPTH_LAYERS));
-  const smoothedYRef = useRef(new Float32Array(DEPTH_LAYERS));
+  // Per-layer spring physics: position + velocity
+  const springPosXRef = useRef(new Float32Array(DEPTH_LAYERS));
+  const springPosYRef = useRef(new Float32Array(DEPTH_LAYERS));
+  const springVelXRef = useRef(new Float32Array(DEPTH_LAYERS));
+  const springVelYRef = useRef(new Float32Array(DEPTH_LAYERS));
 
   const setCanvasRef = useCallback((node: HTMLCanvasElement | null) => {
     canvasRef.current = node;
@@ -197,8 +200,10 @@ export function GyroBars({ className }: GyroBarsProps) {
 
     const startTime = performance.now();
     const dots = dotsRef.current;
-    const smoothedX = smoothedXRef.current;
-    const smoothedY = smoothedYRef.current;
+    const spX = springPosXRef.current;
+    const spY = springPosYRef.current;
+    const svX = springVelXRef.current;
+    const svY = springVelYRef.current;
 
     const draw = (now: number) => {
       const cw = window.innerWidth;
@@ -217,17 +222,23 @@ export function GyroBars({ className }: GyroBarsProps) {
         };
       }
 
-      // Zero-lag: copy target directly (per-layer damping handles smoothing)
-      currentRef.current = { x: targetRef.current.x, y: targetRef.current.y };
-      const tiltX = currentRef.current.x;
-      const tiltY = currentRef.current.y;
+      const tiltX = targetRef.current.x;
+      const tiltY = targetRef.current.y;
 
-      // Update per-layer smoothed values
+      // Spring physics per layer (iOS-style: near=fast, far=heavy/laggy)
       for (let i = 0; i < DEPTH_LAYERS; i++) {
-        const t = i / (DEPTH_LAYERS - 1);
-        const damping = lerp(LAYER_DAMPING_NEAR, LAYER_DAMPING_FAR, t);
-        smoothedX[i] += (tiltX - smoothedX[i]) * damping;
-        smoothedY[i] += (tiltY - smoothedY[i]) * damping;
+        const layerT = i / (DEPTH_LAYERS - 1);
+        // Near layers: stiff spring, fast. Far layers: soft spring, heavy.
+        const k = SPRING_K * (1.0 - layerT * 0.7);  // 0.08 → 0.024
+        const damp = SPRING_DAMPING + layerT * 0.15; // 0.75 → 0.90
+
+        // Spring force toward target
+        const forceX = (tiltX - spX[i]) * k;
+        const forceY = (tiltY - spY[i]) * k;
+        svX[i] = svX[i] * damp + forceX;
+        svY[i] = svY[i] * damp + forceY;
+        spX[i] += svX[i];
+        spY[i] += svY[i];
       }
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -238,9 +249,9 @@ export function GyroBars({ className }: GyroBarsProps) {
       const spreadX = cw * 0.6;
       const spreadY = ch * 0.6;
 
-      // Light source position shifts with tilt (smoothed via layer 3 damping)
-      const lightX = LIGHT_BASE_X + smoothedX[3] * LIGHT_TILT_FACTOR;
-      const lightY = LIGHT_BASE_Y + smoothedY[3] * LIGHT_TILT_FACTOR;
+      // Light source position shifts with tilt (smoothed via layer 3 spring)
+      const lightX = LIGHT_BASE_X + spX[3] * LIGHT_TILT_FACTOR;
+      const lightY = LIGHT_BASE_Y + spY[3] * LIGHT_TILT_FACTOR;
 
       // --- Dots (far to near, already sorted) ---
       for (const dot of dots) {
@@ -250,8 +261,8 @@ export function GyroBars({ className }: GyroBarsProps) {
 
         // Subtle positional parallax (box feels slightly "peekable")
         const parallaxFactor = (1 - z) * MAX_SHIFT;
-        const lx = smoothedX[dot.layer];
-        const ly = smoothedY[dot.layer];
+        const lx = spX[dot.layer];
+        const ly = spY[dot.layer];
         const sx = cx + dot.wx * spreadX * convergence + lx * parallaxFactor;
         const sy = cy + dot.wy * spreadY * convergence + ly * parallaxFactor;
 
@@ -281,8 +292,8 @@ export function GyroBars({ className }: GyroBarsProps) {
 
         // Surface-aware tilt brightness: walls facing the tilt direction get brighter
         let surfaceFactor = 1.0;
-        const tX = smoothedX[3];
-        const tY = smoothedY[3];
+        const tX = spX[3];
+        const tY = spY[3];
         if (dot.surface === "left") surfaceFactor = 1.0 + Math.max(0, -tX) * 1.2;
         else if (dot.surface === "right") surfaceFactor = 1.0 + Math.max(0, tX) * 1.2;
         else if (dot.surface === "floor") surfaceFactor = 1.0 + Math.max(0, tY) * 0.8;
