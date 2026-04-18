@@ -22,7 +22,8 @@ type Dot = {
 
 const TOTAL_DOTS = 1584;
 const DEPTH_LAYERS = 8;
-const MAX_SHIFT = 80;
+// No positional parallax — box is fixed to phone.
+// Tilt only changes lighting direction.
 const GYRO_TIMEOUT_MS = 2000;
 const LAYER_DAMPING_NEAR = 0.12;
 const LAYER_DAMPING_FAR = 0.03;
@@ -34,10 +35,11 @@ const LAYER_ALPHA_FAR = 0.05;
 const LAYER_COLOR_NEAR = [0, 250, 154] as const;
 const LAYER_COLOR_FAR = [0, 140, 110] as const;
 
-// Virtual light source position (normalized coords, upper-right)
-const LIGHT_X = 0.3;
-const LIGHT_Y = -0.8;
-const LIGHT_DECAY = 0.8;
+// Virtual light source — base position (upper center), shifts with tilt
+const LIGHT_BASE_X = 0.0;
+const LIGHT_BASE_Y = -0.6;
+const LIGHT_TILT_FACTOR = 0.8; // how much tilt moves the light
+const LIGHT_DECAY = 0.6;
 
 // Surface distribution
 const FLOOR_COUNT = Math.round(TOTAL_DOTS * 0.4);
@@ -236,18 +238,19 @@ export function GyroBars({ className }: GyroBarsProps) {
       const spreadX = cw * 0.6;
       const spreadY = ch * 0.6;
 
+      // Light source position shifts with tilt (smoothed via layer 3 damping)
+      const lightX = LIGHT_BASE_X + smoothedX[3] * LIGHT_TILT_FACTOR;
+      const lightY = LIGHT_BASE_Y + smoothedY[3] * LIGHT_TILT_FACTOR;
+
       // --- Dots (far to near, already sorted) ---
       for (const dot of dots) {
         const layerT = dot.layer / (DEPTH_LAYERS - 1);
         const z = (dot.layer + 1) / DEPTH_LAYERS;
         const convergence = 0.15 + (1 - z) * 0.85;
-        const parallaxFactor = (1 - z) * MAX_SHIFT;
 
-        const lx = smoothedX[dot.layer];
-        const ly = smoothedY[dot.layer];
-
-        const sx = cx + dot.wx * spreadX * convergence + lx * parallaxFactor;
-        const sy = cy + dot.wy * spreadY * convergence + ly * parallaxFactor;
+        // No positional parallax — dots stay fixed, only lighting changes
+        const sx = cx + dot.wx * spreadX * convergence;
+        const sy = cy + dot.wy * spreadY * convergence;
 
         const radius = lerp(LAYER_RADIUS_NEAR, LAYER_RADIUS_FAR, layerT);
 
@@ -260,11 +263,11 @@ export function GyroBars({ className }: GyroBarsProps) {
         // Base alpha by depth
         const baseAlpha = lerp(LAYER_ALPHA_NEAR, LAYER_ALPHA_FAR, layerT);
 
-        // Virtual light source modulation
+        // Virtual light source modulation (light moves with tilt)
         const normX = (sx - cx) / cx;
         const normY = (sy - cy) / cy;
-        const dx = normX - LIGHT_X;
-        const dy = normY - LIGHT_Y;
+        const dx = normX - lightX;
+        const dy = normY - lightY;
         const distSq = dx * dx + dy * dy;
         const lightFactor = Math.max(0.3, Math.min(1.0, 1.0 / (1.0 + LIGHT_DECAY * distSq)));
 
@@ -273,7 +276,15 @@ export function GyroBars({ className }: GyroBarsProps) {
           1.0 -
           Math.max(Math.abs(sx - cx) / cx, Math.abs(sy - cy) / cy) * 0.3;
 
-        const alpha = baseAlpha * lightFactor * Math.max(0, edgeFactor);
+        // Surface-aware tilt brightness: walls facing the tilt direction get brighter
+        let surfaceFactor = 1.0;
+        const tX = smoothedX[3];
+        const tY = smoothedY[3];
+        if (dot.surface === "left") surfaceFactor = 1.0 + Math.max(0, -tX) * 0.6;
+        else if (dot.surface === "right") surfaceFactor = 1.0 + Math.max(0, tX) * 0.6;
+        else if (dot.surface === "floor") surfaceFactor = 1.0 + Math.max(0, tY) * 0.4;
+
+        const alpha = baseAlpha * lightFactor * Math.max(0, edgeFactor) * surfaceFactor;
 
         if (alpha <= 0) continue;
 
