@@ -61,22 +61,25 @@ export default function LandingPage() {
     (DeviceMotionEvent as any).requestPermission().catch(() => {});
   }, []);
 
-  // CSS 3D perspective on UI synced with gyro
-  const contentRef = useRef<HTMLDivElement>(null);
+  // CSS 3D perspective on all UI elements synced with gyro
+  const uiWrapperRef = useRef<HTMLDivElement>(null);
   const handleTilt = useCallback((x: number, y: number) => {
-    const el = contentRef.current;
+    const el = uiWrapperRef.current;
     if (!el) return;
-    const rotY = x * 2.5;
-    const rotX = -y * 1.5;
-    el.style.transform = `perspective(900px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
+    const rotY = x * 4;    // ±4 degrees left-right
+    const rotX = -y * 3;   // ±3 degrees up-down
+    el.style.transform = `perspective(800px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
   }, []);
 
   return (
-    <main className="relative flex-1 flex flex-col px-6 overflow-y-auto" onClick={handleGyroPermission} style={{ perspective: "900px" }}>
+    <main className="relative flex-1 flex flex-col overflow-y-auto" onClick={handleGyroPermission}>
       <GyroBars className="fixed inset-0 z-0 pointer-events-none" onTilt={handleTilt} />
 
+      {/* All UI content wrapped for CSS 3D tilt */}
+      <div ref={uiWrapperRef} className="relative z-10 flex-1 flex flex-col px-6" style={{ transformOrigin: "center center", willChange: "transform", transformStyle: "preserve-3d" }}>
+
       {/* Top bar */}
-      <header className="relative z-10 flex justify-end items-center pt-4">
+      <header className="flex justify-end items-center pt-4">
         <button
           onClick={() => router.push(`/${locale}/mypage`)}
           className="label-text text-[12px] text-muted hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]"
@@ -90,7 +93,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero — title + subtitle + CTA grouped tightly */}
-      <div ref={contentRef} className="relative z-10 flex-1 flex flex-col items-center justify-center" style={{ transformOrigin: "center center", willChange: "transform" }}>
+      <div className="flex-1 flex flex-col items-center justify-center">
         <h1
           className="animate-fade-in-up text-center leading-[0.82] tracking-[0.08em] uppercase text-foreground font-normal"
           style={{ fontSize: "clamp(3.2rem, 15vw, 6.5rem)", textShadow: "0 0 40px rgba(0,250,154,0.15)" }}
@@ -157,6 +160,8 @@ export default function LandingPage() {
 
       {/* Bottom spacer for safe area */}
       <div className="safe-bottom" />
+
+      </div>{/* end uiWrapper */}
 
       {/* Desktop warning overlay */}
       {isDesktop && !dismissedDesktop && (
