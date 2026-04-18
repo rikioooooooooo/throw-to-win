@@ -3,17 +3,19 @@
 import { useEffect, useRef, useCallback } from "react";
 
 /**
- * Image-based parallax tunnel — uses a pre-rendered liminal space image.
- * The image is drawn larger than the screen (1.15x) and shifts with gyro tilt.
- * Spring physics for smooth iOS-like movement.
+ * Multi-layer parallax from a single tunnel image.
+ * The image is split into concentric rectangular rings (like an onion).
+ * Outer rings = near = shift a lot. Inner rings = far = shift little.
+ * This creates convincing 3D depth from one image.
  */
 
 type GyroTunnelProps = {
   readonly className?: string;
 };
 
-const OVERSHOOT = 1.15; // image drawn 15% larger than screen
-const MAX_SHIFT = 30;   // max px shift at full tilt
+const DEPTH_LAYERS = 8;
+const OVERSHOOT = 1.2;
+const MAX_SHIFT = 35;
 const SPRING_K = 0.06;
 const SPRING_DAMPING = 0.78;
 const GYRO_TIMEOUT_MS = 2000;
@@ -26,9 +28,11 @@ export function GyroTunnel({ className }: GyroTunnelProps) {
   const betaOffsetRef = useRef(0);
   const rafRef = useRef(0);
   const imgRef = useRef<HTMLImageElement | null>(null);
-  // Spring state
-  const posRef = useRef({ x: 0, y: 0 });
-  const velRef = useRef({ x: 0, y: 0 });
+  // Per-layer spring state
+  const springPosX = useRef(new Float32Array(DEPTH_LAYERS));
+  const springPosY = useRef(new Float32Array(DEPTH_LAYERS));
+  const springVelX = useRef(new Float32Array(DEPTH_LAYERS));
+  const springVelY = useRef(new Float32Array(DEPTH_LAYERS));
 
   const setCanvasRef = useCallback((node: HTMLCanvasElement | null) => {
     canvasRef.current = node;
@@ -39,7 +43,6 @@ export function GyroTunnel({ className }: GyroTunnelProps) {
     if (!canvas) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    // Load tunnel image
     const img = new Image();
     img.onload = () => { imgRef.current = img; };
     img.src = "/tunnel-bg.webp";
@@ -55,10 +58,7 @@ export function GyroTunnel({ className }: GyroTunnelProps) {
       if (Math.abs(rawBetaDiff) > 70) return;
       const betaDiff = Math.max(-50, Math.min(50, rawBetaDiff));
       const gamma = Math.max(-45, Math.min(45, e.gamma));
-      targetRef.current = {
-        x: gamma / 35,
-        y: betaDiff / 35,
-      };
+      targetRef.current = { x: gamma / 35, y: betaDiff / 35 };
     };
     window.addEventListener("deviceorientation", handleOrientation);
 
@@ -81,6 +81,10 @@ export function GyroTunnel({ className }: GyroTunnelProps) {
     if (!ctx) return;
 
     const startTime = performance.now();
+    const spX = springPosX.current;
+    const spY = springPosY.current;
+    const svX = springVelX.current;
+    const svY = springVelY.current;
 
     const draw = (now: number) => {
       const cw = window.innerWidth;
@@ -95,45 +99,102 @@ export function GyroTunnel({ className }: GyroTunnelProps) {
         };
       }
 
-      // Spring physics
-      const tx = targetRef.current.x * MAX_SHIFT;
-      const ty = targetRef.current.y * MAX_SHIFT;
-      const pos = posRef.current;
-      const vel = velRef.current;
+      const tx = targetRef.current.x;
+      const ty = targetRef.current.y;
 
-      const forceX = (tx - pos.x) * SPRING_K;
-      const forceY = (ty - pos.y) * SPRING_K;
-      vel.x = vel.x * SPRING_DAMPING + forceX;
-      vel.y = vel.y * SPRING_DAMPING + forceY;
-      pos.x += vel.x;
-      pos.y += vel.y;
+      // Per-layer spring: near layers are snappy, far layers are heavy
+      for (let i = 0; i < DEPTH_LAYERS; i++) {
+        const layerT = i / (DEPTH_LAYERS - 1); // 0=nearest, 1=farthest
+        const k = SPRING_K * (1.0 - layerT * 0.6);
+        const damp = SPRING_DAMPING + layerT * 0.12;
+        const shift = MAX_SHIFT * (1.0 - layerT * 0.85); // near=35px, far=5px
+
+        const targetPx = tx * shift;
+        const targetPy = ty * shift;
+        const fx = (targetPx - spX[i]) * k;
+        const fy = (targetPy - spY[i]) * k;
+        svX[i] = svX[i] * damp + fx;
+        svY[i] = svY[i] * damp + fy;
+        spX[i] += svX[i];
+        spY[i] += svY[i];
+      }
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, cw, ch);
 
       const image = imgRef.current;
-      if (image) {
-        // Draw image larger than screen, shifted by spring position
-        const imgAspect = image.width / image.height;
-        const screenAspect = cw / ch;
+      if (!image) { rafRef.current = requestAnimationFrame(draw); return; }
 
-        let drawW: number;
-        let drawH: number;
+      // Compute base image draw rect (oversized to cover on tilt)
+      const imgAspect = image.width / image.height;
+      const screenAspect = cw / ch;
+      let baseW: number, baseH: number;
+      if (imgAspect > screenAspect) {
+        baseH = ch * OVERSHOOT;
+        baseW = baseH * imgAspect;
+      } else {
+        baseW = cw * OVERSHOOT;
+        baseH = baseW / imgAspect;
+      }
 
-        if (imgAspect > screenAspect) {
-          // Image is wider than screen — fit by height
-          drawH = ch * OVERSHOOT;
-          drawW = drawH * imgAspect;
-        } else {
-          // Image is taller — fit by width
-          drawW = cw * OVERSHOOT;
-          drawH = drawW / imgAspect;
-        }
+      // Draw each depth ring: clip to a concentric rectangular band, shift by layer's spring
+      // Layer 0 = outermost ring (edges), Layer 7 = innermost (center)
+      for (let i = 0; i < DEPTH_LAYERS; i++) {
+        const layerT = i / DEPTH_LAYERS;
+        const nextT = (i + 1) / DEPTH_LAYERS;
 
-        const drawX = (cw - drawW) / 2 + pos.x;
-        const drawY = (ch - drawH) / 2 + pos.y;
+        // Clip ring: between outer rect and inner rect (in screen coords)
+        // Outer rect: lerp from full screen to center
+        const outerInset = layerT * 0.5; // 0 to 0.5 (fully centered)
+        const innerInset = nextT * 0.5;
 
-        ctx.drawImage(image, drawX, drawY, drawW, drawH);
+        const outerL = cw * outerInset;
+        const outerT_y = ch * outerInset;
+        const outerR = cw * (1 - outerInset);
+        const outerB = ch * (1 - outerInset);
+
+        const innerL = cw * innerInset;
+        const innerT_y = ch * innerInset;
+        const innerR = cw * (1 - innerInset);
+        const innerB = ch * (1 - innerInset);
+
+        ctx.save();
+
+        // Create clip path: outer rect minus inner rect (ring shape)
+        ctx.beginPath();
+        // Outer rect (clockwise)
+        ctx.rect(outerL, outerT_y, outerR - outerL, outerB - outerT_y);
+        // Inner rect (counter-clockwise = hole)
+        ctx.moveTo(innerL, innerT_y);
+        ctx.lineTo(innerL, innerB);
+        ctx.lineTo(innerR, innerB);
+        ctx.lineTo(innerR, innerT_y);
+        ctx.closePath();
+        ctx.clip("evenodd");
+
+        // Draw the full image shifted by this layer's parallax
+        const drawX = (cw - baseW) / 2 + spX[i];
+        const drawY = (ch - baseH) / 2 + spY[i];
+        ctx.drawImage(image, drawX, drawY, baseW, baseH);
+
+        ctx.restore();
+      }
+
+      // Draw the innermost center (no parallax, or minimal)
+      {
+        const inset = 0.5;
+        const centerL = cw * inset;
+        const centerT = ch * inset;
+        const centerR = cw * (1 - inset);
+        const centerB = ch * (1 - inset);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(centerL, centerT, centerR - centerL, centerB - centerT);
+        ctx.clip();
+        const drawX = (cw - baseW) / 2 + spX[DEPTH_LAYERS - 1] * 0.3;
+        const drawY = (ch - baseH) / 2 + spY[DEPTH_LAYERS - 1] * 0.3;
+        ctx.drawImage(image, drawX, drawY, baseW, baseH);
+        ctx.restore();
       }
 
       rafRef.current = requestAnimationFrame(draw);
