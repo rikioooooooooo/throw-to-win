@@ -129,9 +129,9 @@ export function GyroBars({ className }: GyroBarsProps) {
       const spreadY = ch * 0.6;
 
       for (const pole of poles) {
-        // Perspective convergence: far layers converge toward center
-        // z=0.125 (nearest) → full spread, z=1 (furthest) → 15% spread
-        const convergence = 0.15 + (1 - pole.z) * 0.85;
+        // Perspective convergence: far layers converge toward vanishing point
+        // z=0.125 (nearest) → full spread, z=1 (furthest) → nearly a point
+        const convergence = 0.01 + (1 - pole.z) * 0.99;
 
         const perspectiveScale = 1 / (0.2 + pole.z * 0.8);
         const parallaxFactor = (1 - pole.z) * MAX_SHIFT;
@@ -143,11 +143,19 @@ export function GyroBars({ className }: GyroBarsProps) {
         const radius = 4.0 * perspectiveScale;
 
         // Depth fog: far layers fade out significantly
-        // z=0.125 → alpha ~0.40, z=1.0 → alpha ~0.03
         const depthFog = Math.pow(1 - pole.z, 1.5);
-        const alpha = 0.03 + depthFog * 0.38;
+        let alpha = 0.03 + depthFog * 0.30;
+
+        // Dim dots in the text zone (center band) so text stays readable
+        const distFromCenterX = Math.abs(sx - cx) / cx;
+        const distFromCenterY = Math.abs(sy - cy) / cy;
+        const centerProximity = 1 - Math.max(distFromCenterX, distFromCenterY);
+        if (centerProximity > 0.4) {
+          alpha *= 0.3 + (1 - centerProximity) * 1.2;
+        }
 
         if (sx < -radius || sx > cw + radius || sy < -radius || sy > ch + radius) continue;
+        if (alpha < 0.005) continue;
 
         ctx.beginPath();
         ctx.arc(sx, sy, radius, 0, Math.PI * 2);
