@@ -3,21 +3,27 @@
 import { useEffect, useRef, useCallback } from "react";
 
 /**
- * Gyroscope parallax tunnel: phone screen is the opening,
- * the far end is a kosukuma silhouette shape.
- * Lines connect the rectangular screen edges to the silhouette edges.
- * Tilting shifts perspective via parallax.
+ * Gyroscope parallax dots + kosukuma SVG overlay.
+ * Circular cross-sections at 8 depth layers with convergence + depth fog + vignette.
+ * Kosukuma silhouette drawn as a semi-transparent overlay on top.
  */
 
 type GyroBarsProps = {
   readonly className?: string;
 };
 
-const GYRO_TIMEOUT_MS = 2000;
-const MAX_SHIFT = 80;
+type Pole = {
+  readonly wx: number;
+  readonly wy: number;
+  readonly z: number;
+};
 
-// Kosukuma SVG — all fill paths (塗り) for the solid silhouette at the far end
-// viewBox: 0 0 648.37 444.18
+const GRID_COLS = 11;
+const GRID_ROWS = 18;
+const DEPTH_LAYERS = 8;
+const MAX_SHIFT = 80;
+const GYRO_TIMEOUT_MS = 2000;
+
 const KOSUKUMA_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 648.37 444.18">
 <path fill="#00fa9a" d="M292,57.07S411.85,1.16,490.27,32.83c37.48,15.14,144.72,78.99,147.82,187.62,3.1,108.63-66.7,158.21-66.7,158.21,0,0-69.33,58.49-149.28,57.7s-78.89-21.17-78.89-21.17l-21.41,2.37-33.97-56.73,40.88-94.62-36.73-209.14"/>
 <polygon fill="#00fa9a" points="50.92 155.95 18.26 132.61 8.67 75.93 45.26 34.27 98.74 26.69 124.86 45.36 138.43 95.78 134.88 124.11 50.92 155.95"/>
@@ -39,6 +45,23 @@ const KOSUKUMA_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 648.3
 <ellipse fill="#000" cx="560.9" cy="174.97" rx="18.7" ry="19.02"/>
 </svg>`;
 
+function createPoles(): readonly Pole[] {
+  const poles: Pole[] = [];
+  for (let d = 0; d < DEPTH_LAYERS; d++) {
+    const z = (d + 1) / DEPTH_LAYERS;
+    for (let row = 0; row < GRID_ROWS; row++) {
+      for (let col = 0; col < GRID_COLS; col++) {
+        poles.push({
+          wx: (col / (GRID_COLS - 1)) * 2 - 1,
+          wy: (row / (GRID_ROWS - 1)) * 2 - 1,
+          z,
+        });
+      }
+    }
+  }
+  return poles.sort((a, b) => b.z - a.z);
+}
+
 export function GyroBars({ className }: GyroBarsProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const targetRef = useRef({ x: 0, y: 0 });
@@ -47,6 +70,9 @@ export function GyroBars({ className }: GyroBarsProps) {
   const calibratedRef = useRef(false);
   const betaOffsetRef = useRef(0);
   const rafRef = useRef(0);
+  const polesRef = useRef<readonly Pole[]>(createPoles());
+  const vignetteRef = useRef<CanvasGradient | null>(null);
+  const vignetteSizeRef = useRef({ w: 0, h: 0 });
   const kumaImgRef = useRef<HTMLImageElement | null>(null);
 
   const setCanvasRef = useCallback((node: HTMLCanvasElement | null) => {
@@ -62,10 +88,7 @@ export function GyroBars({ className }: GyroBarsProps) {
     const blob = new Blob([KOSUKUMA_SVG], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
     const img = new Image();
-    img.onload = () => {
-      kumaImgRef.current = img;
-      URL.revokeObjectURL(url);
-    };
+    img.onload = () => { kumaImgRef.current = img; URL.revokeObjectURL(url); };
     img.src = url;
 
     const handleOrientation = (e: DeviceOrientationEvent) => {
@@ -93,6 +116,7 @@ export function GyroBars({ className }: GyroBarsProps) {
       canvas.height = window.innerHeight * dpr;
       canvas.style.width = `${window.innerWidth}px`;
       canvas.style.height = `${window.innerHeight}px`;
+      vignetteSizeRef.current = { w: 0, h: 0 };
     };
     resize();
     window.addEventListener("resize", resize);
@@ -101,7 +125,7 @@ export function GyroBars({ className }: GyroBarsProps) {
     if (!ctx) return;
 
     const startTime = performance.now();
-    const AC = "0, 250, 154";
+    const poles = polesRef.current;
 
     const draw = (now: number) => {
       const cw = window.innerWidth;
@@ -124,108 +148,62 @@ export function GyroBars({ className }: GyroBarsProps) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, cw, ch);
 
-      // --- Tunnel geometry ---
-      // Far end: kosukuma silhouette, scaled to ~35% of screen, centered + parallax shift
-      const farScale = 0.35;
-      const kumaAspect = 648.37 / 444.18;
-      const farW = cw * farScale;
-      const farH = farW / kumaAspect;
-      const farShift = MAX_SHIFT * 0.15; // far end moves very little
-      const farCx = cw / 2 + tiltX * farShift;
-      const farCy = ch / 2 + tiltY * farShift;
+      const cx = cw / 2;
+      const cy = ch / 2;
+      const spreadX = cw * 0.6;
+      const spreadY = ch * 0.6;
 
-      // Draw the kosukuma silhouette at the far end (the "bottom" of the tunnel)
-      const kumaImg = kumaImgRef.current;
-      if (kumaImg) {
-        ctx.save();
-        ctx.globalAlpha = 0.12;
-        ctx.drawImage(
-          kumaImg,
-          farCx - farW / 2,
-          farCy - farH / 2,
-          farW,
-          farH,
-        );
-        ctx.restore();
-      }
+      // --- Parallax dots (8 depth layers) ---
+      for (const pole of poles) {
+        const convergence = 0.15 + (1 - pole.z) * 0.85;
+        const perspectiveScale = 1 / (0.2 + pole.z * 0.8);
+        const parallaxFactor = (1 - pole.z) * MAX_SHIFT;
 
-      // --- Depth lines connecting screen corners to kosukuma bounding rect ---
-      // Screen corners
-      const corners = [
-        { x: 0, y: 0 },       // TL
-        { x: cw, y: 0 },      // TR
-        { x: cw, y: ch },     // BR
-        { x: 0, y: ch },      // BL
-      ];
+        const sx = cx + pole.wx * spreadX * convergence + tiltX * parallaxFactor;
+        const sy = cy + pole.wy * spreadY * convergence + tiltY * parallaxFactor;
 
-      // Far end bounding rect corners (with parallax)
-      const farCorners = [
-        { x: farCx - farW / 2, y: farCy - farH / 2 }, // TL
-        { x: farCx + farW / 2, y: farCy - farH / 2 }, // TR
-        { x: farCx + farW / 2, y: farCy + farH / 2 }, // BR
-        { x: farCx - farW / 2, y: farCy + farH / 2 }, // BL
-      ];
+        const radius = 4.0 * perspectiveScale;
+        const depthFog = Math.pow(1 - pole.z, 1.5);
+        const alpha = 0.03 + depthFog * 0.38;
 
-      // Draw walls as filled trapezoids (subtle)
-      for (let i = 0; i < 4; i++) {
-        const j = (i + 1) % 4;
-        const screenA = corners[i];
-        const screenB = corners[j];
-        const farA = farCorners[i];
-        const farB = farCorners[j];
+        if (sx < -radius || sx > cw + radius || sy < -radius || sy > ch + radius) continue;
 
         ctx.beginPath();
-        ctx.moveTo(screenA.x, screenA.y);
-        ctx.lineTo(screenB.x, screenB.y);
-        ctx.lineTo(farB.x, farB.y);
-        ctx.lineTo(farA.x, farA.y);
-        ctx.closePath();
-
-        // Wall alpha based on which wall and tilt direction
-        let wallAlpha = 0.03;
-        if (i === 3) wallAlpha += Math.max(0, tiltX) * 0.06;  // left wall
-        if (i === 1) wallAlpha += Math.max(0, -tiltX) * 0.06; // right wall
-        if (i === 0) wallAlpha += Math.max(0, tiltY) * 0.06;  // top wall
-        if (i === 2) wallAlpha += Math.max(0, -tiltY) * 0.06; // bottom wall
-
-        ctx.fillStyle = `rgba(${AC}, ${Math.min(0.12, wallAlpha).toFixed(3)})`;
+        ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 250, 154, ${alpha.toFixed(3)})`;
         ctx.fill();
       }
 
-      // Edge lines (tunnel corners)
-      ctx.strokeStyle = `rgba(${AC}, 0.20)`;
-      ctx.lineWidth = 1;
-      for (let i = 0; i < 4; i++) {
-        ctx.beginPath();
-        ctx.moveTo(corners[i].x, corners[i].y);
-        ctx.lineTo(farCorners[i].x, farCorners[i].y);
-        ctx.stroke();
+      // --- Vignette ---
+      if (vignetteSizeRef.current.w !== cw || vignetteSizeRef.current.h !== ch) {
+        const diag = Math.sqrt(cx * cx + cy * cy);
+        const grad = ctx.createRadialGradient(cx, cy, diag * 0.3, cx, cy, diag);
+        grad.addColorStop(0, "rgba(5, 5, 8, 0)");
+        grad.addColorStop(0.7, "rgba(5, 5, 8, 0.15)");
+        grad.addColorStop(1, "rgba(5, 5, 8, 0.5)");
+        vignetteRef.current = grad;
+        vignetteSizeRef.current = { w: cw, h: ch };
+      }
+      if (vignetteRef.current) {
+        ctx.fillStyle = vignetteRef.current;
+        ctx.fillRect(0, 0, cw, ch);
       }
 
-      // Far end border
-      ctx.strokeStyle = `rgba(${AC}, 0.10)`;
-      ctx.beginPath();
-      ctx.moveTo(farCorners[0].x, farCorners[0].y);
-      for (let i = 1; i < 4; i++) ctx.lineTo(farCorners[i].x, farCorners[i].y);
-      ctx.closePath();
-      ctx.stroke();
+      // --- Kosukuma SVG overlay (on top of dots, semi-transparent) ---
+      const kumaImg = kumaImgRef.current;
+      if (kumaImg) {
+        const kumaAspect = 648.37 / 444.18;
+        const kumaW = cw * 0.55;
+        const kumaH = kumaW / kumaAspect;
+        // Slight parallax on the overlay (moves less than near dots)
+        const kumaShift = MAX_SHIFT * 0.3;
+        const kumaX = cx - kumaW / 2 + tiltX * kumaShift;
+        const kumaY = cy - kumaH / 2 + tiltY * kumaShift;
 
-      // --- Depth grid lines on walls for depth perception ---
-      const DEPTH_LINES = 6;
-      ctx.strokeStyle = `rgba(${AC}, 0.04)`;
-      ctx.lineWidth = 0.5;
-      for (let d = 1; d <= DEPTH_LINES; d++) {
-        const t = d / (DEPTH_LINES + 1);
-        // Interpolate between screen edge and far edge
-        const pts = corners.map((sc, i) => ({
-          x: sc.x + (farCorners[i].x - sc.x) * t,
-          y: sc.y + (farCorners[i].y - sc.y) * t,
-        }));
-        ctx.beginPath();
-        ctx.moveTo(pts[0].x, pts[0].y);
-        for (let i = 1; i < 4; i++) ctx.lineTo(pts[i].x, pts[i].y);
-        ctx.closePath();
-        ctx.stroke();
+        ctx.save();
+        ctx.globalAlpha = 0.08;
+        ctx.drawImage(kumaImg, kumaX, kumaY, kumaW, kumaH);
+        ctx.restore();
       }
 
       rafRef.current = requestAnimationFrame(draw);
