@@ -9,16 +9,17 @@ import { useEffect, useRef, useCallback } from "react";
 
 type GyroBarsProps = {
   readonly className?: string;
+  readonly onTilt?: (x: number, y: number) => void;
 };
 
-const GRID_COLS = 18;
-const GRID_ROWS = 30;
+const GRID_COLS = 14;
+const GRID_ROWS = 22;
 const VANISH_SHIFT = 100; // how far the vanishing point moves on full tilt
 const LERP = 0.12;
 const OVERSHOOT = 1.4; // grid extends 40% beyond screen edges
 const GYRO_TIMEOUT_MS = 2000;
 
-export function GyroBars({ className }: GyroBarsProps) {
+export function GyroBars({ className, onTilt }: GyroBarsProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const targetRef = useRef({ x: 0, y: 0 });
   const currentRef = useRef({ x: 0, y: 0 });
@@ -107,91 +108,72 @@ export function GyroBars({ className }: GyroBarsProps) {
       const vanishX = cx + tiltX * VANISH_SHIFT;
       const vanishY = cy + tiltY * VANISH_SHIFT * 0.6;
 
-      // Draw each cylinder as a smooth filled taper shape (no segment joints)
-      const TAPER_STEPS = 12;
-      const WIDTH_NEAR = 2.5;
-      const WIDTH_FAR = 0.1;
-      const ALPHA_NEAR = 0.25;
-      const ALPHA_FAR = 0.015;
+      // Notify parent of tilt for CSS 3D transform
+      onTilt?.(tiltX, tiltY);
+
+      // Draw tapered cylinders — NO gradients (perf), single fill per shape
+      const STEPS = 8;
+      const W_NEAR = 2.5;
+      const W_FAR = 0.1;
+
+      // Pre-compute spine arrays (reuse each iteration)
+      const spX = new Array<number>(STEPS + 1);
+      const spY = new Array<number>(STEPS + 1);
 
       for (let row = 0; row < GRID_ROWS; row++) {
         for (let col = 0; col < GRID_COLS; col++) {
           const wx = ((col / (GRID_COLS - 1)) * 2 - 1) * OVERSHOOT;
           const wy = ((row / (GRID_ROWS - 1)) * 2 - 1) * OVERSHOOT;
 
-          // Compute spine points along the cylinder
-          const spineX: number[] = [];
-          const spineY: number[] = [];
-          for (let s = 0; s <= TAPER_STEPS; s++) {
-            const t = s / TAPER_STEPS;
+          // Spine points
+          for (let s = 0; s <= STEPS; s++) {
+            const t = s / STEPS;
             const conv = 0.01 + (1 - t) * 0.99;
-            const ancX = cx + (vanishX - cx) * t;
-            const ancY = cy + (vanishY - cy) * t;
-            spineX.push(ancX + wx * spreadX * conv);
-            spineY.push(ancY + wy * spreadY * conv);
+            spX[s] = (cx + (vanishX - cx) * t) + wx * spreadX * conv;
+            spY[s] = (cy + (vanishY - cy) * t) + wy * spreadY * conv;
           }
 
-          // Skip if fully off-screen
-          const allOffL = spineX.every(x => x < -20);
-          const allOffR = spineX.every(x => x > cw + 20);
-          const allOffT = spineY.every(y => y < -20);
-          const allOffB = spineY.every(y => y > ch + 20);
-          if (allOffL || allOffR || allOffT || allOffB) continue;
+          // Quick off-screen check (near + far endpoints)
+          if (spX[0] < -20 && spX[STEPS] < -20) continue;
+          if (spX[0] > cw + 20 && spX[STEPS] > cw + 20) continue;
+          if (spY[0] < -20 && spY[STEPS] < -20) continue;
+          if (spY[0] > ch + 20 && spY[STEPS] > ch + 20) continue;
 
-          // Compute alpha (based on near-end position for text dimming)
-          const nearX = spineX[0];
-          const nearY = spineY[0];
-          const distCX = Math.abs(nearX - cx) / cx;
-          const distCY = Math.abs(nearY - cy) / cy;
+          // Alpha based on position (text zone dimming)
+          const distCX = Math.abs(spX[0] - cx) / cx;
+          const distCY = Math.abs(spY[0] - cy) / cy;
           const centerP = 1 - Math.max(distCX, distCY);
-          let alphaMul = 1;
-          if (centerP > 0.4) {
-            alphaMul = 0.3 + (1 - centerP) * 1.2;
-          }
+          let alpha = 0.18;
+          if (centerP > 0.4) alpha *= 0.3 + (1 - centerP) * 1.2;
+          if (alpha < 0.003) continue;
 
-          // Build gradient along the line for smooth alpha fade
-          const gradX0 = spineX[0];
-          const gradY0 = spineY[0];
-          const gradX1 = spineX[TAPER_STEPS];
-          const gradY1 = spineY[TAPER_STEPS];
-          const grad = ctx.createLinearGradient(gradX0, gradY0, gradX1, gradY1);
-          const aN = Math.min(1, ALPHA_NEAR * alphaMul);
-          const aF = Math.min(1, ALPHA_FAR * alphaMul);
-          grad.addColorStop(0, `rgba(0, 250, 154, ${aN.toFixed(3)})`);
-          grad.addColorStop(0.5, `rgba(0, 250, 154, ${(aN * 0.3 + aF * 0.7).toFixed(3)})`);
-          grad.addColorStop(1, `rgba(0, 250, 154, ${aF.toFixed(3)})`);
-
-          // Build the filled shape: left edge going forward, right edge going back
-          // Perpendicular offset from spine for width
+          // Build filled taper shape
           ctx.beginPath();
-          // Forward pass (left side of cylinder)
-          for (let s = 0; s <= TAPER_STEPS; s++) {
-            const t = s / TAPER_STEPS;
-            const w = (WIDTH_NEAR + (WIDTH_FAR - WIDTH_NEAR) * t) / 2;
-            // Perpendicular: use direction to next/prev point
-            const si = Math.min(s, TAPER_STEPS - 1);
-            const dxDir = spineX[si + 1] - spineX[si];
-            const dyDir = spineY[si + 1] - spineY[si];
-            const len = Math.sqrt(dxDir * dxDir + dyDir * dyDir) || 1;
-            const px = -dyDir / len * w;
-            const py = dxDir / len * w;
-            if (s === 0) ctx.moveTo(spineX[s] + px, spineY[s] + py);
-            else ctx.lineTo(spineX[s] + px, spineY[s] + py);
+          for (let s = 0; s <= STEPS; s++) {
+            const t = s / STEPS;
+            const w = (W_NEAR + (W_FAR - W_NEAR) * t) / 2;
+            const si = Math.min(s, STEPS - 1);
+            const dx = spX[si + 1] - spX[si];
+            const dy = spY[si + 1] - spY[si];
+            const len = Math.sqrt(dx * dx + dy * dy) || 1;
+            const px = -dy / len * w;
+            const py = dx / len * w;
+            if (s === 0) ctx.moveTo(spX[s] + px, spY[s] + py);
+            else ctx.lineTo(spX[s] + px, spY[s] + py);
           }
-          // Return pass (right side of cylinder)
-          for (let s = TAPER_STEPS; s >= 0; s--) {
-            const t = s / TAPER_STEPS;
-            const w = (WIDTH_NEAR + (WIDTH_FAR - WIDTH_NEAR) * t) / 2;
-            const si = Math.min(s, TAPER_STEPS - 1);
-            const dxDir = spineX[si + 1] - spineX[si];
-            const dyDir = spineY[si + 1] - spineY[si];
-            const len = Math.sqrt(dxDir * dxDir + dyDir * dyDir) || 1;
-            const px = -dyDir / len * w;
-            const py = dxDir / len * w;
-            ctx.lineTo(spineX[s] - px, spineY[s] - py);
+          for (let s = STEPS; s >= 0; s--) {
+            const t = s / STEPS;
+            const w = (W_NEAR + (W_FAR - W_NEAR) * t) / 2;
+            const si = Math.min(s, STEPS - 1);
+            const dx = spX[si + 1] - spX[si];
+            const dy = spY[si + 1] - spY[si];
+            const len = Math.sqrt(dx * dx + dy * dy) || 1;
+            const px = -dy / len * w;
+            const py = dx / len * w;
+            ctx.lineTo(spX[s] - px, spY[s] - py);
           }
           ctx.closePath();
-          ctx.fillStyle = grad;
+          ctx.fillStyle = `rgba(0, 250, 154, ${alpha.toFixed(3)})`;
           ctx.fill();
         }
       }
