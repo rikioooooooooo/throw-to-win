@@ -11,36 +11,12 @@ type GyroBarsProps = {
   readonly className?: string;
 };
 
-type Pole = {
-  readonly wx: number; // world-space grid position (-1..1)
-  readonly wy: number;
-  readonly z: number;  // depth: 0=closest, 1=furthest
-};
-
 const GRID_COLS = 18;
 const GRID_ROWS = 30;
-const DEPTH_LAYERS = 30;
 const VANISH_SHIFT = 100; // how far the vanishing point moves on full tilt
 const LERP = 0.12;
 const OVERSHOOT = 1.4; // grid extends 40% beyond screen edges
 const GYRO_TIMEOUT_MS = 2000;
-
-function createPoles(): readonly Pole[] {
-  const poles: Pole[] = [];
-  for (let d = 0; d < DEPTH_LAYERS; d++) {
-    const z = (d + 1) / DEPTH_LAYERS;
-    for (let row = 0; row < GRID_ROWS; row++) {
-      for (let col = 0; col < GRID_COLS; col++) {
-        poles.push({
-          wx: ((col / (GRID_COLS - 1)) * 2 - 1) * OVERSHOOT,
-          wy: ((row / (GRID_ROWS - 1)) * 2 - 1) * OVERSHOOT,
-          z,
-        });
-      }
-    }
-  }
-  return poles.sort((a, b) => b.z - a.z);
-}
 
 export function GyroBars({ className }: GyroBarsProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -48,7 +24,7 @@ export function GyroBars({ className }: GyroBarsProps) {
   const currentRef = useRef({ x: 0, y: 0 });
   const hasGyroRef = useRef(false);
   const rafRef = useRef(0);
-  const polesRef = useRef<readonly Pole[]>(createPoles());
+  // No poles array needed — lines are drawn directly from grid coords
   const vignetteRef = useRef<CanvasGradient | null>(null);
   const vignetteSizeRef = useRef({ w: 0, h: 0 });
 
@@ -96,8 +72,6 @@ export function GyroBars({ className }: GyroBarsProps) {
     if (!ctx) return;
 
     const startTime = performance.now();
-    const poles = polesRef.current;
-
     const draw = (now: number) => {
       const cw = window.innerWidth;
       const ch = window.innerHeight;
@@ -133,39 +107,71 @@ export function GyroBars({ className }: GyroBarsProps) {
       const vanishX = cx + tiltX * VANISH_SHIFT;
       const vanishY = cy + tiltY * VANISH_SHIFT * 0.6;
 
-      for (const pole of poles) {
-        const convergence = 0.01 + (1 - pole.z) * 0.99;
-        const perspectiveScale = 1 / (0.15 + pole.z * 0.85);
+      // Draw tapered lines from each grid position to vanishing point
+      // Each line = one "cylinder" extending from near (edge) to far (center)
+      const SEGMENTS = 20;
+      const LINE_WIDTH_NEAR = 2.5;
+      const LINE_WIDTH_FAR = 0.15;
+      const ALPHA_NEAR = 0.25;
+      const ALPHA_FAR = 0.02;
 
-        // Near dots (z≈0): anchored to screen center — DON'T MOVE
-        // Far dots (z≈1): follow the shifted vanishing point
-        const anchorX = cx + (vanishX - cx) * pole.z;
-        const anchorY = cy + (vanishY - cy) * pole.z;
-        const sx = anchorX + pole.wx * spreadX * convergence;
-        const sy = anchorY + pole.wy * spreadY * convergence;
+      // Unique grid positions (skip depth, draw one line per grid cell)
+      for (let row = 0; row < GRID_ROWS; row++) {
+        for (let col = 0; col < GRID_COLS; col++) {
+          const wx = ((col / (GRID_COLS - 1)) * 2 - 1) * OVERSHOOT;
+          const wy = ((row / (GRID_ROWS - 1)) * 2 - 1) * OVERSHOOT;
 
-        // Radius: near=visible, far=subpixel speck
-        const radius = 3.0 * perspectiveScale;
+          // Draw line as segments with tapering width and fading alpha
+          for (let s = 0; s < SEGMENTS; s++) {
+            const t0 = s / SEGMENTS;
+            const t1 = (s + 1) / SEGMENTS;
+            const z0 = t0; // 0=near, 1=far
+            const z1 = t1;
 
-        // Depth fog: far layers fade out significantly
-        const depthFog = Math.pow(1 - pole.z, 1.5);
-        let alpha = 0.03 + depthFog * 0.30;
+            const conv0 = 0.01 + (1 - z0) * 0.99;
+            const conv1 = 0.01 + (1 - z1) * 0.99;
+            const anchor0X = cx + (vanishX - cx) * z0;
+            const anchor0Y = cy + (vanishY - cy) * z0;
+            const anchor1X = cx + (vanishX - cx) * z1;
+            const anchor1Y = cy + (vanishY - cy) * z1;
 
-        // Dim dots in the text zone (center band) so text stays readable
-        const distFromCenterX = Math.abs(sx - cx) / cx;
-        const distFromCenterY = Math.abs(sy - cy) / cy;
-        const centerProximity = 1 - Math.max(distFromCenterX, distFromCenterY);
-        if (centerProximity > 0.4) {
-          alpha *= 0.3 + (1 - centerProximity) * 1.2;
+            const x0 = anchor0X + wx * spreadX * conv0;
+            const y0 = anchor0Y + wy * spreadY * conv0;
+            const x1 = anchor1X + wx * spreadX * conv1;
+            const y1 = anchor1Y + wy * spreadY * conv1;
+
+            // Skip fully off-screen segments
+            if (x0 < -10 && x1 < -10) continue;
+            if (x0 > cw + 10 && x1 > cw + 10) continue;
+            if (y0 < -10 && y1 < -10) continue;
+            if (y0 > ch + 10 && y1 > ch + 10) continue;
+
+            const midT = (t0 + t1) / 2;
+            const lineW = LINE_WIDTH_NEAR + (LINE_WIDTH_FAR - LINE_WIDTH_NEAR) * midT;
+            const depthFog = Math.pow(1 - midT, 1.5);
+            let alpha = ALPHA_FAR + (ALPHA_NEAR - ALPHA_FAR) * depthFog;
+
+            // Dim in text zone
+            const midX = (x0 + x1) / 2;
+            const midY = (y0 + y1) / 2;
+            const distCX = Math.abs(midX - cx) / cx;
+            const distCY = Math.abs(midY - cy) / cy;
+            const centerP = 1 - Math.max(distCX, distCY);
+            if (centerP > 0.4) {
+              alpha *= 0.3 + (1 - centerP) * 1.2;
+            }
+
+            if (alpha < 0.003) continue;
+
+            ctx.beginPath();
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x1, y1);
+            ctx.lineWidth = lineW;
+            ctx.strokeStyle = `rgba(0, 250, 154, ${alpha.toFixed(3)})`;
+            ctx.lineCap = "round";
+            ctx.stroke();
+          }
         }
-
-        if (sx < -radius || sx > cw + radius || sy < -radius || sy > ch + radius) continue;
-        if (alpha < 0.005) continue;
-
-        ctx.beginPath();
-        ctx.arc(sx, sy, radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0, 250, 154, ${alpha.toFixed(3)})`;
-        ctx.fill();
       }
 
       // Vignette: radial gradient darkening edges → "tunnel" depth feel
