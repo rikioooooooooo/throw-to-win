@@ -13,7 +13,7 @@ type GyroTunnelProps = {
   readonly className?: string;
 };
 
-const DEPTH_LAYERS = 8;
+const DEPTH_LAYERS = 20;
 const OVERSHOOT = 1.2;
 const MAX_SHIFT = 35;
 const SPRING_K = 0.06;
@@ -143,10 +143,10 @@ export function GyroTunnel({ className }: GyroTunnelProps) {
         const layerT = i / DEPTH_LAYERS;
         const nextT = (i + 1) / DEPTH_LAYERS;
 
-        // Clip ring: between outer rect and inner rect (in screen coords)
-        // Outer rect: lerp from full screen to center
-        const outerInset = layerT * 0.5; // 0 to 0.5 (fully centered)
-        const innerInset = nextT * 0.5;
+        // Non-linear inset: outer rings are wider (matching perspective)
+        // pow(t, 0.6) gives more space near edges, tighter near center
+        const outerInset = Math.pow(layerT, 0.6) * 0.48;
+        const innerInset = Math.pow(nextT, 0.6) * 0.48;
 
         const outerL = cw * outerInset;
         const outerT_y = ch * outerInset;
@@ -180,9 +180,9 @@ export function GyroTunnel({ className }: GyroTunnelProps) {
         ctx.restore();
       }
 
-      // Draw the innermost center (no parallax, or minimal)
+      // Draw the innermost center
       {
-        const inset = 0.5;
+        const inset = Math.pow(1.0, 0.6) * 0.48;
         const centerL = cw * inset;
         const centerT = ch * inset;
         const centerR = cw * (1 - inset);
