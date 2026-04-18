@@ -3,55 +3,38 @@
 import { useEffect, useRef, useCallback } from "react";
 
 /**
- * 3D box illusion using ONLY dots.
- * Depth is conveyed through dot placement on virtual surfaces,
- * size/alpha gradients, color temperature shift, directional lighting,
- * and per-layer differential damping.
+ * True 3D perspective tunnel with optic flow.
+ * Dots live in world-space (x, y, z) and are projected via
+ * pinhole camera model. Gyroscope shifts camera position,
+ * producing natural parallax (near dots shift a lot, far barely move).
  */
 
 type GyroBarsProps = {
   readonly className?: string;
 };
 
-type Dot = {
-  readonly wx: number;
-  readonly wy: number;
-  readonly layer: number;
-  readonly surface: "floor" | "left" | "right" | "back" | "ambient";
-};
+// ── Constants ──────────────────────────────────────────────
+const TOTAL_DOTS = 2000;
+const FOCAL = 400;
+const Z_NEAR = 30;
+const Z_FAR = 2000;
+const TUNNEL_W = 300;
+const TUNNEL_H = 500;
+const FLOW_SPEED = 15;
+const CAMERA_SHIFT = 60;
+const BASE_RADIUS = 2.5;
+const BASE_ALPHA = 0.8;
 
-const TOTAL_DOTS = 2500;
-const DEPTH_LAYERS = 14;
-const MAX_SHIFT = 45;
-const OVERSHOOT = 1.3;
 const GYRO_TIMEOUT_MS = 2000;
 const SPRING_K = 0.08;
 const SPRING_DAMPING = 0.75;
 
-// Dramatic depth: near dots are huge and bright, far dots are invisible specks
-const LAYER_RADIUS_NEAR = 8.0;
-const LAYER_RADIUS_FAR = 0.3;
-const LAYER_ALPHA_NEAR = 0.55;
-const LAYER_ALPHA_FAR = 0.03;
-const LAYER_COLOR_NEAR = [0, 255, 160] as const;  // bright mint
-const LAYER_COLOR_FAR = [0, 80, 55] as const;     // very dark teal
-// Glow: near dots get canvas shadow blur for bloom effect
-const GLOW_LAYERS = 4; // layers 0-3 get glow
-const GLOW_RADIUS_MAX = 12; // blur px for layer 0
+// Chromostereopsis color anchors
+const COLOR_NEAR: readonly [number, number, number] = [180, 255, 200];
+const COLOR_MID: readonly [number, number, number] = [0, 250, 154];
+const COLOR_FAR: readonly [number, number, number] = [0, 100, 120];
 
-const LIGHT_BASE_X = 0.0;
-const LIGHT_BASE_Y = -0.6;
-const LIGHT_TILT_FACTOR = 1.2;
-const LIGHT_DECAY = 0.5;
-
-// Surface distribution
-const FLOOR_COUNT = Math.round(TOTAL_DOTS * 0.4);
-const LEFT_WALL_COUNT = Math.round(TOTAL_DOTS * 0.2);
-const RIGHT_WALL_COUNT = Math.round(TOTAL_DOTS * 0.2);
-const BACK_WALL_COUNT = Math.round(TOTAL_DOTS * 0.1);
-const AMBIENT_COUNT =
-  TOTAL_DOTS - FLOOR_COUNT - LEFT_WALL_COUNT - RIGHT_WALL_COUNT - BACK_WALL_COUNT;
-
+// ── Helpers ────────────────────────────────────────────────
 function seededRandom(seed: number): () => number {
   let s = seed;
   return () => {
@@ -60,102 +43,129 @@ function seededRandom(seed: number): () => number {
   };
 }
 
-function createDots(): readonly Dot[] {
-  const dots: Dot[] = [];
-  const rng = seededRandom(42);
-
-  const assignLayer = (depth: number): number =>
-    Math.min(DEPTH_LAYERS - 1, Math.max(0, Math.floor(depth * DEPTH_LAYERS)));
-
-  // All dots placed in OVERSHOOT range (1.3x screen) so edges never visible on tilt
-  const R = OVERSHOOT;
-
-  // Floor dots — wy near bottom, wx spread
-  for (let i = 0; i < FLOOR_COUNT; i++) {
-    dots.push({
-      wx: (rng() * 2 - 1) * R,
-      wy: (0.7 + rng() * 0.3) * R,
-      layer: assignLayer(rng()),
-      surface: "floor",
-    });
-  }
-
-  // Left wall — wx near left
-  for (let i = 0; i < LEFT_WALL_COUNT; i++) {
-    dots.push({
-      wx: (-0.7 - rng() * 0.3) * R,
-      wy: (rng() * 2 - 1) * R,
-      layer: assignLayer(rng()),
-      surface: "left",
-    });
-  }
-
-  // Right wall — wx near right
-  for (let i = 0; i < RIGHT_WALL_COUNT; i++) {
-    dots.push({
-      wx: (0.7 + rng() * 0.3) * R,
-      wy: (rng() * 2 - 1) * R,
-      layer: assignLayer(rng()),
-      surface: "right",
-    });
-  }
-
-  // Back wall — spread, deepest layer
-  for (let i = 0; i < BACK_WALL_COUNT; i++) {
-    dots.push({
-      wx: (rng() * 2 - 1) * R,
-      wy: (rng() * 2 - 1) * R,
-      layer: DEPTH_LAYERS - 1,
-      surface: "back",
-    });
-  }
-
-  // Ambient (free-floating)
-  for (let i = 0; i < AMBIENT_COUNT; i++) {
-    dots.push({
-      wx: (rng() * 2 - 1) * R,
-      wy: (rng() * 2 - 1) * R,
-      layer: Math.floor(rng() * DEPTH_LAYERS),
-      surface: "ambient",
-    });
-  }
-
-  // Sort far to near (layer 7 first, layer 0 last) for correct draw order
-  return dots.sort((a, b) => b.layer - a.layer);
-}
-
 function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
 }
 
-function lerpColor(
-  near: readonly [number, number, number],
-  far: readonly [number, number, number],
-  t: number,
-): [number, number, number] {
+function clamp(v: number, lo: number, hi: number): number {
+  return v < lo ? lo : v > hi ? hi : v;
+}
+
+function colorForZ(z: number): [number, number, number] {
+  const t = clamp((z - Z_NEAR) / (Z_FAR - Z_NEAR), 0, 1);
+  if (t < 0.5) {
+    // near → mid
+    const s = t / 0.5;
+    return [
+      Math.round(lerp(COLOR_NEAR[0], COLOR_MID[0], s)),
+      Math.round(lerp(COLOR_NEAR[1], COLOR_MID[1], s)),
+      Math.round(lerp(COLOR_NEAR[2], COLOR_MID[2], s)),
+    ];
+  }
+  // mid → far
+  const s = (t - 0.5) / 0.5;
   return [
-    Math.round(lerp(near[0], far[0], t)),
-    Math.round(lerp(near[1], far[1], t)),
-    Math.round(lerp(near[2], far[2], t)),
+    Math.round(lerp(COLOR_MID[0], COLOR_FAR[0], s)),
+    Math.round(lerp(COLOR_MID[1], COLOR_FAR[1], s)),
+    Math.round(lerp(COLOR_MID[2], COLOR_FAR[2], s)),
   ];
 }
 
+// ── Dot initialisation (typed arrays) ──────────────────────
+function initDots(
+  dotX: Float32Array,
+  dotY: Float32Array,
+  dotZ: Float32Array,
+  startIdx: number,
+  count: number,
+  rng: () => number,
+): void {
+  const wallRatio = 0.4;
+  for (let i = 0; i < count; i++) {
+    const idx = startIdx + i;
+    // sqrt distribution — more dots at far z
+    const zVal = Z_NEAR + (Z_FAR - Z_NEAR) * Math.pow(rng(), 0.5);
+    dotZ[idx] = zVal;
+
+    const isWall = rng() < wallRatio;
+    if (isWall) {
+      // Place near a tunnel wall edge
+      if (rng() > 0.5) {
+        // near x edge
+        dotX[idx] =
+          (TUNNEL_W / 2) *
+          (rng() > 0.5 ? 1 : -1) *
+          (0.85 + rng() * 0.15);
+        dotY[idx] = (rng() * 2 - 1) * (TUNNEL_H / 2);
+      } else {
+        // near y edge
+        dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2);
+        dotY[idx] =
+          (TUNNEL_H / 2) *
+          (rng() > 0.5 ? 1 : -1) *
+          (0.85 + rng() * 0.15);
+      }
+    } else {
+      dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2);
+      dotY[idx] = (rng() * 2 - 1) * (TUNNEL_H / 2);
+    }
+  }
+}
+
+function resetDot(
+  dotX: Float32Array,
+  dotY: Float32Array,
+  dotZ: Float32Array,
+  idx: number,
+  rng: () => number,
+): void {
+  dotZ[idx] = Z_FAR;
+  const isWall = rng() < 0.4;
+  if (isWall) {
+    if (rng() > 0.5) {
+      dotX[idx] =
+        (TUNNEL_W / 2) *
+        (rng() > 0.5 ? 1 : -1) *
+        (0.85 + rng() * 0.15);
+      dotY[idx] = (rng() * 2 - 1) * (TUNNEL_H / 2);
+    } else {
+      dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2);
+      dotY[idx] =
+        (TUNNEL_H / 2) *
+        (rng() > 0.5 ? 1 : -1) *
+        (0.85 + rng() * 0.15);
+    }
+  } else {
+    dotX[idx] = (rng() * 2 - 1) * (TUNNEL_W / 2);
+    dotY[idx] = (rng() * 2 - 1) * (TUNNEL_H / 2);
+  }
+}
+
+// ── Component ──────────────────────────────────────────────
 export function GyroBars({ className }: GyroBarsProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const targetRef = useRef({ x: 0, y: 0 });
-  const currentRef = useRef({ x: 0, y: 0 });
   const hasGyroRef = useRef(false);
   const calibratedRef = useRef(false);
   const betaOffsetRef = useRef(0);
   const rafRef = useRef(0);
-  const dotsRef = useRef<readonly Dot[]>(createDots());
   const vignetteRef = useRef<CanvasGradient | null>(null);
   const vignetteSizeRef = useRef({ w: 0, h: 0 });
-  // Per-layer spring physics: position + velocity
-  const springPosXRef = useRef(new Float32Array(DEPTH_LAYERS));
-  const springPosYRef = useRef(new Float32Array(DEPTH_LAYERS));
-  const springVelXRef = useRef(new Float32Array(DEPTH_LAYERS));
-  const springVelYRef = useRef(new Float32Array(DEPTH_LAYERS));
+
+  // Camera spring state
+  const camPosXRef = useRef(0);
+  const camPosYRef = useRef(0);
+  const camVelXRef = useRef(0);
+  const camVelYRef = useRef(0);
+
+  // Pre-allocated typed arrays for dot data
+  const dotXRef = useRef(new Float32Array(TOTAL_DOTS));
+  const dotYRef = useRef(new Float32Array(TOTAL_DOTS));
+  const dotZRef = useRef(new Float32Array(TOTAL_DOTS));
+  // Sort indices array (avoids sorting full objects)
+  const sortIdxRef = useRef(new Uint16Array(TOTAL_DOTS));
+  // Persistent RNG for dot recycling
+  const rngRef = useRef(seededRandom(42));
 
   const setCanvasRef = useCallback((node: HTMLCanvasElement | null) => {
     canvasRef.current = node;
@@ -166,6 +176,7 @@ export function GyroBars({ className }: GyroBarsProps) {
     if (!canvas) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    // ── Gyro handling (kept identical to original) ──
     const handleOrientation = (e: DeviceOrientationEvent) => {
       if (e.gamma == null || e.beta == null) return;
       hasGyroRef.current = true;
@@ -173,10 +184,9 @@ export function GyroBars({ className }: GyroBarsProps) {
         calibratedRef.current = true;
         betaOffsetRef.current = e.beta;
       }
-      // Gimbal lock zone: when beta is ~90° from calibration,
-      // gamma becomes unreliable. Freeze updates past ±70°.
+      // Gimbal lock prevention: freeze past ±70°
       const rawBetaDiff = e.beta - betaOffsetRef.current;
-      if (Math.abs(rawBetaDiff) > 70) return; // too close to gimbal lock
+      if (Math.abs(rawBetaDiff) > 70) return;
 
       const betaDiff = Math.max(-50, Math.min(50, rawBetaDiff));
       const gamma = Math.max(-45, Math.min(45, e.gamma));
@@ -193,6 +203,7 @@ export function GyroBars({ className }: GyroBarsProps) {
       if (!hasGyroRef.current) useFallback = true;
     }, GYRO_TIMEOUT_MS);
 
+    // ── Canvas setup ──
     const dpr = window.devicePixelRatio || 1;
     const resize = () => {
       canvas.width = window.innerWidth * dpr;
@@ -207,14 +218,24 @@ export function GyroBars({ className }: GyroBarsProps) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const startTime = performance.now();
-    const dots = dotsRef.current;
-    const spX = springPosXRef.current;
-    const spY = springPosYRef.current;
-    const svX = springVelXRef.current;
-    const svY = springVelYRef.current;
+    // ── Initialise dots ──
+    const rng = rngRef.current;
+    const dotX = dotXRef.current;
+    const dotY = dotYRef.current;
+    const dotZ = dotZRef.current;
+    const sortIdx = sortIdxRef.current;
 
+    initDots(dotX, dotY, dotZ, 0, TOTAL_DOTS, rng);
+    for (let i = 0; i < TOTAL_DOTS; i++) sortIdx[i] = i;
+
+    const startTime = performance.now();
+    let prevTime = startTime;
+
+    // ── Draw loop ──
     const draw = (now: number) => {
+      const dt = Math.min((now - prevTime) / 1000, 0.1); // cap to 100ms
+      prevTime = now;
+
       const cw = window.innerWidth;
       const ch = window.innerHeight;
       if (cw === 0 || ch === 0) {
@@ -234,107 +255,91 @@ export function GyroBars({ className }: GyroBarsProps) {
       const tiltX = targetRef.current.x;
       const tiltY = targetRef.current.y;
 
-      // Spring physics per layer (iOS-style: near=fast, far=heavy/laggy)
-      for (let i = 0; i < DEPTH_LAYERS; i++) {
-        const layerT = i / (DEPTH_LAYERS - 1);
-        // Near layers: stiff spring, fast. Far layers: soft spring, heavy.
-        const k = SPRING_K * (1.0 - layerT * 0.7);  // 0.08 → 0.024
-        const damp = SPRING_DAMPING + layerT * 0.15; // 0.75 → 0.90
+      // ── Camera spring physics ──
+      const camTargetX = tiltX * CAMERA_SHIFT;
+      const camTargetY = tiltY * CAMERA_SHIFT;
 
-        // Spring force toward target
-        const forceX = (tiltX - spX[i]) * k;
-        const forceY = (tiltY - spY[i]) * k;
-        svX[i] = svX[i] * damp + forceX;
-        svY[i] = svY[i] * damp + forceY;
-        spX[i] += svX[i];
-        spY[i] += svY[i];
+      const forceX = (camTargetX - camPosXRef.current) * SPRING_K;
+      const forceY = (camTargetY - camPosYRef.current) * SPRING_K;
+      camVelXRef.current = camVelXRef.current * SPRING_DAMPING + forceX;
+      camVelYRef.current = camVelYRef.current * SPRING_DAMPING + forceY;
+      camPosXRef.current += camVelXRef.current;
+      camPosYRef.current += camVelYRef.current;
+
+      const cameraX = camPosXRef.current;
+      const cameraY = camPosYRef.current;
+
+      // ── Optic flow: advance dots toward camera ──
+      const flowStep = FLOW_SPEED * dt;
+      for (let i = 0; i < TOTAL_DOTS; i++) {
+        dotZ[i] -= flowStep;
+        if (dotZ[i] < Z_NEAR) {
+          resetDot(dotX, dotY, dotZ, i, rng);
+        }
       }
 
+      // ── Z-sort: far first (descending z) ──
+      // Sort indices only — compare via dotZ typed array
+      for (let i = 0; i < TOTAL_DOTS; i++) sortIdx[i] = i;
+      sortIdx.sort((a, b) => dotZ[b] - dotZ[a]);
+
+      // ── Clear ──
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, cw, ch);
 
       const cx = cw / 2;
       const cy = ch / 2;
-      const spreadX = cw * 0.6;
-      const spreadY = ch * 0.6;
 
-      // Light source position shifts with tilt (smoothed via mid-layer spring)
-      const midLayer = Math.floor(DEPTH_LAYERS / 3);
-      const lightX = LIGHT_BASE_X + spX[midLayer] * LIGHT_TILT_FACTOR;
-      const lightY = LIGHT_BASE_Y + spY[midLayer] * LIGHT_TILT_FACTOR;
+      // ── Draw dots ──
+      for (let si = 0; si < TOTAL_DOTS; si++) {
+        const i = sortIdx[si];
+        const z = dotZ[i];
+        if (z <= 0) continue;
 
-      // --- Dots (far to near, already sorted) ---
-      for (const dot of dots) {
-        const layerT = dot.layer / (DEPTH_LAYERS - 1);
-        const z = (dot.layer + 1) / DEPTH_LAYERS;
-        // Stronger convergence: far dots squeeze tightly to center
-        const convergence = 0.08 + (1 - z) * 0.92;
+        const scale = FOCAL / z;
+        const screenX = cx + (dotX[i] - cameraX) * scale;
+        const screenY = cy + (dotY[i] - cameraY) * scale;
+        const radius = BASE_RADIUS * scale;
 
-        // Subtle positional parallax (box feels slightly "peekable")
-        const parallaxFactor = (1 - z) * MAX_SHIFT;
-        const lx = spX[dot.layer];
-        const ly = spY[dot.layer];
-        const sx = cx + dot.wx * spreadX * convergence + lx * parallaxFactor;
-        const sy = cy + dot.wy * spreadY * convergence + ly * parallaxFactor;
+        // Early cull
+        if (
+          screenX < -radius ||
+          screenX > cw + radius ||
+          screenY < -radius ||
+          screenY > ch + radius
+        )
+          continue;
 
-        const radius = lerp(LAYER_RADIUS_NEAR, LAYER_RADIUS_FAR, layerT);
+        const alpha = clamp(BASE_ALPHA * scale, 0, 1);
+        if (alpha <= 0.005) continue;
 
-        // Skip off-screen dots
-        if (sx < -radius || sx > cw + radius || sy < -radius || sy > ch + radius) continue;
+        const [cr, cg, cb] = colorForZ(z);
 
-        // Color temperature shift by depth
-        const [cr, cg, cb] = lerpColor(LAYER_COLOR_NEAR, LAYER_COLOR_FAR, layerT);
-
-        // Base alpha by depth
-        const baseAlpha = lerp(LAYER_ALPHA_NEAR, LAYER_ALPHA_FAR, layerT);
-
-        // Virtual light source modulation (light moves with tilt)
-        const normX = (sx - cx) / cx;
-        const normY = (sy - cy) / cy;
-        const dx = normX - lightX;
-        const dy = normY - lightY;
-        const distSq = dx * dx + dy * dy;
-        const lightFactor = Math.max(0.3, Math.min(1.0, 1.0 / (1.0 + LIGHT_DECAY * distSq)));
-
-        // Edge brightness falloff
-        const edgeFactor =
-          1.0 -
-          Math.max(Math.abs(sx - cx) / cx, Math.abs(sy - cy) / cy) * 0.3;
-
-        // Surface-aware tilt brightness: walls facing the tilt direction get brighter
-        let surfaceFactor = 1.0;
-        const tX = spX[midLayer];
-        const tY = spY[midLayer];
-        if (dot.surface === "left") surfaceFactor = 1.0 + Math.max(0, -tX) * 1.2;
-        else if (dot.surface === "right") surfaceFactor = 1.0 + Math.max(0, tX) * 1.2;
-        else if (dot.surface === "floor") surfaceFactor = 1.0 + Math.max(0, tY) * 0.8;
-
-        const alpha = baseAlpha * lightFactor * Math.max(0, edgeFactor) * surfaceFactor;
-
-        if (alpha <= 0) continue;
-
-        // Glow effect on near layers (bloom simulation)
-        if (dot.layer < GLOW_LAYERS) {
-          const glowT = 1 - dot.layer / GLOW_LAYERS;
-          ctx.shadowColor = `rgba(${cr}, ${cg}, ${cb}, ${(alpha * 0.7).toFixed(3)})`;
-          ctx.shadowBlur = GLOW_RADIUS_MAX * glowT;
+        // Glow on near dots
+        if (z < 200) {
+          const glowStrength = (200 - z) / 200;
+          ctx.shadowBlur = glowStrength * 15;
+          ctx.shadowColor = `rgba(${cr}, ${cg}, ${cb}, ${(alpha * 0.5).toFixed(3)})`;
         } else {
-          ctx.shadowColor = "transparent";
           ctx.shadowBlur = 0;
+          ctx.shadowColor = "transparent";
         }
 
         ctx.beginPath();
-        ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+        ctx.arc(screenX, screenY, Math.max(radius, 0.3), 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${alpha.toFixed(3)})`;
         ctx.fill();
       }
 
-      // Reset shadow after dot loop
+      // Reset shadow
       ctx.shadowColor = "transparent";
       ctx.shadowBlur = 0;
 
-      // --- Vignette ---
-      if (vignetteSizeRef.current.w !== cw || vignetteSizeRef.current.h !== ch) {
+      // ── Vignette ──
+      if (
+        vignetteSizeRef.current.w !== cw ||
+        vignetteSizeRef.current.h !== ch
+      ) {
         const diag = Math.sqrt(cx * cx + cy * cy);
         const grad = ctx.createRadialGradient(cx, cy, diag * 0.3, cx, cy, diag);
         grad.addColorStop(0, "rgba(5, 5, 8, 0)");
