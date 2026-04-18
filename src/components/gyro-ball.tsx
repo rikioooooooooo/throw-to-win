@@ -14,6 +14,7 @@ type GyroBarsProps = {
 
 const GRID_COLS = 14;
 const GRID_ROWS = 22;
+const DEPTH_STEPS = 40; // more steps = smoother convergence to infinity
 const VANISH_SHIFT = 100; // how far the vanishing point moves on full tilt
 const LERP = 0.12;
 const OVERSHOOT = 1.4; // grid extends 40% beyond screen edges
@@ -25,7 +26,8 @@ export function GyroBars({ className, onTilt }: GyroBarsProps) {
   const currentRef = useRef({ x: 0, y: 0 });
   const hasGyroRef = useRef(false);
   const rafRef = useRef(0);
-  // No poles array needed — lines are drawn directly from grid coords
+  const onTiltRef = useRef(onTilt);
+  onTiltRef.current = onTilt; // always latest callback
   const vignetteRef = useRef<CanvasGradient | null>(null);
   const vignetteSizeRef = useRef({ w: 0, h: 0 });
 
@@ -109,26 +111,25 @@ export function GyroBars({ className, onTilt }: GyroBarsProps) {
       const vanishY = cy + tiltY * VANISH_SHIFT * 0.6;
 
       // Notify parent of tilt for CSS 3D transform
-      onTilt?.(tiltX, tiltY);
+      onTiltRef.current?.(tiltX, tiltY);
 
       // Draw tapered cylinders — NO gradients (perf), single fill per shape
-      const STEPS = 8;
+      const STEPS = DEPTH_STEPS;
       const W_NEAR = 2.5;
       const W_FAR = 0.1;
 
-      // Pre-compute spine arrays (reuse each iteration)
-      const spX = new Array<number>(STEPS + 1);
-      const spY = new Array<number>(STEPS + 1);
+      const spX = new Array<number>(DEPTH_STEPS + 1);
+      const spY = new Array<number>(DEPTH_STEPS + 1);
 
       for (let row = 0; row < GRID_ROWS; row++) {
         for (let col = 0; col < GRID_COLS; col++) {
           const wx = ((col / (GRID_COLS - 1)) * 2 - 1) * OVERSHOOT;
           const wy = ((row / (GRID_ROWS - 1)) * 2 - 1) * OVERSHOOT;
 
-          // Spine points
+          // Spine points — quadratic convergence (accelerates toward vanishing point)
           for (let s = 0; s <= STEPS; s++) {
             const t = s / STEPS;
-            const conv = 0.01 + (1 - t) * 0.99;
+            const conv = (1 - t) * (1 - t); // t=0→1.0, t=1→0.0 (true point)
             spX[s] = (cx + (vanishX - cx) * t) + wx * spreadX * conv;
             spY[s] = (cy + (vanishY - cy) * t) + wy * spreadY * conv;
           }
