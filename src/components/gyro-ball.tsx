@@ -21,7 +21,7 @@ const Z_FAR = 2000;
 const TUNNEL_W = 300;
 const TUNNEL_H = 500;
 const FLOW_SPEED = 15;
-const CAMERA_SHIFT = 60;
+const CAMERA_SHIFT = 12; // very subtle — box is attached to phone, not floating
 const BASE_RADIUS = 2.5;
 const BASE_ALPHA = 0.8;
 
@@ -316,8 +316,25 @@ export function GyroBars({ className }: GyroBarsProps) {
         )
           continue;
 
-        const alpha = clamp(BASE_ALPHA * scale, 0, 1);
+        let alpha = clamp(BASE_ALPHA * scale, 0, 1);
         if (alpha <= 0.005) continue;
+
+        // Wall lighting: tilt brightens the wall you're looking "down" at
+        const dx = dotX[i];
+        const dy = dotY[i];
+        const halfW = TUNNEL_W / 2;
+        const halfH = TUNNEL_H / 2;
+        // Is this dot on a wall? Check proximity to edges
+        const onLeftWall = dx < -halfW * 0.85;
+        const onRightWall = dx > halfW * 0.85;
+        const onTopWall = dy < -halfH * 0.85;
+        const onBottomWall = dy > halfH * 0.85;
+
+        if (onRightWall) alpha *= 1.0 + clamp(tiltX, 0, 1) * 0.8;
+        else if (onLeftWall) alpha *= 1.0 + clamp(-tiltX, 0, 1) * 0.8;
+        if (onBottomWall) alpha *= 1.0 + clamp(tiltY, 0, 1) * 0.6;
+        else if (onTopWall) alpha *= 1.0 + clamp(-tiltY, 0, 1) * 0.6;
+        alpha = clamp(alpha, 0, 1);
 
         const [cr, cg, cb] = colorForZ(z);
 
