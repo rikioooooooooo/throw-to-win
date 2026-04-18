@@ -61,16 +61,40 @@ export default function LandingPage() {
     (DeviceMotionEvent as any).requestPermission().catch(() => {});
   }, []);
 
-  // CSS 3D perspective: apply directly to <main> to avoid iOS overflow bug
+  // CSS 3D: main container + per-character bending
   const mainRef = useRef<HTMLDivElement>(null);
+  const charsRef = useRef<(HTMLSpanElement | null)[]>([]);
+  const btnRef = useRef<HTMLButtonElement>(null);
   const handleTilt = useCallback((x: number, y: number) => {
     const el = mainRef.current;
     if (!el) return;
+    // Main container movement
     const moveX = x * 40;
     const moveY = y * 30;
     const rotY = x * 12;
     const rotX = -y * 8;
     el.style.transform = `translate3d(${moveX.toFixed(1)}px, ${moveY.toFixed(1)}px, 0) perspective(350px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg)`;
+
+    // Per-character bending: each char gets different rotateY based on its position
+    const chars = charsRef.current;
+    for (let i = 0; i < chars.length; i++) {
+      const ch = chars[i];
+      if (!ch) continue;
+      // Position: -1 (left) to +1 (right) based on index
+      const pos = (i / (chars.length - 1)) * 2 - 1;
+      const charRotY = pos * x * 18;        // outer chars bend more
+      const charRotX = pos * -y * 8;
+      const charZ = Math.abs(pos) * x * 15; // depth offset
+      ch.style.transform = `perspective(300px) rotateY(${charRotY.toFixed(1)}deg) rotateX(${charRotX.toFixed(1)}deg) translateZ(${charZ.toFixed(1)}px)`;
+    }
+
+    // Button bending
+    const btn = btnRef.current;
+    if (btn) {
+      const btnRotY = x * 8;
+      const btnRotX = -y * 5;
+      btn.style.transform = `perspective(400px) rotateX(${btnRotX.toFixed(1)}deg) rotateY(${btnRotY.toFixed(1)}deg)`;
+    }
   }, []);
 
   return (
@@ -98,11 +122,15 @@ export default function LandingPage() {
       <div className="flex-1 flex flex-col items-center justify-center">
         <h1
           className="animate-fade-in-up text-center leading-[0.82] tracking-[0.08em] uppercase text-foreground font-normal"
-          style={{ fontSize: "clamp(3.2rem, 15vw, 6.5rem)", textShadow: "0 0 40px rgba(0,250,154,0.15)" }}
+          style={{ fontSize: "clamp(3.2rem, 15vw, 6.5rem)", textShadow: "0 0 40px rgba(0,250,154,0.15)", transformStyle: "preserve-3d" }}
         >
-          THROW
+          {"THROW".split("").map((ch, i) => (
+            <span key={`t${i}`} ref={el => { charsRef.current[i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch}</span>
+          ))}
           <br />
-          TO WIN
+          {"TO WIN".split("").map((ch, i) => (
+            <span key={`w${i}`} ref={el => { charsRef.current[5 + i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch === " " ? "\u00A0" : ch}</span>
+          ))}
         </h1>
 
         <p className="mt-5 text-[13px] tracking-[0.25em] uppercase text-muted text-center max-w-xs animate-fade-in-up delay-80">
@@ -112,11 +140,13 @@ export default function LandingPage() {
         {/* CTA — tight to subtitle, not stuck at bottom */}
         {(!isDesktop || dismissedDesktop) && (
           <button
+            ref={btnRef}
             onClick={handleStart}
-            className="mt-10 w-full max-w-[320px] bg-accent text-black cta-text text-[15px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100 animate-fade-in-up delay-160 neon-glow"
+            className="mt-10 w-full max-w-[320px] bg-accent text-black cta-text text-[15px] tracking-[0.15em] animate-fade-in-up delay-160 neon-glow"
             style={{
               borderRadius: "16px",
               height: "58px",
+              willChange: "transform",
             }}
           >
             {t("landing.start")}
