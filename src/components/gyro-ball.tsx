@@ -137,10 +137,12 @@ export function GyroBars({ className }: GyroBarsProps) {
         const convergence = 0.01 + (1 - pole.z) * 0.99;
         const perspectiveScale = 1 / (0.15 + pole.z * 0.85);
 
-        // Near dots: spread from vanishing point → stay near screen edges
-        // Far dots: cluster near vanishing point → follow its shift
-        const sx = vanishX + pole.wx * spreadX * convergence;
-        const sy = vanishY + pole.wy * spreadY * convergence;
+        // Near dots (z≈0): anchored to screen center — DON'T MOVE
+        // Far dots (z≈1): follow the shifted vanishing point
+        const anchorX = cx + (vanishX - cx) * pole.z;
+        const anchorY = cy + (vanishY - cy) * pole.z;
+        const sx = anchorX + pole.wx * spreadX * convergence;
+        const sy = anchorY + pole.wy * spreadY * convergence;
 
         // Radius: near=visible, far=subpixel speck
         const radius = 3.0 * perspectiveScale;
