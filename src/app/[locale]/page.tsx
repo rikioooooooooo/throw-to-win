@@ -61,25 +61,22 @@ export default function LandingPage() {
     (DeviceMotionEvent as any).requestPermission().catch(() => {});
   }, []);
 
-  // CSS 3D perspective on all UI elements synced with gyro
-  const uiWrapperRef = useRef<HTMLDivElement>(null);
+  // CSS 3D perspective: apply directly to <main> to avoid iOS overflow bug
+  const mainRef = useRef<HTMLDivElement>(null);
   const handleTilt = useCallback((x: number, y: number) => {
-    const el = uiWrapperRef.current;
+    const el = mainRef.current;
     if (!el) return;
-    const rotY = x * 8;    // ±8 degrees left-right
-    const rotX = -y * 6;   // ±6 degrees up-down
+    const rotY = x * 8;
+    const rotX = -y * 6;
     el.style.transform = `perspective(800px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
   }, []);
 
   return (
-    <main className="relative flex-1 flex flex-col overflow-y-auto" onClick={handleGyroPermission}>
+    <main ref={mainRef} className="relative flex-1 flex flex-col px-6" onClick={handleGyroPermission} style={{ transformOrigin: "center center", willChange: "transform" }}>
       <GyroBars className="fixed inset-0 z-0 pointer-events-none" onTilt={handleTilt} />
 
-      {/* All UI content wrapped for CSS 3D tilt */}
-      <div ref={uiWrapperRef} className="relative z-10 flex-1 flex flex-col px-6" style={{ transformOrigin: "center center", willChange: "transform", transformStyle: "preserve-3d" }}>
-
       {/* Top bar */}
-      <header className="flex justify-end items-center pt-4">
+      <header className="relative z-10 flex justify-end items-center pt-4">
         <button
           onClick={() => router.push(`/${locale}/mypage`)}
           className="label-text text-[12px] text-muted hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]"
@@ -160,8 +157,6 @@ export default function LandingPage() {
 
       {/* Bottom spacer for safe area */}
       <div className="safe-bottom" />
-
-      </div>{/* end uiWrapper */}
 
       {/* Desktop warning overlay */}
       {isDesktop && !dismissedDesktop && (
