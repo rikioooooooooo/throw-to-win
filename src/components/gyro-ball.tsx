@@ -20,28 +20,29 @@ type Dot = {
   readonly surface: "floor" | "left" | "right" | "back" | "ambient";
 };
 
-const TOTAL_DOTS = 1800;
-const DEPTH_LAYERS = 8;
-// iOS 26-style parallax: canvas oversized so edges never visible
-const MAX_SHIFT = 40;
-const OVERSHOOT = 1.3; // dots placed in 130% of screen area
+const TOTAL_DOTS = 2500;
+const DEPTH_LAYERS = 14;
+const MAX_SHIFT = 45;
+const OVERSHOOT = 1.3;
 const GYRO_TIMEOUT_MS = 2000;
-// Spring damping: near=fast/snappy, far=slow/heavy
-const SPRING_K = 0.08;       // spring stiffness
-const SPRING_DAMPING = 0.75; // velocity damping (0=no damping, 1=critical)
+const SPRING_K = 0.08;
+const SPRING_DAMPING = 0.75;
 
-const LAYER_RADIUS_NEAR = 5.5;
-const LAYER_RADIUS_FAR = 0.5;
-const LAYER_ALPHA_NEAR = 0.40;
-const LAYER_ALPHA_FAR = 0.05;
-const LAYER_COLOR_NEAR = [0, 250, 154] as const;
-const LAYER_COLOR_FAR = [0, 140, 110] as const;
+// Dramatic depth: near dots are huge and bright, far dots are invisible specks
+const LAYER_RADIUS_NEAR = 8.0;
+const LAYER_RADIUS_FAR = 0.3;
+const LAYER_ALPHA_NEAR = 0.55;
+const LAYER_ALPHA_FAR = 0.03;
+const LAYER_COLOR_NEAR = [0, 255, 160] as const;  // bright mint
+const LAYER_COLOR_FAR = [0, 80, 55] as const;     // very dark teal
+// Glow: near dots get canvas shadow blur for bloom effect
+const GLOW_LAYERS = 4; // layers 0-3 get glow
+const GLOW_RADIUS_MAX = 12; // blur px for layer 0
 
-// Virtual light source — base position (upper center), shifts with tilt
 const LIGHT_BASE_X = 0.0;
 const LIGHT_BASE_Y = -0.6;
-const LIGHT_TILT_FACTOR = 1.2; // how much tilt moves the light
-const LIGHT_DECAY = 0.6;
+const LIGHT_TILT_FACTOR = 1.2;
+const LIGHT_DECAY = 0.5;
 
 // Surface distribution
 const FLOOR_COUNT = Math.round(TOTAL_DOTS * 0.4);
@@ -257,15 +258,17 @@ export function GyroBars({ className }: GyroBarsProps) {
       const spreadX = cw * 0.6;
       const spreadY = ch * 0.6;
 
-      // Light source position shifts with tilt (smoothed via layer 3 spring)
-      const lightX = LIGHT_BASE_X + spX[3] * LIGHT_TILT_FACTOR;
-      const lightY = LIGHT_BASE_Y + spY[3] * LIGHT_TILT_FACTOR;
+      // Light source position shifts with tilt (smoothed via mid-layer spring)
+      const midLayer = Math.floor(DEPTH_LAYERS / 3);
+      const lightX = LIGHT_BASE_X + spX[midLayer] * LIGHT_TILT_FACTOR;
+      const lightY = LIGHT_BASE_Y + spY[midLayer] * LIGHT_TILT_FACTOR;
 
       // --- Dots (far to near, already sorted) ---
       for (const dot of dots) {
         const layerT = dot.layer / (DEPTH_LAYERS - 1);
         const z = (dot.layer + 1) / DEPTH_LAYERS;
-        const convergence = 0.15 + (1 - z) * 0.85;
+        // Stronger convergence: far dots squeeze tightly to center
+        const convergence = 0.08 + (1 - z) * 0.92;
 
         // Subtle positional parallax (box feels slightly "peekable")
         const parallaxFactor = (1 - z) * MAX_SHIFT;
@@ -300,8 +303,8 @@ export function GyroBars({ className }: GyroBarsProps) {
 
         // Surface-aware tilt brightness: walls facing the tilt direction get brighter
         let surfaceFactor = 1.0;
-        const tX = spX[3];
-        const tY = spY[3];
+        const tX = spX[midLayer];
+        const tY = spY[midLayer];
         if (dot.surface === "left") surfaceFactor = 1.0 + Math.max(0, -tX) * 1.2;
         else if (dot.surface === "right") surfaceFactor = 1.0 + Math.max(0, tX) * 1.2;
         else if (dot.surface === "floor") surfaceFactor = 1.0 + Math.max(0, tY) * 0.8;
@@ -310,11 +313,25 @@ export function GyroBars({ className }: GyroBarsProps) {
 
         if (alpha <= 0) continue;
 
+        // Glow effect on near layers (bloom simulation)
+        if (dot.layer < GLOW_LAYERS) {
+          const glowT = 1 - dot.layer / GLOW_LAYERS;
+          ctx.shadowColor = `rgba(${cr}, ${cg}, ${cb}, ${(alpha * 0.7).toFixed(3)})`;
+          ctx.shadowBlur = GLOW_RADIUS_MAX * glowT;
+        } else {
+          ctx.shadowColor = "transparent";
+          ctx.shadowBlur = 0;
+        }
+
         ctx.beginPath();
         ctx.arc(sx, sy, radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${alpha.toFixed(3)})`;
         ctx.fill();
       }
+
+      // Reset shadow after dot loop
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
 
       // --- Vignette ---
       if (vignetteSizeRef.current.w !== cw || vignetteSizeRef.current.h !== ch) {
