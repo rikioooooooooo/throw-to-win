@@ -172,9 +172,17 @@ export function GyroBars({ className }: GyroBarsProps) {
         calibratedRef.current = true;
         betaOffsetRef.current = e.beta;
       }
+      // Gimbal lock zone: when beta is ~90° from calibration,
+      // gamma becomes unreliable. Freeze updates past ±70°.
+      const rawBetaDiff = e.beta - betaOffsetRef.current;
+      if (Math.abs(rawBetaDiff) > 70) return; // too close to gimbal lock
+
+      const betaDiff = Math.max(-50, Math.min(50, rawBetaDiff));
+      const gamma = Math.max(-45, Math.min(45, e.gamma));
+
       targetRef.current = {
-        x: e.gamma / 35,
-        y: (e.beta - betaOffsetRef.current) / 35,
+        x: gamma / 35,
+        y: betaDiff / 35,
       };
     };
     window.addEventListener("deviceorientation", handleOrientation);
