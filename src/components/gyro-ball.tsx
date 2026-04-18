@@ -20,7 +20,7 @@ type Pole = {
 const GRID_COLS = 14;
 const GRID_ROWS = 24;
 const DEPTH_LAYERS = 30;
-const MAX_SHIFT = 80;
+const MAX_SHIFT = 150;
 const LERP = 0.06;
 const GYRO_TIMEOUT_MS = 2000;
 
