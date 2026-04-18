@@ -107,70 +107,92 @@ export function GyroBars({ className }: GyroBarsProps) {
       const vanishX = cx + tiltX * VANISH_SHIFT;
       const vanishY = cy + tiltY * VANISH_SHIFT * 0.6;
 
-      // Draw tapered lines from each grid position to vanishing point
-      // Each line = one "cylinder" extending from near (edge) to far (center)
-      const SEGMENTS = 20;
-      const LINE_WIDTH_NEAR = 2.5;
-      const LINE_WIDTH_FAR = 0.15;
+      // Draw each cylinder as a smooth filled taper shape (no segment joints)
+      const TAPER_STEPS = 12;
+      const WIDTH_NEAR = 2.5;
+      const WIDTH_FAR = 0.1;
       const ALPHA_NEAR = 0.25;
-      const ALPHA_FAR = 0.02;
+      const ALPHA_FAR = 0.015;
 
-      // Unique grid positions (skip depth, draw one line per grid cell)
       for (let row = 0; row < GRID_ROWS; row++) {
         for (let col = 0; col < GRID_COLS; col++) {
           const wx = ((col / (GRID_COLS - 1)) * 2 - 1) * OVERSHOOT;
           const wy = ((row / (GRID_ROWS - 1)) * 2 - 1) * OVERSHOOT;
 
-          // Draw line as segments with tapering width and fading alpha
-          for (let s = 0; s < SEGMENTS; s++) {
-            const t0 = s / SEGMENTS;
-            const t1 = (s + 1) / SEGMENTS;
-            const z0 = t0; // 0=near, 1=far
-            const z1 = t1;
-
-            const conv0 = 0.01 + (1 - z0) * 0.99;
-            const conv1 = 0.01 + (1 - z1) * 0.99;
-            const anchor0X = cx + (vanishX - cx) * z0;
-            const anchor0Y = cy + (vanishY - cy) * z0;
-            const anchor1X = cx + (vanishX - cx) * z1;
-            const anchor1Y = cy + (vanishY - cy) * z1;
-
-            const x0 = anchor0X + wx * spreadX * conv0;
-            const y0 = anchor0Y + wy * spreadY * conv0;
-            const x1 = anchor1X + wx * spreadX * conv1;
-            const y1 = anchor1Y + wy * spreadY * conv1;
-
-            // Skip fully off-screen segments
-            if (x0 < -10 && x1 < -10) continue;
-            if (x0 > cw + 10 && x1 > cw + 10) continue;
-            if (y0 < -10 && y1 < -10) continue;
-            if (y0 > ch + 10 && y1 > ch + 10) continue;
-
-            const midT = (t0 + t1) / 2;
-            const lineW = LINE_WIDTH_NEAR + (LINE_WIDTH_FAR - LINE_WIDTH_NEAR) * midT;
-            const depthFog = Math.pow(1 - midT, 1.5);
-            let alpha = ALPHA_FAR + (ALPHA_NEAR - ALPHA_FAR) * depthFog;
-
-            // Dim in text zone
-            const midX = (x0 + x1) / 2;
-            const midY = (y0 + y1) / 2;
-            const distCX = Math.abs(midX - cx) / cx;
-            const distCY = Math.abs(midY - cy) / cy;
-            const centerP = 1 - Math.max(distCX, distCY);
-            if (centerP > 0.4) {
-              alpha *= 0.3 + (1 - centerP) * 1.2;
-            }
-
-            if (alpha < 0.003) continue;
-
-            ctx.beginPath();
-            ctx.moveTo(x0, y0);
-            ctx.lineTo(x1, y1);
-            ctx.lineWidth = lineW;
-            ctx.strokeStyle = `rgba(0, 250, 154, ${alpha.toFixed(3)})`;
-            ctx.lineCap = "round";
-            ctx.stroke();
+          // Compute spine points along the cylinder
+          const spineX: number[] = [];
+          const spineY: number[] = [];
+          for (let s = 0; s <= TAPER_STEPS; s++) {
+            const t = s / TAPER_STEPS;
+            const conv = 0.01 + (1 - t) * 0.99;
+            const ancX = cx + (vanishX - cx) * t;
+            const ancY = cy + (vanishY - cy) * t;
+            spineX.push(ancX + wx * spreadX * conv);
+            spineY.push(ancY + wy * spreadY * conv);
           }
+
+          // Skip if fully off-screen
+          const allOffL = spineX.every(x => x < -20);
+          const allOffR = spineX.every(x => x > cw + 20);
+          const allOffT = spineY.every(y => y < -20);
+          const allOffB = spineY.every(y => y > ch + 20);
+          if (allOffL || allOffR || allOffT || allOffB) continue;
+
+          // Compute alpha (based on near-end position for text dimming)
+          const nearX = spineX[0];
+          const nearY = spineY[0];
+          const distCX = Math.abs(nearX - cx) / cx;
+          const distCY = Math.abs(nearY - cy) / cy;
+          const centerP = 1 - Math.max(distCX, distCY);
+          let alphaMul = 1;
+          if (centerP > 0.4) {
+            alphaMul = 0.3 + (1 - centerP) * 1.2;
+          }
+
+          // Build gradient along the line for smooth alpha fade
+          const gradX0 = spineX[0];
+          const gradY0 = spineY[0];
+          const gradX1 = spineX[TAPER_STEPS];
+          const gradY1 = spineY[TAPER_STEPS];
+          const grad = ctx.createLinearGradient(gradX0, gradY0, gradX1, gradY1);
+          const aN = Math.min(1, ALPHA_NEAR * alphaMul);
+          const aF = Math.min(1, ALPHA_FAR * alphaMul);
+          grad.addColorStop(0, `rgba(0, 250, 154, ${aN.toFixed(3)})`);
+          grad.addColorStop(0.5, `rgba(0, 250, 154, ${(aN * 0.3 + aF * 0.7).toFixed(3)})`);
+          grad.addColorStop(1, `rgba(0, 250, 154, ${aF.toFixed(3)})`);
+
+          // Build the filled shape: left edge going forward, right edge going back
+          // Perpendicular offset from spine for width
+          ctx.beginPath();
+          // Forward pass (left side of cylinder)
+          for (let s = 0; s <= TAPER_STEPS; s++) {
+            const t = s / TAPER_STEPS;
+            const w = (WIDTH_NEAR + (WIDTH_FAR - WIDTH_NEAR) * t) / 2;
+            // Perpendicular: use direction to next/prev point
+            const si = Math.min(s, TAPER_STEPS - 1);
+            const dxDir = spineX[si + 1] - spineX[si];
+            const dyDir = spineY[si + 1] - spineY[si];
+            const len = Math.sqrt(dxDir * dxDir + dyDir * dyDir) || 1;
+            const px = -dyDir / len * w;
+            const py = dxDir / len * w;
+            if (s === 0) ctx.moveTo(spineX[s] + px, spineY[s] + py);
+            else ctx.lineTo(spineX[s] + px, spineY[s] + py);
+          }
+          // Return pass (right side of cylinder)
+          for (let s = TAPER_STEPS; s >= 0; s--) {
+            const t = s / TAPER_STEPS;
+            const w = (WIDTH_NEAR + (WIDTH_FAR - WIDTH_NEAR) * t) / 2;
+            const si = Math.min(s, TAPER_STEPS - 1);
+            const dxDir = spineX[si + 1] - spineX[si];
+            const dyDir = spineY[si + 1] - spineY[si];
+            const len = Math.sqrt(dxDir * dxDir + dyDir * dyDir) || 1;
+            const px = -dyDir / len * w;
+            const py = dxDir / len * w;
+            ctx.lineTo(spineX[s] - px, spineY[s] - py);
+          }
+          ctx.closePath();
+          ctx.fillStyle = grad;
+          ctx.fill();
         }
       }
 
