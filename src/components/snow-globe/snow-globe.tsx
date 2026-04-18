@@ -22,17 +22,30 @@ const SHAKE_COOLDOWN_MS = 300;
 const SHAKE_THRESHOLD = 12;
 const WALL_Z = 0.15;
 const WALL_Z_HALF_THICK = 0.03;
-const AUTO_IMPULSE_DELAY_MS = 1200;
-const AUTO_IMPULSE_STRENGTH = 0.4;
+const AUTO_IMPULSE_DELAY_MS = 1500;
+const AUTO_IMPULSE_STRENGTH = 0.6;
 const DAMPING = 0.92;
 const BROWNIAN = 0.006;
 const GRAVITY_SCALE = 9.81 * 0.8;
 const RESTITUTION = 0.3;
 
+interface SilhouetteData {
+  canvas: OffscreenCanvas | HTMLCanvasElement;
+  imageData: Uint8ClampedArray;
+  imageW: number;
+  scale: number;
+  offsetX: number;
+  offsetY: number;
+  bbMinX: number;
+  bbMinY: number;
+  bbMaxX: number;
+  bbMaxY: number;
+}
+
 function buildSilhouetteCanvas(
   boxW: number,
   boxH: number,
-): { canvas: OffscreenCanvas | HTMLCanvasElement; scale: number; offsetX: number; offsetY: number; bbMinX: number; bbMinY: number; bbMaxX: number; bbMaxY: number } {
+): SilhouetteData {
   // Scale SVG to fit 60% of box height, centered
   const targetH = boxH * 0.6;
   const scale = targetH / KOSUKUMA_VIEWBOX_H;
@@ -58,7 +71,7 @@ function buildSilhouetteCanvas(
     | OffscreenCanvasRenderingContext2D
     | null;
   if (!ctx) {
-    return { canvas, scale, offsetX, offsetY, bbMinX: 0, bbMinY: 0, bbMaxX: 0, bbMaxY: 0 };
+    return { canvas, imageData: new Uint8ClampedArray(0), imageW: canvasW, scale, offsetX, offsetY, bbMinX: 0, bbMinY: 0, bbMaxX: 0, bbMaxY: 0 };
   }
 
   // Draw filled silhouette for pixel-based hit testing
@@ -78,11 +91,14 @@ function buildSilhouetteCanvas(
   const bbMaxX = offsetX + scaledW - boxW / 2;
   const bbMaxY = offsetY + scaledH - boxH / 2;
 
-  return { canvas, scale, offsetX, offsetY, bbMinX, bbMinY, bbMaxX, bbMaxY };
+  const fullImageData = ctx.getImageData(0, 0, canvasW, canvasH);
+
+  return { canvas, imageData: fullImageData.data, imageW: canvasW, scale, offsetX, offsetY, bbMinX, bbMinY, bbMaxX, bbMaxY };
 }
 
 function isInsideSilhouette(
-  hitCanvas: OffscreenCanvas | HTMLCanvasElement,
+  imageData: Uint8ClampedArray,
+  imageW: number,
   px: number,
   py: number,
   boxW: number,
@@ -95,14 +111,9 @@ function isInsideSilhouette(
   const iy = Math.floor(cy);
   if (ix < 0 || iy < 0 || ix >= Math.ceil(boxW) || iy >= Math.ceil(boxH)) return false;
 
-  const ctx = hitCanvas.getContext("2d") as
-    | CanvasRenderingContext2D
-    | OffscreenCanvasRenderingContext2D
-    | null;
-  if (!ctx) return false;
-
-  const pixel = ctx.getImageData(ix, iy, 1, 1).data;
-  return pixel[3] > 128;
+  // Direct array lookup — no getImageData per call
+  const alpha = imageData[(iy * imageW + ix) * 4 + 3];
+  return alpha > 128;
 }
 
 export function SnowGlobe({ className, enableBloom = false, onInitFail }: SnowGlobeProps) {
@@ -131,6 +142,8 @@ export function SnowGlobe({ className, enableBloom = false, onInitFail }: SnowGl
       return;
     }
 
+    renderer.setClearColor(0x000000, 0);
+
     const screenW = window.innerWidth;
     const screenH = window.innerHeight;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -151,15 +164,15 @@ export function SnowGlobe({ className, enableBloom = false, onInitFail }: SnowGl
     const halfD = 0.6;
 
     // --- Particles ---
-    const COUNT = enableBloom ? 15000 : 8000;
+    const COUNT = enableBloom ? 8000 : 5000;
     const positions = new Float32Array(COUNT * 3);
     const velocities = new Float32Array(COUNT * 3);
     const sizes = new Float32Array(COUNT);
 
     for (let i = 0; i < COUNT; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * halfW * 2;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * halfH * 2;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * halfD * 2;
+      positions[i * 3] = (Math.random() - 0.5) * halfW * 2;       // X: full spread
+      positions[i * 3 + 1] = -halfH + Math.random() * 0.1; // Y: settled at very bottom (off-screen)
+      positions[i * 3 + 2] = (Math.random() - 0.5) * halfD * 2;   // Z: full spread
       velocities[i * 3] = 0;
       velocities[i * 3 + 1] = 0;
       velocities[i * 3 + 2] = 0;
@@ -180,11 +193,11 @@ export function SnowGlobe({ className, enableBloom = false, onInitFail }: SnowGl
 
     const material = new THREE.PointsMaterial({
       color: 0x00fa9a,
-      size: 3,
+      size: 0.015,
       sizeAttenuation: true,
       blending: THREE.AdditiveBlending,
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.6,
       depthWrite: false,
     });
 
@@ -229,7 +242,7 @@ export function SnowGlobe({ className, enableBloom = false, onInitFail }: SnowGl
 
     // --- Gyroscope ---
     let gravityX = 0;
-    let gravityY = 0;
+    let gravityY = -GRAVITY_SCALE;
     let hasGyro = false;
     let calibrated = false;
     let betaOffset = 0;
@@ -377,7 +390,7 @@ export function SnowGlobe({ className, enableBloom = false, onInitFail }: SnowGl
             pixY >= silData.bbMinY &&
             pixY <= silData.bbMaxY
           ) {
-            if (isInsideSilhouette(silData.canvas, pixX, pixY, silPixelW, silPixelH)) {
+            if (isInsideSilhouette(silData.imageData, silData.imageW, pixX, pixY, silPixelW, silPixelH)) {
               // Bounce Z
               velocities[i3 + 2] *= -RESTITUTION;
               positions[i3 + 2] = pz < WALL_Z ? WALL_Z - WALL_Z_HALF_THICK : WALL_Z + WALL_Z_HALF_THICK;
