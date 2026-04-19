@@ -342,7 +342,7 @@ export default function MyPage() {
         {/* World throws */}
         <div className="mt-10 animate-fade-in-up delay-160">
           <h2 className="text-[16px] font-semibold tracking-wide uppercase mb-6">
-            {t("worldThrows")}
+            {t("countriesTitle")}
           </h2>
           <WorldMap countries={worldCountries} />
         </div>

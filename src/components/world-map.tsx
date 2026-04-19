@@ -1,8 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
-import { formatHeight } from "@/lib/physics";
 
 type CountryEntry = {
   readonly country: string;
@@ -16,7 +14,7 @@ type WorldMapProps = {
 };
 
 function countryFlag(code: string): string {
-  if (!code || code.length !== 2) return code;
+  if (!code || code.length !== 2 || code === "XX") return "";
   const upper = code.toUpperCase();
   return String.fromCodePoint(
     upper.charCodeAt(0) + 0x1f1a5,
@@ -24,41 +22,25 @@ function countryFlag(code: string): string {
   );
 }
 
-function getCountryName(code: string, locale: string): string {
-  try {
-    const regionNames = new Intl.DisplayNames([locale], { type: "region" });
-    return regionNames.of(code.toUpperCase()) ?? code;
-  } catch {
-    return code;
-  }
-}
-
 const TOTAL_COUNTRIES = 195;
 
 export function WorldMap({ countries }: WorldMapProps) {
   const t = useTranslations("mypage");
-  const params = useParams();
-  const locale = (params.locale as string) ?? "en";
 
   const activeCount = countries.length;
   const progressPercent = Math.min(100, (activeCount / TOTAL_COUNTRIES) * 100);
 
   return (
     <div className="animate-fade-in-up">
-      {/* Summary header */}
-      <div
-        className="game-card p-5 mb-4"
-      >
+      {/* Counter + progress */}
+      <div className="game-card p-5 mb-4">
         <div className="flex items-center justify-between mb-3">
           <p
             className="label-text text-[11px] tracking-[0.2em] uppercase"
             style={{ color: "var(--color-accent)" }}
           >
-            {t("countriesActive", { count: activeCount })}
+            {activeCount} / {TOTAL_COUNTRIES}
           </p>
-          <span className="text-[12px] text-muted/60">
-            / {TOTAL_COUNTRIES}
-          </span>
         </div>
         {/* Progress bar */}
         <div
@@ -72,60 +54,37 @@ export function WorldMap({ countries }: WorldMapProps) {
             className="h-full transition-all duration-700 ease-out"
             style={{
               width: `${progressPercent}%`,
-              background:
-                "linear-gradient(90deg, #00fa9a 0%, #00e08a 100%)",
+              background: "linear-gradient(90deg, #00fa9a 0%, #00e08a 100%)",
               borderRadius: "3px",
             }}
           />
         </div>
-      </div>
 
-      {/* Country grid */}
-      {countries.length === 0 ? (
-        <div className="game-card text-center py-12 px-6">
-          <p className="text-muted text-[13px] tracking-[0.05em]">
+        {/* Country flags grid */}
+        {activeCount > 0 && (
+          <div className="flex flex-wrap gap-2 mt-4">
+            {countries.map((entry) => {
+              const flag = countryFlag(entry.country);
+              if (!flag) return null;
+              return (
+                <span
+                  key={entry.country}
+                  className="text-[24px]"
+                  title={`${entry.country}: ${entry.throws} ${t("throwsCount")}, ${entry.players} ${t("playersCount")}`}
+                >
+                  {flag}
+                </span>
+              );
+            })}
+          </div>
+        )}
+
+        {activeCount === 0 && (
+          <p className="text-muted/40 text-[12px] mt-3 text-center">
             {t("noThrows")}
           </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {countries.map((entry, index) => (
-            <div
-              key={entry.country}
-              className="flex items-center gap-3 p-4 game-card"
-              style={{
-                opacity: 0,
-                animation: `fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${index * 40}ms forwards`,
-              }}
-            >
-              {/* Flag + name */}
-              <span className="text-[20px] flex-shrink-0">
-                {countryFlag(entry.country)}
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-[13px] text-foreground truncate">
-                  {getCountryName(entry.country, locale)}
-                </p>
-                <div className="flex items-center gap-3 mt-0.5">
-                  <span className="text-[11px] text-muted/70">
-                    {entry.throws} {t("throwsCount")}
-                  </span>
-                  <span className="text-[11px] text-muted/50">
-                    {entry.players} {t("playersCount")}
-                  </span>
-                </div>
-              </div>
-              {/* Best height */}
-              <div className="flex-shrink-0 text-right">
-                <span className="height-number text-[16px] text-foreground">
-                  {formatHeight(entry.best)}
-                </span>
-                <span className="text-[11px] text-muted ml-0.5">m</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
