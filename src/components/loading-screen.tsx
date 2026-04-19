@@ -29,56 +29,17 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
   const hasProgress =
     typeof progress === "number" && progress >= 0 && progress <= 100;
 
-  const radius = 40;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = hasProgress
-    ? circumference - (circumference * progress!) / 100
-    : circumference * 0.75;
-
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 gap-8 safe-top safe-bottom">
-      {/* Kosukuma animation */}
-      <img src="/assets/anim/utouto.webp" alt="" width={80} height={80} className="opacity-50 mb-4" aria-hidden="true" />
+      {/* Dance animation */}
+      <img src="/assets/anim/dance.webp" alt="" width={96} height={96} className="opacity-60" aria-hidden="true" />
 
-      {/* Circular progress ring */}
-      <div className="relative w-48 h-48 flex items-center justify-center">
-        <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
-          {/* Track */}
-          <circle
-            cx="50"
-            cy="50"
-            r={radius}
-            fill="none"
-            stroke="var(--color-border-subtle)"
-            strokeWidth="2"
-          />
-          {/* Progress arc */}
-          <circle
-            cx="50"
-            cy="50"
-            r={radius}
-            fill="none"
-            stroke="var(--color-accent)"
-            strokeWidth="2"
-            strokeLinecap="butt"
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            className="transition-all duration-300 ease-out"
-            style={
-              !hasProgress
-                ? { transformOrigin: "center", animation: "spin-slow 2s linear infinite" }
-                : undefined
-            }
-          />
-        </svg>
-
-        {/* Percentage inside ring */}
-        {hasProgress && (
-          <span className="height-number text-[28px] text-foreground">
-            {Math.round(progress!)}%
-          </span>
-        )}
-      </div>
+      {/* Percentage below animation */}
+      {hasProgress && (
+        <span className="height-number text-[28px] text-foreground">
+          {Math.round(progress!)}%
+        </span>
+      )}
 
       {/* Status text */}
       <div className="flex flex-col items-center gap-4 w-full max-w-xs">

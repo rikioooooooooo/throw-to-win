@@ -74,11 +74,6 @@ export function PermissionRequest({ onGranted }: PermissionRequestProps) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
       <div className="w-full max-w-md flex flex-col gap-10 animate-fade-in-up">
-        {/* Kosukuma animation */}
-        <div className="flex justify-center">
-          <img src="/assets/anim/osirihurihuri.webp" alt="" width={72} height={72} className="opacity-60" aria-hidden="true" />
-        </div>
-
         {/* Heading */}
         <div className="flex flex-col gap-3">
           <h1 className="text-[clamp(1.8rem,8vw,2.8rem)] font-semibold tracking-tight text-foreground">

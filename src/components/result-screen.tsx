@@ -138,18 +138,6 @@ export function ResultScreen({
           )}
         </div>
 
-        {/* Kosukuma animation */}
-        <div className="flex justify-center mt-4">
-          <img
-            src={resultData.isPersonalBest ? "/assets/anim/dance.webp" : "/assets/anim/kaikai.webp"}
-            alt=""
-            width={96}
-            height={96}
-            className="opacity-70"
-            aria-hidden="true"
-          />
-        </div>
-
         <p className="text-muted/60 text-[14px] tracking-[0.15em] mb-3 animate-fade-in-up delay-80">
           {resultData.airtime.toFixed(2)}
           <span className="text-[10px] ml-0.5">s</span>

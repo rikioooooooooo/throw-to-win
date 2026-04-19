@@ -79,9 +79,6 @@ export default function RankingPage() {
         <p className="text-center text-muted text-[13px] py-12">{t("common.loading")}</p>
       ) : entries.length === 0 ? (
         <div className="flex flex-col items-center py-12">
-          <div className="flex justify-center mb-4">
-            <img src="/assets/anim/kaikai.webp" alt="" width={96} height={96} className="opacity-50" aria-hidden="true" />
-          </div>
           <p className="text-center text-muted text-[13px]">{t("landing.noRankings")}</p>
         </div>
       ) : (

@@ -276,9 +276,6 @@ export default function MyPage() {
                 borderRadius: "14px",
               }}
             >
-              <div className="flex justify-center mb-4">
-                <img src="/assets/anim/kaikai.webp" alt="" width={96} height={96} className="opacity-50" aria-hidden="true" />
-              </div>
               <p className="text-muted text-[13px] tracking-[0.05em]">
                 {t("noThrows")}
               </p>

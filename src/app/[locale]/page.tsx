@@ -119,21 +119,16 @@ export default function LandingPage() {
 
       {/* Hero — title + subtitle + CTA grouped tightly */}
       <div className="flex-1 flex flex-col items-center justify-center">
-        {/* Kosukuma animation */}
-        <div className="mb-6 flex justify-center">
-          <img src="/assets/anim/gorogoro.webp" alt="" width={80} height={80} className="opacity-60" aria-hidden="true" />
-        </div>
-
         <h1
-          className="animate-fade-in-up text-center text-foreground"
-          style={{ fontSize: "clamp(2.4rem, 8vw, 3.8rem)", fontWeight: 700, lineHeight: 1.1, letterSpacing: "0.02em", textShadow: "0 0 40px rgba(0,250,154,0.15)", transformStyle: "preserve-3d" }}
+          className="animate-fade-in-up text-center text-foreground uppercase"
+          style={{ fontSize: "clamp(3.2rem, 15vw, 6.5rem)", fontWeight: 400, lineHeight: 0.82, letterSpacing: "0.08em", textShadow: "0 0 40px rgba(0,250,154,0.15)", transformStyle: "preserve-3d" }}
         >
-          {"投げろ、".split("").map((ch, i) => (
+          {"THROW".split("").map((ch, i) => (
             <span key={`t${i}`} ref={el => { charsRef.current[i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch}</span>
           ))}
           <br />
-          {"スマホを。".split("").map((ch, i) => (
-            <span key={`w${i}`} ref={el => { charsRef.current[4 + i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch}</span>
+          {"TO\u00A0WIN".split("").map((ch, i) => (
+            <span key={`w${i}`} ref={el => { charsRef.current[5 + i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch}</span>
           ))}
         </h1>
 
