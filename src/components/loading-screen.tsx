@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { VideoProcessingStatus } from "@/lib/types";
 
@@ -31,12 +32,89 @@ function getEncouragingKey(progress: number): string {
   return "finalizing";
 }
 
+function useSyntheticProgress(realProgress: number): number {
+  const [display, setDisplay] = useState(0);
+  const currentRef = useRef(0);
+  const targetRef = useRef(0);
+  const rafRef = useRef(0);
+  const lastTimeRef = useRef(0);
+
+  useEffect(() => {
+    targetRef.current = realProgress >= 100 ? 100 : Math.min(realProgress, 95);
+  }, [realProgress]);
+
+  useEffect(() => {
+    const animate = (now: number) => {
+      if (!lastTimeRef.current) lastTimeRef.current = now;
+      const dt = Math.min((now - lastTimeRef.current) / 1000, 0.1);
+      lastTimeRef.current = now;
+
+      let current = currentRef.current;
+      const target = targetRef.current;
+
+      if (target >= 100) {
+        // Rush to 100%
+        current += Math.max(30, (100 - current) * 5) * dt;
+        if (current > 100) current = 100;
+      } else {
+        // Normal: creep toward target, min 0.5%/sec
+        const speed = Math.max(0.5, (target - current) * 2);
+        current += speed * dt;
+        current = Math.min(current, 95);
+      }
+
+      currentRef.current = current;
+      setDisplay(current);
+
+      if (current < 100) {
+        rafRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  // Restart RAF when target changes to 100
+  useEffect(() => {
+    if (realProgress >= 100 && currentRef.current < 100) {
+      targetRef.current = 100;
+      lastTimeRef.current = 0;
+      const animate = (now: number) => {
+        if (!lastTimeRef.current) lastTimeRef.current = now;
+        const dt = Math.min((now - lastTimeRef.current) / 1000, 0.1);
+        lastTimeRef.current = now;
+        let current = currentRef.current;
+        current += Math.max(30, (100 - current) * 5) * dt;
+        if (current > 100) current = 100;
+        currentRef.current = current;
+        setDisplay(current);
+        if (current < 100) rafRef.current = requestAnimationFrame(animate);
+      };
+      rafRef.current = requestAnimationFrame(animate);
+    }
+  }, [realProgress]);
+
+  return display;
+}
+
+const completionBurstStyle = `
+@keyframes completionBurst {
+  0% { filter: drop-shadow(0 0 8px rgba(0,250,154,0.5)); }
+  50% { filter: drop-shadow(0 0 30px rgba(0,250,154,0.9)) drop-shadow(0 0 60px rgba(0,250,154,0.5)); }
+  100% { filter: drop-shadow(0 0 8px rgba(0,250,154,0.5)); }
+}
+`;
+
 export function LoadingScreen({ status, progress }: LoadingScreenProps) {
   const t = useTranslations("processing");
 
+  const displayProgress = useSyntheticProgress(progress ?? 0);
+  const completed = displayProgress >= 100;
+
   const hasProgress =
     typeof progress === "number" && progress >= 0 && progress <= 100;
-  const pct = hasProgress ? progress! : 0;
+  const pct = displayProgress;
 
   // SVG circle math
   const size = 200;
@@ -52,6 +130,8 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
+      <style dangerouslySetInnerHTML={{ __html: completionBurstStyle }} />
+
       {/* Ring + Dance container */}
       <div className="relative" style={{ width: size, height: size }}>
         {/* Outer rotating halo */}
@@ -72,7 +152,12 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
             width={size}
             height={size}
             className="block"
-            style={{ transform: "rotate(-90deg)" }}
+            style={{
+              transform: "rotate(-90deg)",
+              ...(completed
+                ? { animation: "completionBurst 0.6s ease-out" }
+                : {}),
+            }}
           >
             {/* Dashed track */}
             <circle
@@ -96,15 +181,13 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               style={{
-                transition:
-                  "stroke-dashoffset 400ms cubic-bezier(0.22, 0.8, 0.25, 1)",
                 filter: "drop-shadow(0 0 8px rgba(0,250,154,0.5))",
               }}
             />
           </svg>
 
-          {/* Leading edge glowing dot */}
-          {pct > 0 && (
+          {/* Leading edge glowing dot — hidden when completed (full circle) */}
+          {pct > 0 && !completed && (
             <div
               className="absolute rounded-full"
               style={{
@@ -114,7 +197,6 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
                 top: dotY - 5,
                 background: "#fff",
                 boxShadow: "0 0 10px 3px #00fa9a",
-                transition: "left 400ms ease-out, top 400ms ease-out",
               }}
             />
           )}
@@ -154,7 +236,6 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
               className="absolute inset-y-0 left-0 bg-accent rounded-full"
               style={{
                 width: `${pct}%`,
-                transition: "width 300ms ease-out",
                 boxShadow: "0 0 8px rgba(0,250,154,0.4)",
               }}
             />
