@@ -9,6 +9,7 @@ import { getTierForHeight } from "@/lib/tiers";
 import { TierIcon } from "@/components/tier-icon";
 import { ConsentModal } from "@/components/consent-modal";
 import { GyroBars } from "@/components/gyro-ball";
+import { ThreadSheet } from "@/components/thread-sheet";
 
 export default function LandingPage() {
   const t = useTranslations();
@@ -20,6 +21,7 @@ export default function LandingPage() {
   const [nameInput, setNameInput] = useState("");
   const [showNameOverlay, setShowNameOverlay] = useState(false);
   const [showGyroOverlay, setShowGyroOverlay] = useState(false);
+  const [showThread, setShowThread] = useState(false);
 
   useEffect(() => {
     const isMobile = typeof navigator !== "undefined" && (
@@ -266,8 +268,18 @@ export default function LandingPage() {
         )}
       </div>
 
+      {/* Thread button */}
+      <button
+        onClick={() => setShowThread(true)}
+        className="mt-auto mb-2 text-accent/30 text-[11px] tracking-[0.08em] hover:text-accent/50 active:scale-[0.97] transition-all"
+      >
+        {t("thread.voices")}
+      </button>
+
       {/* Bottom spacer for safe area */}
       <div className="safe-bottom" />
+
+      <ThreadSheet open={showThread} onClose={() => setShowThread(false)} />
 
       {/* Desktop warning overlay */}
       {isDesktop && !dismissedDesktop && (
