@@ -102,7 +102,7 @@ export default function MyPage() {
             {t("heading")}
           </h1>
         </div>
-        <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
+        <a href="https://kosukuma-official-shop.pages.dev/" target="_blank" rel="noopener noreferrer"
            className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
           グッズ
         </a>
@@ -354,7 +354,7 @@ export default function MyPage() {
         </div>
         {/* Merch link */}
         <div className="mt-6 flex justify-center">
-          <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
+          <a href="https://kosukuma-official-shop.pages.dev/" target="_blank" rel="noopener noreferrer"
              className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
             グッズ
           </a>

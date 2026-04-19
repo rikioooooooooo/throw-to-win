@@ -123,7 +123,7 @@ export default function LandingPage() {
 
       {/* Top bar */}
       <header className="relative z-10 flex justify-between items-center pt-4">
-        <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
+        <a href="https://kosukuma-official-shop.pages.dev/" target="_blank" rel="noopener noreferrer"
            className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
           グッズ
         </a>
