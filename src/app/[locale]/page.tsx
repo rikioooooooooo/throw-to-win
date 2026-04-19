@@ -118,7 +118,7 @@ export default function LandingPage() {
       {/* Top bar */}
       <header className="relative z-10 flex justify-between items-center pt-4">
         <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
-           className="text-[10px] text-foreground/20 hover:text-accent/40 transition-colors">
+           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]" style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: "8px" }}>
           グッズ
         </a>
         <button
@@ -226,10 +226,13 @@ export default function LandingPage() {
       </div>
 
       {/* Merch link */}
-      <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
-         className="text-[10px] text-foreground/20 hover:text-accent/40 transition-colors mt-auto pt-6 text-center block">
-        グッズ
-      </a>
+      <div className="mt-auto pt-6 flex justify-center">
+        <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
+           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]"
+           style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: "8px" }}>
+          グッズ
+        </a>
+      </div>
 
       {/* Bottom spacer for safe area */}
       <div className="safe-bottom" />
