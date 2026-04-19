@@ -177,9 +177,16 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
       <style dangerouslySetInnerHTML={{ __html: completionBurstStyle }} />
 
-      {/* Subtle radial burst background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="radial-burst" style={{ opacity: 0.4 }} />
+      {/* Radial glow emanating from center (ring area) */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute" style={{
+          top: "50%",
+          left: "50%",
+          width: "400px",
+          height: "400px",
+          transform: "translate(-50%, -55%)",
+          background: "radial-gradient(circle, rgba(0, 250, 154, 0.10) 0%, rgba(0, 250, 154, 0.04) 30%, transparent 60%)",
+        }} />
       </div>
 
       {/* Ring + Dance container */}
@@ -277,10 +284,10 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
           className="text-[16px] font-bold tracking-[0.15em] uppercase text-foreground/80 text-center"
           style={{ textShadow: "0 0 16px rgba(0,250,154,0.25)" }}
         >
-          {t("heading")}<span style={{ display: "inline-block", width: "1.5em", textAlign: "left" }}>{dots}</span>
+          {t("heading").replace(/\.+$/, "")}<span style={{ display: "inline-block", width: "1.5em", textAlign: "left" }}>{dots}</span>
         </h2>
         <p className="text-accent/30 text-[11px] tracking-[0.15em] uppercase text-center">
-          {t(statusKey(status))}<span style={{ display: "inline-block", width: "1.5em", textAlign: "left" }}>{dots}</span>
+          {t(statusKey(status)).replace(/\.+$/, "")}<span style={{ display: "inline-block", width: "1.5em", textAlign: "left" }}>{dots}</span>
         </p>
 
         {/* Progress bar — thicker, green-tinted track */}

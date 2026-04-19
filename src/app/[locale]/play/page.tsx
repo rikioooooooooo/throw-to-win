@@ -538,8 +538,11 @@ export default function PlayPage() {
           return { t: s.t - throwResult.freefallStartTime, h };
         });
 
+      // Use displayHeight (same as video overlay) so result screen matches the recorded video.
+      // Server submission still uses throwResult.heightMeters (authoritative) at line 491-493.
+      const finalDisplayHeight = v0PeakRef.current > 0 ? v0PeakRef.current : throwResult.heightMeters;
       setResultData({
-        height: throwResult.heightMeters,
+        height: finalDisplayHeight,
         airtime: throwResult.airtimeSeconds,
         isPersonalBest: isPB,
         videoBlob: processedBlob,
