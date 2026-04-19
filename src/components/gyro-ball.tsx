@@ -16,7 +16,7 @@ const GRID_COLS = 14;
 const GRID_ROWS = 22;
 const DEPTH_STEPS = 40; // more steps = smoother convergence to infinity
 const VANISH_SHIFT = 100; // how far the vanishing point moves on full tilt
-const LERP = 0.12;
+const LERP_BASE = 0.16; // higher = snappier response
 const OVERSHOOT = 1.4; // grid extends 40% beyond screen edges
 const GYRO_TIMEOUT_MS = 5000;
 const W_NEAR = 3.0;
@@ -32,6 +32,7 @@ export function GyroBars({ className, onTilt }: GyroBarsProps) {
   onTiltRef.current = onTilt; // always latest callback
   const vignetteRef = useRef<CanvasGradient | null>(null);
   const vignetteSizeRef = useRef({ w: 0, h: 0 });
+  const lastFrameRef = useRef(0);
 
   const setCanvasRef = useCallback((node: HTMLCanvasElement | null) => {
     canvasRef.current = node;
@@ -101,10 +102,13 @@ export function GyroBars({ className, onTilt }: GyroBarsProps) {
         };
       }
 
-      // Smooth interpolation
+      // Frame-rate-independent smoothing (consistent feel at 30fps and 60fps)
+      const dt = Math.min((now - (lastFrameRef.current || now)) / 16.667, 3); // normalize to 60fps
+      lastFrameRef.current = now;
+      const lerp = 1 - Math.pow(1 - LERP_BASE, dt);
       currentRef.current = {
-        x: currentRef.current.x + (targetRef.current.x - currentRef.current.x) * LERP,
-        y: currentRef.current.y + (targetRef.current.y - currentRef.current.y) * LERP,
+        x: currentRef.current.x + (targetRef.current.x - currentRef.current.x) * lerp,
+        y: currentRef.current.y + (targetRef.current.y - currentRef.current.y) * lerp,
       };
 
       const tiltX = currentRef.current.x;
