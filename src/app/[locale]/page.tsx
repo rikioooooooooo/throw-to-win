@@ -154,14 +154,18 @@ export default function LandingPage() {
 
         {/* Name input — show before START */}
         {(!isDesktop || dismissedDesktop) && (
-          <div className="mt-8 w-full max-w-[320px] animate-fade-in-up delay-120">
+          <div className="mt-10 w-full max-w-[320px] animate-fade-in-up delay-120 flex flex-col items-center gap-2">
+            <label className="text-[13px] text-accent/70 tracking-[0.1em] uppercase font-medium">
+              Your Name
+            </label>
             <input
               type="text"
               value={nameInput}
               onChange={e => setNameInput(e.target.value)}
               placeholder={t("landing.namePlaceholder")}
               maxLength={20}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-foreground text-center text-[15px] placeholder:text-foreground/20 focus:outline-none focus:border-accent/50 transition-colors"
+              className="w-full px-5 py-4 bg-white/5 border-2 border-accent/20 rounded-2xl text-foreground text-center text-[18px] font-medium placeholder:text-foreground/15 focus:outline-none focus:border-accent/60 focus:bg-white/8 transition-all"
+              style={{ boxShadow: nameInput.trim() ? "0 0 16px rgba(0,250,154,0.1)" : "none" }}
             />
           </div>
         )}
