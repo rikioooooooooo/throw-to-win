@@ -39,10 +39,11 @@ export default function LandingPage() {
     if (existing) setNameInput(existing);
   }, []);
 
+  const nameValid = nameInput.trim().length > 0;
+
   const handleStart = () => {
-    if (nameInput.trim()) {
-      saveDisplayName(nameInput.trim());
-    }
+    if (!nameValid) return;
+    saveDisplayName(nameInput.trim());
     if (!hasValidConsent()) {
       setShowConsent(true);
       return;
@@ -166,7 +167,8 @@ export default function LandingPage() {
           <button
             ref={btnRef}
             onClick={handleStart}
-            className="mt-10 w-full max-w-[320px] bg-accent text-black cta-text text-[17px] tracking-[0.15em] animate-fade-in-up delay-160 neon-glow"
+            disabled={!nameValid}
+            className={`mt-6 w-full max-w-[320px] text-black cta-text text-[17px] tracking-[0.15em] animate-fade-in-up delay-160 transition-all ${nameValid ? "bg-accent neon-glow" : "bg-accent/30 cursor-not-allowed"}`}
             style={{
               borderRadius: "16px",
               height: "62px",
