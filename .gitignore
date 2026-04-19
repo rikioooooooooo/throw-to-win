@@ -55,3 +55,6 @@ data/*.mjs
 # test scripts
 test-*.mjs
 data/model-stderr.log
+
+# Asset generation raw candidates
+assets-raw/
