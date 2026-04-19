@@ -16,7 +16,8 @@
     "noRankings": "Noch keine Daten",
     "desktopTitle": "Ein Smartphone wird benotigt",
     "desktopSubtext": "Throw To Win nutzt die Bewegungssensoren deines Handys, um die Wurfhohe zu messen. Du musst dein Handy tatsachlich in die Luft werfen.",
-    "continueAnyway": "Trotzdem fortfahren"
+    "continueAnyway": "Trotzdem fortfahren",
+    "namePlaceholder": "Spitzname eingeben"
   },
   "consent": {
     "heading": "Bevor du wirfst.",

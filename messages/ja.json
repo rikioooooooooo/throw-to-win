@@ -16,7 +16,8 @@
     "noRankings": "まだデータがありません",
     "desktopTitle": "スマートフォンが必要です",
     "desktopSubtext": "Throw To Win はスマホのモーションセンサーで投げた高さを計測します。実際にスマホを空中に投げる必要があります。",
-    "continueAnyway": "このまま続ける"
+    "continueAnyway": "このまま続ける",
+    "namePlaceholder": "ニックネームを入力"
   },
   "consent": {
     "heading": "投げる前に。",

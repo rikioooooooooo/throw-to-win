@@ -9,6 +9,15 @@ type LoadingScreenProps = {
   progress?: number;
 };
 
+function useAnimatedDots(intervalMs = 500): string {
+  const [count, setCount] = useState(1);
+  useEffect(() => {
+    const id = setInterval(() => setCount(c => (c % 3) + 1), intervalMs);
+    return () => clearInterval(id);
+  }, [intervalMs]);
+  return ".".repeat(count);
+}
+
 function statusKey(status: VideoProcessingStatus): string {
   switch (status) {
     case "loading-ffmpeg":
@@ -149,6 +158,7 @@ const completionBurstStyle = `
 
 export function LoadingScreen({ status, progress }: LoadingScreenProps) {
   const t = useTranslations("processing");
+  const dots = useAnimatedDots();
   const refs = useSyntheticProgress(progress ?? 0);
 
   const hasProgress =
@@ -256,10 +266,10 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
           className="text-[16px] font-medium tracking-[0.15em] uppercase text-foreground/80 text-center"
           style={{ textShadow: "0 0 12px rgba(0,250,154,0.2)" }}
         >
-          {t("heading")}
+          {t("heading")}{dots}
         </h2>
         <p className="text-foreground/30 text-[11px] tracking-[0.15em] uppercase text-center">
-          {t(statusKey(status))}
+          {t(statusKey(status))}{dots}
         </p>
 
         {/* Thin progress bar */}

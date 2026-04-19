@@ -16,7 +16,8 @@
     "noRankings": "Sem dados",
     "desktopTitle": "E necessario um smartphone",
     "desktopSubtext": "Throw To Win usa os sensores de movimento do seu celular para medir a altura do lancamento. Voce precisa realmente jogar seu celular para o ar.",
-    "continueAnyway": "Continuar mesmo assim"
+    "continueAnyway": "Continuar mesmo assim",
+    "namePlaceholder": "Digite seu apelido"
   },
   "consent": {
     "heading": "Antes de jogar.",

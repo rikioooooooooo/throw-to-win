@@ -16,7 +16,8 @@
     "noRankings": "لا توجد بيانات بعد",
     "desktopTitle": "يتطلب هاتف ذكي",
     "desktopSubtext": "يستخدم Throw To Win مستشعرات الحركة في هاتفك لقياس ارتفاع الرمية. تحتاج إلى رمي هاتفك فعلياً في الهواء.",
-    "continueAnyway": "المتابعة على أي حال"
+    "continueAnyway": "المتابعة على أي حال",
+    "namePlaceholder": "أدخل الاسم المستعار"
   },
   "consent": {
     "heading": "قبل أن ترمي.",

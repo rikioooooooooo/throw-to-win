@@ -16,7 +16,8 @@
     "noRankings": "No data yet",
     "desktopTitle": "This game requires a smartphone",
     "desktopSubtext": "Throw To Win uses your phone's motion sensors to measure how high you throw it. You need to physically throw your phone into the air.",
-    "continueAnyway": "Continue anyway"
+    "continueAnyway": "Continue anyway",
+    "namePlaceholder": "Enter nickname"
   },
   "consent": {
     "heading": "Before you throw.",

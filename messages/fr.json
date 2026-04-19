@@ -16,7 +16,8 @@
     "noRankings": "Pas encore de donnees",
     "desktopTitle": "Un smartphone est requis",
     "desktopSubtext": "Throw To Win utilise les capteurs de mouvement de votre telephone pour mesurer la hauteur du lancer. Vous devez physiquement lancer votre telephone en l'air.",
-    "continueAnyway": "Continuer quand meme"
+    "continueAnyway": "Continuer quand meme",
+    "namePlaceholder": "Entre ton pseudo"
   },
   "consent": {
     "heading": "Avant de lancer.",

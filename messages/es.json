@@ -16,7 +16,8 @@
     "noRankings": "Sin datos",
     "desktopTitle": "Se necesita un smartphone",
     "desktopSubtext": "Throw To Win usa los sensores de movimiento de tu telefono para medir la altura del lanzamiento. Necesitas lanzar fisicamente tu telefono al aire.",
-    "continueAnyway": "Continuar de todos modos"
+    "continueAnyway": "Continuar de todos modos",
+    "namePlaceholder": "Ingresa tu apodo"
   },
   "consent": {
     "heading": "Antes de lanzar.",

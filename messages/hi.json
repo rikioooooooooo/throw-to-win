@@ -16,7 +16,8 @@
     "noRankings": "अभी कोई डेटा नहीं",
     "desktopTitle": "स्मार्टफोन आवश्यक है",
     "desktopSubtext": "Throw To Win आपके फोन के मोशन सेंसर का उपयोग करके थ्रो की ऊंचाई मापता है। आपको वास्तव में अपना फोन हवा में फेंकना होगा।",
-    "continueAnyway": "फिर भी जारी रखें"
+    "continueAnyway": "फिर भी जारी रखें",
+    "namePlaceholder": "निकनेम डालें"
   },
   "consent": {
     "heading": "फेंकने से पहले।",

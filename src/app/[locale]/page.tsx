@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import { loadData, hasValidConsent, saveConsent } from "@/lib/storage";
+import { loadData, hasValidConsent, saveConsent, saveDisplayName } from "@/lib/storage";
 import { formatHeight } from "@/lib/physics";
 import { getTierForHeight } from "@/lib/tiers";
 import { TierIcon } from "@/components/tier-icon";
@@ -17,6 +17,7 @@ export default function LandingPage() {
   const [showConsent, setShowConsent] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [dismissedDesktop, setDismissedDesktop] = useState(false);
+  const [nameInput, setNameInput] = useState("");
 
   useEffect(() => {
     const isMobile = typeof navigator !== "undefined" && (
@@ -31,7 +32,17 @@ export default function LandingPage() {
     return loadData().stats;
   });
 
+  // Load existing displayName on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const existing = loadData().displayName;
+    if (existing) setNameInput(existing);
+  }, []);
+
   const handleStart = () => {
+    if (nameInput.trim()) {
+      saveDisplayName(nameInput.trim());
+    }
     if (!hasValidConsent()) {
       setShowConsent(true);
       return;
@@ -135,6 +146,20 @@ export default function LandingPage() {
         <p className="mt-5 text-[14px] tracking-[0.05em] text-foreground/50 text-center max-w-xs animate-fade-in-up delay-80" style={{ fontWeight: 500 }}>
           {t("landing.subtitle")}
         </p>
+
+        {/* Name input — show before START */}
+        {(!isDesktop || dismissedDesktop) && (
+          <div className="mt-8 w-full max-w-[320px] animate-fade-in-up delay-120">
+            <input
+              type="text"
+              value={nameInput}
+              onChange={e => setNameInput(e.target.value)}
+              placeholder={t("landing.namePlaceholder")}
+              maxLength={20}
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-foreground text-center text-[15px] placeholder:text-foreground/20 focus:outline-none focus:border-accent/50 transition-colors"
+            />
+          </div>
+        )}
 
         {/* CTA — tight to subtitle, not stuck at bottom */}
         {(!isDesktop || dismissedDesktop) && (

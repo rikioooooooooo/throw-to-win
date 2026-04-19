@@ -16,7 +16,8 @@
     "noRankings": "尚無資料",
     "desktopTitle": "需要智慧型手機",
     "desktopSubtext": "Throw To Win 使用手機的運動感測器來測量投擲高度。你需要真的把手機扔到空中。",
-    "continueAnyway": "仍然繼續"
+    "continueAnyway": "仍然繼續",
+    "namePlaceholder": "輸入暱稱"
   },
   "consent": {
     "heading": "扔之前，想清楚。",

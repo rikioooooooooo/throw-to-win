@@ -16,7 +16,8 @@
     "noRankings": "暂无数据",
     "desktopTitle": "需要智能手机",
     "desktopSubtext": "Throw To Win 使用手机的运动传感器来测量投掷高度。你需要真的把手机扔到空中。",
-    "continueAnyway": "仍然继续"
+    "continueAnyway": "仍然继续",
+    "namePlaceholder": "输入昵称"
   },
   "consent": {
     "heading": "扔之前，想清楚。",
