@@ -215,21 +215,19 @@ export default function LandingPage() {
           </button>
         )}
 
-        {/* PB + tier for returning users — game-card style */}
+        {/* PB + tier for returning users — tappable card → mypage */}
         {stats.personalBest > 0 && (
           <div className="mt-6 w-full max-w-[320px] animate-fade-in-up delay-240">
-            <div
-              className="game-card p-4 flex items-center gap-3"
+            <button
+              onClick={() => router.push(`/${locale}/mypage`)}
+              className="game-card p-4 flex items-center gap-3 w-full text-left active:scale-[0.98] transition-transform"
             >
               <TierIcon tierId={tier.id} size={36} />
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 {nameValid && (
-                  <button
-                    onClick={() => setShowNameOverlay(true)}
-                    className="text-[12px] text-foreground/50 hover:text-foreground/70 transition-colors tracking-[0.05em] mb-1 flex items-center gap-1"
-                  >
-                    {nameInput} <span className="text-accent/40 text-[10px]">✏️</span>
-                  </button>
+                  <div className="text-[12px] text-foreground/50 tracking-[0.05em] mb-1 truncate">
+                    {nameInput}
+                  </div>
                 )}
                 <div className="flex items-baseline gap-1.5">
                   <span className="height-number text-[26px] text-foreground">
@@ -238,7 +236,6 @@ export default function LandingPage() {
                   <span className="text-[13px] text-muted/60">m</span>
                   <span className="text-[11px] text-accent tracking-[0.2em] uppercase font-bold ml-1">PB</span>
                 </div>
-                {/* Streak + Today's Best */}
                 {(stats.streakDays > 1 || stats.todayBest > 0) && (
                   <div className="flex items-center gap-3 mt-1">
                     {stats.streakDays > 1 && (
@@ -254,16 +251,10 @@ export default function LandingPage() {
                   </div>
                 )}
               </div>
-              <button
-                onClick={() => router.push(`/${locale}/ranking`)}
-                className="text-accent/50 hover:text-accent transition-colors"
-                aria-label={t("ranking.viewRanking")}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent/50 shrink-0">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
         )}
       </div>
