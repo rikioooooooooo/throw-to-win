@@ -98,7 +98,7 @@ export default function LandingPage() {
     const moveY = y * 50;
     const rotY = x * 24;
     const rotX = -y * 16;
-    el.style.transform = `translate3d(${moveX | 0}px,${moveY | 0}px,0) perspective(220px) rotateX(${rotX | 0}deg) rotateY(${rotY | 0}deg)`;
+    el.style.transform = `translate3d(${moveX.toFixed(1)}px, ${moveY.toFixed(1)}px, 0) perspective(220px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg)`;
 
     // Per-character bending — gentle unified curve (not scattered)
     const chars = charsRef.current;
@@ -109,7 +109,7 @@ export default function LandingPage() {
       const charRotY = pos * x * 12;
       const charRotX = pos * -y * 6;
       const charZ = Math.abs(pos) * x * 8;
-      ch.style.transform = `perspective(400px) rotateY(${charRotY | 0}deg) rotateX(${charRotX | 0}deg) translateZ(${charZ | 0}px)`;
+      ch.style.transform = `perspective(400px) rotateY(${charRotY.toFixed(1)}deg) rotateX(${charRotX.toFixed(1)}deg) translateZ(${charZ.toFixed(1)}px)`;
     }
 
     // Button — strong bend
@@ -118,7 +118,7 @@ export default function LandingPage() {
       const btnRotY = x * 22;
       const btnRotX = -y * 14;
       const btnSkew = x * 5;
-      btn.style.transform = `perspective(240px) rotateX(${btnRotX | 0}deg) rotateY(${btnRotY | 0}deg) skewY(${btnSkew | 0}deg)`;
+      btn.style.transform = `perspective(240px) rotateX(${btnRotX.toFixed(1)}deg) rotateY(${btnRotY.toFixed(1)}deg) skewY(${btnSkew.toFixed(1)}deg)`;
     }
   }, []);
 
@@ -174,11 +174,11 @@ export default function LandingPage() {
           style={{ fontSize: "clamp(3.4rem, 16vw, 7rem)", fontWeight: 800, lineHeight: 0.82, letterSpacing: "0.1em", textShadow: "0 0 48px rgba(0,250,154,0.25), 0 0 96px rgba(0,250,154,0.08)", transformStyle: "preserve-3d" }}
         >
           {"THROW".split("").map((ch, i) => (
-            <span key={`t${i}`} ref={el => { charsRef.current[i] = el; }} style={{ display: "inline-block" }}>{ch}</span>
+            <span key={`t${i}`} ref={el => { charsRef.current[i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch}</span>
           ))}
           <br />
           {"TO\u00A0WIN".split("").map((ch, i) => (
-            <span key={`w${i}`} ref={el => { charsRef.current[5 + i] = el; }} style={{ display: "inline-block" }}>{ch}</span>
+            <span key={`w${i}`} ref={el => { charsRef.current[5 + i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch}</span>
           ))}
         </h1>
 
