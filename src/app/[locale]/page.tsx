@@ -19,6 +19,7 @@ export default function LandingPage() {
   const [dismissedDesktop, setDismissedDesktop] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [showNameOverlay, setShowNameOverlay] = useState(false);
+  const [showGyroOverlay, setShowGyroOverlay] = useState(false);
 
   useEffect(() => {
     const isMobile = typeof navigator !== "undefined" && (
@@ -48,13 +49,6 @@ export default function LandingPage() {
 
   const handleStart = () => {
     if (!nameValid) return;
-    // Request gyro permission on START tap (iOS requires user gesture)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (typeof (DeviceMotionEvent as any).requestPermission === "function" && !gyroRequestedRef.current) {
-      gyroRequestedRef.current = true;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (DeviceMotionEvent as any).requestPermission().catch(() => {});
-    }
     saveDisplayName(nameInput.trim());
     if (!hasValidConsent()) {
       setShowConsent(true);
@@ -290,9 +284,53 @@ export default function LandingPage() {
               className="w-full px-5 py-4 bg-white/8 border-2 border-accent/30 rounded-2xl text-foreground text-center text-[20px] font-semibold placeholder:text-white/30 focus:outline-none focus:border-accent/60 focus:bg-white/10 transition-all mb-6"
             />
             <button
-              onClick={() => { if (nameInput.trim()) { saveDisplayName(nameInput.trim()); setShowNameOverlay(false); } }}
+              onClick={() => {
+                if (!nameInput.trim()) return;
+                saveDisplayName(nameInput.trim());
+                setShowNameOverlay(false);
+                // Show gyro permission guide next (only on iOS)
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if (typeof (DeviceMotionEvent as any).requestPermission === "function" && !gyroRequestedRef.current) {
+                  setShowGyroOverlay(true);
+                }
+              }}
               disabled={!nameInput.trim()}
               className={`w-full py-4 rounded-2xl text-[16px] font-bold tracking-[0.1em] transition-all ${nameInput.trim() ? "bg-accent text-black neon-glow" : "bg-accent/20 text-foreground/30 cursor-not-allowed"}`}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Gyro permission overlay */}
+      {showGyroOverlay && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8" style={{ backgroundColor: "rgba(5, 5, 8, 0.95)" }}>
+          <div className="flex flex-col items-center text-center max-w-sm w-full animate-fade-in-up">
+            <div className="text-[48px] mb-4">📱</div>
+            <h2 className="text-[20px] font-semibold text-foreground mb-2 tracking-wide">
+              センサーを使います
+            </h2>
+            <p className="text-[13px] text-foreground/40 mb-3 leading-relaxed">
+              スマホの傾きを検知して
+              <br />
+              背景の演出に使用します
+            </p>
+            <p className="text-[11px] text-foreground/25 mb-8">
+              次に表示されるダイアログで「許可」を選んでください
+            </p>
+            <button
+              onClick={() => {
+                // This is the user gesture — request permission here
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if (typeof (DeviceMotionEvent as any).requestPermission === "function") {
+                  gyroRequestedRef.current = true;
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (DeviceMotionEvent as any).requestPermission().catch(() => {});
+                }
+                setShowGyroOverlay(false);
+              }}
+              className="w-full py-4 rounded-2xl text-[16px] font-bold tracking-[0.1em] bg-accent text-black neon-glow"
             >
               OK
             </button>
