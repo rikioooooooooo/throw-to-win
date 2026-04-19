@@ -141,9 +141,22 @@ export default function LandingPage() {
 
       {/* Hero — title + subtitle + CTA grouped tightly */}
       <div className="flex-1 flex flex-col items-center justify-center">
+        {/* Logo */}
+        <img
+          src="/assets/logo-landing.png"
+          alt="Throw To Win"
+          className="animate-fade-in-up"
+          style={{
+            width: "clamp(80px, 22vw, 140px)",
+            height: "auto",
+            marginBottom: "clamp(12px, 3vw, 20px)",
+            filter: "drop-shadow(0 0 16px rgba(0, 250, 154, 0.12))",
+            animation: "fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both, logo-float 3s ease-in-out 0.5s infinite",
+          }}
+        />
         <h1
           className="animate-fade-in-up text-center text-foreground uppercase"
-          style={{ fontSize: "clamp(3.2rem, 15vw, 6.5rem)", fontWeight: 400, lineHeight: 0.82, letterSpacing: "0.08em", textShadow: "0 0 40px rgba(0,250,154,0.15)", transformStyle: "preserve-3d" }}
+          style={{ fontSize: "clamp(3.2rem, 15vw, 6.5rem)", fontWeight: 700, lineHeight: 0.82, letterSpacing: "0.12em", textShadow: "0 0 40px rgba(0,250,154,0.15)", transformStyle: "preserve-3d" }}
         >
           {"THROW".split("").map((ch, i) => (
             <span key={`t${i}`} ref={el => { charsRef.current[i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch}</span>
@@ -154,7 +167,7 @@ export default function LandingPage() {
           ))}
         </h1>
 
-        <p className="mt-5 text-[14px] tracking-[0.05em] text-foreground/50 text-center max-w-xs animate-fade-in-up delay-80" style={{ fontWeight: 500 }}>
+        <p className="mt-5 text-[13px] tracking-[0.05em] text-foreground/50 text-center max-w-xs animate-fade-in-up delay-80" style={{ fontWeight: 400 }}>
           {t("landing.subtitle")}
         </p>
 
@@ -239,7 +252,7 @@ export default function LandingPage() {
       {isDesktop && !dismissedDesktop && (
         <div
           className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8"
-          style={{ backgroundColor: "rgba(5, 5, 8, 0.92)" }}
+          style={{ backgroundColor: "rgba(6, 6, 6, 0.92)" }}
         >
           <div className="flex flex-col items-center text-center max-w-md">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00fa9a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mb-6">
@@ -266,7 +279,7 @@ export default function LandingPage() {
 
       {/* Name overlay */}
       {showNameOverlay && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8" style={{ backgroundColor: "rgba(5, 5, 8, 0.95)" }}>
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8" style={{ backgroundColor: "rgba(6, 6, 6, 0.95)" }}>
           <div className="flex flex-col items-center text-center max-w-sm w-full animate-fade-in-up">
             <h2 className="text-[22px] font-semibold text-foreground mb-2 tracking-wide">
               ニックネームを入力
@@ -305,7 +318,7 @@ export default function LandingPage() {
 
       {/* Gyro permission overlay */}
       {showGyroOverlay && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8" style={{ backgroundColor: "rgba(5, 5, 8, 0.95)" }}>
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8" style={{ backgroundColor: "rgba(6, 6, 6, 0.95)" }}>
           <div className="flex flex-col items-center text-center max-w-sm w-full animate-fade-in-up">
             <div className="text-[48px] mb-4">📱</div>
             <h2 className="text-[20px] font-semibold text-foreground mb-2 tracking-wide">

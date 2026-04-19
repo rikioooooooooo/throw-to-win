@@ -7,11 +7,11 @@
 
 @theme inline {
   /* ── Base ── */
-  --color-background: #050508;
-  --color-surface: #0D0D14;
-  --color-surface-elevated: #141420;
-  --color-foreground: #F0F0F5;
-  --color-muted: #5A5A70;
+  --color-background: #060606;
+  --color-surface: #101010;
+  --color-surface-elevated: #181818;
+  --color-foreground: #EDEDED;
+  --color-muted: #585858;
 
   /* ── Accent ── */
   --color-accent: #00FA9A;
@@ -20,10 +20,10 @@
   --color-error: #FF4444;
 
   /* ── Border ── */
-  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
 
   /* ── Font ── */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans: "Outfit", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   /* ── Animations ── */
   --animate-fade-in-up: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -59,27 +59,28 @@ body {
 /* ---- Typography ---- */
 
 .label-text {
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 .height-number {
-  font-weight: 400;
+  font-weight: 300;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.03em;
   line-height: 0.9;
 }
 
 .cta-text {
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
 }
 
 /* ---- Neon Glow ---- */
 
 .neon-glow {
-  box-shadow: 0 0 24px rgba(0, 250, 154, 0.3), 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 20px rgba(0, 250, 154, 0.25), 0 4px 8px rgba(0, 0, 0, 0.4);
+  animation: cta-pulse-glow 3s ease-in-out infinite;
 }
 
 /* ---- Text Effects ---- */
@@ -197,6 +198,18 @@ input:focus-visible {
 @keyframes subtle-pulse {
   0%, 100% { opacity: 0.4; }
   50% { opacity: 1; }
+}
+
+/* Logo float on landing */
+@keyframes logo-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* CTA button glow pulse */
+@keyframes cta-pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 250, 154, 0.25), 0 4px 8px rgba(0, 0, 0, 0.4); }
+  50% { box-shadow: 0 0 32px rgba(0, 250, 154, 0.35), 0 4px 8px rgba(0, 0, 0, 0.4); }
 }
 
 /* Spring-in for rank badge */

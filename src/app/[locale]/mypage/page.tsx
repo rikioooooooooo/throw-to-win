@@ -77,7 +77,7 @@ export default function MyPage() {
       <header
         className="px-5 py-5 flex items-center justify-between sticky top-0 z-10 safe-top"
         style={{
-          backgroundColor: "rgba(5, 5, 8, 0.88)",
+          backgroundColor: "rgba(6, 6, 6, 0.88)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
           borderBottom: "1px solid var(--color-border-subtle)",

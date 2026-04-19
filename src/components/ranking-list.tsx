@@ -45,7 +45,7 @@ export function RankingList({
         style={{
           backgroundColor: "var(--color-surface)",
           border: "1px solid var(--color-border-subtle)",
-          borderRadius: "12px",
+          borderRadius: "14px",
         }}
       >
         {entries.map((entry, i) => (

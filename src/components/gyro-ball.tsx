@@ -19,6 +19,8 @@ const VANISH_SHIFT = 100; // how far the vanishing point moves on full tilt
 const LERP = 0.12;
 const OVERSHOOT = 1.4; // grid extends 40% beyond screen edges
 const GYRO_TIMEOUT_MS = 2000;
+const W_NEAR = 3.0;
+const W_FAR = 0.15;
 
 export function GyroBars({ className, onTilt }: GyroBarsProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -115,8 +117,6 @@ export function GyroBars({ className, onTilt }: GyroBarsProps) {
 
       // Draw tapered cylinders — NO gradients (perf), single fill per shape
       const STEPS = DEPTH_STEPS;
-      const W_NEAR = 2.5;
-      const W_FAR = 0.1;
 
       const spX = new Array<number>(DEPTH_STEPS + 1);
       const spY = new Array<number>(DEPTH_STEPS + 1);
@@ -174,7 +174,12 @@ export function GyroBars({ className, onTilt }: GyroBarsProps) {
             ctx.lineTo(spX[s] - px, spY[s] - py);
           }
           ctx.closePath();
-          ctx.fillStyle = `rgba(0, 250, 154, ${alpha.toFixed(3)})`;
+          // Edge fade: center bars stay vivid green, edge bars shift cooler
+          const edgeFade = Math.min(1, Math.max(Math.abs(wx), Math.abs(wy)));
+          const pr = Math.round(180 * edgeFade);
+          const pg = Math.round(250 - 80 * edgeFade);
+          const pb = Math.round(154 - 20 * edgeFade);
+          ctx.fillStyle = `rgba(${pr}, ${pg}, ${pb}, ${alpha.toFixed(3)})`;
           ctx.fill();
         }
       }
@@ -183,9 +188,9 @@ export function GyroBars({ className, onTilt }: GyroBarsProps) {
       if (vignetteSizeRef.current.w !== cw || vignetteSizeRef.current.h !== ch) {
         const diag = Math.sqrt(cx * cx + cy * cy);
         const grad = ctx.createRadialGradient(cx, cy, diag * 0.3, cx, cy, diag);
-        grad.addColorStop(0, "rgba(5, 5, 8, 0)");
-        grad.addColorStop(0.7, "rgba(5, 5, 8, 0.15)");
-        grad.addColorStop(1, "rgba(5, 5, 8, 0.5)");
+        grad.addColorStop(0, "rgba(6, 6, 6, 0)");
+        grad.addColorStop(0.65, "rgba(6, 6, 6, 0.2)");
+        grad.addColorStop(1, "rgba(6, 6, 6, 0.55)");
         vignetteRef.current = grad;
         vignetteSizeRef.current = { w: cw, h: ch };
       }
