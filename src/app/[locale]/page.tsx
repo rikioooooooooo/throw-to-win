@@ -92,16 +92,16 @@ export default function LandingPage() {
     const rotX = -y * 16;
     el.style.transform = `translate3d(${moveX.toFixed(1)}px, ${moveY.toFixed(1)}px, 0) perspective(220px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg)`;
 
-    // Per-character bending — aggressive curve
+    // Per-character bending — gentle unified curve (not scattered)
     const chars = charsRef.current;
     for (let i = 0; i < chars.length; i++) {
       const ch = chars[i];
       if (!ch) continue;
       const pos = (i / (chars.length - 1)) * 2 - 1;
-      const charRotY = pos * x * 45;
-      const charRotX = pos * -y * 22;
-      const charZ = Math.abs(pos) * x * 40;
-      ch.style.transform = `perspective(160px) rotateY(${charRotY.toFixed(1)}deg) rotateX(${charRotX.toFixed(1)}deg) translateZ(${charZ.toFixed(1)}px)`;
+      const charRotY = pos * x * 12;
+      const charRotX = pos * -y * 6;
+      const charZ = Math.abs(pos) * x * 8;
+      ch.style.transform = `perspective(400px) rotateY(${charRotY.toFixed(1)}deg) rotateX(${charRotX.toFixed(1)}deg) translateZ(${charZ.toFixed(1)}px)`;
     }
 
     // Button — strong bend
