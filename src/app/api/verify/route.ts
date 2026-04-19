@@ -133,6 +133,17 @@ export async function POST(request: Request) {
     const country = request.headers.get("cf-ipcountry") ?? "XX";
     const throwId = crypto.randomUUID();
 
+    // Sanitize displayName (same rules as profile endpoint)
+    const MAX_NAME_LENGTH = 20;
+    const NAME_PATTERN = /^[\p{L}\p{N}\p{M}\s._-]+$/u;
+    let sanitizedName = "";
+    if (typeof body.displayName === "string") {
+      const trimmed = body.displayName.trim().slice(0, MAX_NAME_LENGTH);
+      if (trimmed.length > 0 && NAME_PATTERN.test(trimmed)) {
+        sanitizedName = trimmed;
+      }
+    }
+
     // Batch: upsert device + insert throw in a single round-trip
     await env.DB.batch([
       env.DB.prepare(
@@ -143,8 +154,8 @@ export async function POST(request: Request) {
            total_throws = total_throws + 1,
            personal_best = MAX(personal_best, excluded.personal_best),
            country = excluded.country,
-           display_name = excluded.display_name`,
-      ).bind(body.deviceFingerprint, verifiedHeight, country, body.displayName || ''),
+           display_name = CASE WHEN excluded.display_name != '' THEN excluded.display_name ELSE devices.display_name END`,
+      ).bind(body.deviceFingerprint, verifiedHeight, country, sanitizedName),
       env.DB.prepare(
         "INSERT INTO throws (id, device_id, height_meters, airtime_seconds, country, challenge_nonce, anomaly_score) VALUES (?, ?, ?, ?, ?, ?, ?)",
       ).bind(
