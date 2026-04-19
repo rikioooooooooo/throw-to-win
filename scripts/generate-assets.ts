@@ -10,18 +10,18 @@ const __dirname = path.dirname(__filename);
 // Prompt templates from visual-system.md
 // ---------------------------------------------------------------------------
 
-const BASE_PROMPT = `STYLE: Sticker-style illustration, bold cartoon outlines, flat solid fill (no gradient), Y2K skater/pop aesthetic, vibrant neon mint green (#00FA9A) as primary color with black outlines. Transparent background. Centered composition with 5% margin. Reference image provided: match the exact color, outline weight, and graphic energy of the reference.
+const BASE_PROMPT = `STYLE: Sticker-style illustration, bold cartoon outlines, flat solid fill (no gradient), Y2K skater/pop aesthetic, vibrant neon mint green (#00FA9A) as primary color with black outlines. Transparent background. Centered composition with 5% margin. Reference image provided: match ONLY the art style, color palette, and outline weight of the reference — do NOT copy the subject (winged phone). Create a DIFFERENT subject in the same visual language.
 
-DO NOT: Use minimal thin-line icons, photorealistic rendering, 3D CGI, anime/manga style, watercolor, sketch, muted colors, non-neon palettes, or backgrounds.`;
+DO NOT: Use minimal thin-line icons, photorealistic rendering, 3D CGI, anime/manga style, watercolor, sketch, muted colors, non-neon palettes, or backgrounds. Do NOT draw a phone with wings — that is the logo, not the subject.`;
 
 function emotionPrompt(def: EmotionDef): string {
   return `${BASE_PROMPT}
 
-SUBJECT: A cartoon smartphone character (based on the reference logo's winged phone) expressing ${def.emotion}.
+SUBJECT: ${def.subject || `A bold sticker illustration expressing ${def.emotion} — NOT a phone, NOT a device`}
 
 DETAILS:
-- Pose: ${def.pose}
-- Face expression on phone screen: ${def.expression}
+- Pose/composition: ${def.pose}
+- Expression/mood: ${def.expression}
 - Surrounding elements: ${def.decoration}
 - Energy level: ${def.energy}/10`;
 }
@@ -29,7 +29,7 @@ DETAILS:
 function statePrompt(def: StateDef): string {
   return `${BASE_PROMPT}
 
-SUBJECT: A single-scene illustration conveying "${def.state}".
+SUBJECT: ${def.subject || `A sticker illustration conveying "${def.state}" — NOT a phone, NOT a device`}
 
 DETAILS:
 - Main visual: ${def.mainVisual}
@@ -37,7 +37,7 @@ DETAILS:
 - Key elements: ${def.keyElements}
 - Composition: Balanced, readable at small sizes
 
-NO TEXT IN THE IMAGE. The state will be communicated through translated captions in the UI.`;
+NO TEXT IN THE IMAGE. Do NOT include any phone or device in the image.`;
 }
 
 function achievementPrompt(def: AchievementDef): string {
@@ -69,6 +69,7 @@ DETAILS:
 
 interface EmotionDef {
   emotion: string;
+  subject?: string;
   pose: string;
   expression: string;
   decoration: string;
@@ -77,6 +78,7 @@ interface EmotionDef {
 
 interface StateDef {
   state: string;
+  subject?: string;
   mainVisual: string;
   mood: string;
   keyElements: string;
@@ -109,10 +111,11 @@ type AssetDef =
 
 const EMOTION_DEFS: Record<string, EmotionDef> = {
   celebrate: {
-    emotion: "celebration and joy",
-    pose: "Wings fully spread, tilted slightly upward",
-    expression: "Big smile with closed eyes, arched eyebrows",
-    decoration: "Stars bursting around, radial light rays, small sparkles",
+    emotion: "celebration and joy after an incredible throw",
+    subject: "A bold cartoon rocket or arrow shooting straight up through clouds, leaving a green trail of fire behind, with explosion of stars at the top",
+    pose: "Dynamic upward motion, breaking through a barrier",
+    expression: "Pure triumph, record-breaking energy",
+    decoration: "Explosion burst, speed lines, confetti rain, lightning bolts, stars",
     energy: 10,
   },
   wow: {
@@ -217,11 +220,11 @@ const EMOTION_DEFS: Record<string, EmotionDef> = {
 
 const STATE_DEFS: Record<string, StateDef> = {
   "empty-ranking": {
-    state: "No ranking data yet",
-    mainVisual:
-      "A confused winged phone character floating in empty space with magnifying glass",
-    mood: "Friendly, nothing here yet",
-    keyElements: "Small scattered stars, tumbleweed-style decoration",
+    state: "No ranking data yet — be the first!",
+    subject: "A cartoon magnifying glass searching over an empty leaderboard scroll/paper, with a cute question mark floating above",
+    mainVisual: "Rolled-up scroll or blank scoreboard with a magnifying glass hovering over it",
+    mood: "Curious, inviting, playful emptiness",
+    keyElements: "Blank scroll/paper, magnifying glass, floating question mark, tiny scattered stars",
   },
   "empty-history": {
     state: "No throw history yet",
@@ -291,8 +294,8 @@ const STATE_DEFS: Record<string, StateDef> = {
 const ACHIEVEMENT_DEFS: Record<string, AchievementDef> = {
   "pb-update": {
     achievement: "Personal Best Updated",
-    central: "Winged phone with radiant glow, thumbs-up hands",
-    radiating: "Lightning bolts, stars, PB text banner",
+    central: "A glowing crown or medal with upward arrow breaking through a ceiling, hands raised in triumph",
+    radiating: "Lightning bolts, explosion lines, stars, fireworks burst",
     text: "PB",
     energy: 9,
   },
