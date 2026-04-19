@@ -103,7 +103,9 @@
     "world": "العالم",
     "country": "البلد",
     "back": "رجوع",
-    "viewRanking": "عرض التصنيف"
+    "viewRanking": "عرض التصنيف",
+    "monthly": "الشهر",
+    "alltime": "الكل"
   },
   "profile": {
     "nameLabel": "الاسم",

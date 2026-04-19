@@ -178,14 +178,14 @@ export async function POST(request: Request) {
           .bind(body.deviceFingerprint)
           .first<{ personal_best: number }>(),
         env.DB.prepare(
-          "SELECT COUNT(*) as rank FROM devices WHERE personal_best > ?",
+          "SELECT COUNT(*) as rank FROM (SELECT device_id, MAX(height_meters) as best FROM throws WHERE created_at >= datetime('now', 'start of month') GROUP BY device_id HAVING best > ?)",
         )
           .bind(verifiedHeight)
           .first<{ rank: number }>(),
         env.DB.prepare(
-          "SELECT COUNT(*) as rank FROM devices WHERE personal_best > ? AND country = ?",
+          "SELECT COUNT(*) as rank FROM (SELECT t.device_id, MAX(t.height_meters) as best FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', 'start of month') AND d.country = ? GROUP BY t.device_id HAVING best > ?)",
         )
-          .bind(verifiedHeight, country)
+          .bind(country, verifiedHeight)
           .first<{ rank: number }>(),
         env.DB.prepare(
           "SELECT COUNT(*) as total FROM throws",

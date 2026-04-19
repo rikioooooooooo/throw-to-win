@@ -19,6 +19,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const scope = url.searchParams.get("scope") ?? "world";
     const country = url.searchParams.get("country") ?? "";
+    const period = url.searchParams.get("period") ?? "monthly";
     const limit = Math.min(
       100,
       Math.max(1, parseInt(url.searchParams.get("limit") ?? "50", 10) || 50),
@@ -32,15 +33,39 @@ export async function GET(request: Request) {
 
     let query: string;
     let params: unknown[];
+    let countQuery: string;
+    let countParams: unknown[];
 
-    if (scope === "country" && country) {
-      query =
-        "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices WHERE country = ? AND personal_best > 0 ORDER BY personal_best DESC LIMIT ? OFFSET ?";
-      params = [country, limit, offset];
+    if (period === "alltime") {
+      // All-time: query devices table directly (existing behavior)
+      if (scope === "country" && country) {
+        query =
+          "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices WHERE country = ? AND personal_best > 0 ORDER BY personal_best DESC LIMIT ? OFFSET ?";
+        params = [country, limit, offset];
+        countQuery = "SELECT COUNT(*) as total FROM devices WHERE country = ? AND personal_best > 0";
+        countParams = [country];
+      } else {
+        query =
+          "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices WHERE personal_best > 0 ORDER BY personal_best DESC LIMIT ? OFFSET ?";
+        params = [limit, offset];
+        countQuery = "SELECT COUNT(*) as total FROM devices WHERE personal_best > 0";
+        countParams = [];
+      }
     } else {
-      query =
-        "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices WHERE personal_best > 0 ORDER BY personal_best DESC LIMIT ? OFFSET ?";
-      params = [limit, offset];
+      // Monthly: query throws table for this month's best per device
+      if (scope === "country" && country) {
+        query =
+          "SELECT t.device_id as id, d.display_name, MAX(t.height_meters) as personal_best, COUNT(*) as total_throws, d.country, d.last_seen FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', 'start of month') AND d.country = ? GROUP BY t.device_id ORDER BY personal_best DESC LIMIT ? OFFSET ?";
+        params = [country, limit, offset];
+        countQuery = "SELECT COUNT(DISTINCT t.device_id) as total FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', 'start of month') AND d.country = ?";
+        countParams = [country];
+      } else {
+        query =
+          "SELECT t.device_id as id, d.display_name, MAX(t.height_meters) as personal_best, COUNT(*) as total_throws, d.country, d.last_seen FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', 'start of month') GROUP BY t.device_id ORDER BY personal_best DESC LIMIT ? OFFSET ?";
+        params = [limit, offset];
+        countQuery = "SELECT COUNT(DISTINCT device_id) as total FROM throws WHERE created_at >= datetime('now', 'start of month')";
+        countParams = [];
+      }
     }
 
     const stmt = env.DB.prepare(query);
@@ -49,15 +74,10 @@ export async function GET(request: Request) {
         ? stmt.bind(params[0], params[1], params[2])
         : stmt.bind(params[0], params[1]);
 
-    const countQuery =
-      scope === "country" && country
-        ? "SELECT COUNT(*) as total FROM devices WHERE country = ? AND personal_best > 0"
-        : "SELECT COUNT(*) as total FROM devices WHERE personal_best > 0";
-
     const countStmt = env.DB.prepare(countQuery);
     const countBound =
-      scope === "country" && country
-        ? countStmt.bind(country)
+      countParams.length === 1
+        ? countStmt.bind(countParams[0])
         : countStmt;
 
     // Run data + count queries in parallel

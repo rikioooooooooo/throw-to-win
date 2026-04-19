@@ -13,7 +13,8 @@ export default function RankingPage() {
   const router = useRouter();
   const locale = useLocale();
   const [tab, setTab] = useState<Tab>("world");
-  const rankings = useRankings({ limit: 100 });
+  const [period, setPeriod] = useState<"monthly" | "alltime">("monthly");
+  const rankings = useRankings({ limit: 100, period });
 
   const entries = tab === "world" ? rankings.world : rankings.country;
   const title = tab === "world" ? t("landing.worldRanking") : t("landing.countryRanking");
@@ -48,6 +49,22 @@ export default function RankingPage() {
             グッズ
           </a>
         </header>
+
+        {/* Period tabs */}
+        <div className="flex mb-4 gap-2">
+          <button
+            onClick={() => setPeriod("monthly")}
+            className={`flex-1 py-3 text-center label-text text-[12px] tracking-[0.12em] transition-all game-border ${period === "monthly" ? "bg-accent text-black font-extrabold" : "text-muted"}`}
+          >
+            {t("ranking.monthly")}
+          </button>
+          <button
+            onClick={() => setPeriod("alltime")}
+            className={`flex-1 py-3 text-center label-text text-[12px] tracking-[0.12em] transition-all game-border ${period === "alltime" ? "bg-accent text-black font-extrabold" : "text-muted"}`}
+          >
+            {t("ranking.alltime")}
+          </button>
+        </div>
 
         {/* Tabs — game-card style */}
         <div

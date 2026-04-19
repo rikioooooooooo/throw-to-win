@@ -15,9 +15,9 @@ type RankingsState = {
  * Handles AbortController cleanup on unmount.
  */
 export function useRankings(
-  opts: { limit?: number; enabled?: boolean } = {},
+  opts: { limit?: number; enabled?: boolean; period?: "monthly" | "alltime" } = {},
 ): RankingsState {
-  const { limit = 10, enabled = true } = opts;
+  const { limit = 10, enabled = true, period = "monthly" } = opts;
   const [state, setState] = useState<RankingsState>({
     world: [],
     country: [],
@@ -37,7 +37,7 @@ export function useRankings(
     async function fetchRankings() {
       try {
         const worldRes = await fetch(
-          `/api/ranking?scope=world&limit=${limit}`,
+          `/api/ranking?scope=world&limit=${limit}&period=${period}`,
           { signal },
         );
         if (!worldRes.ok) return;
@@ -51,7 +51,7 @@ export function useRankings(
         let countryRankings: RankEntry[] = [];
         if ((worldData.yourCountry ?? "") !== "" && worldData.yourCountry !== "XX") {
           const countryRes = await fetch(
-            `/api/ranking?scope=country&country=${worldData.yourCountry}&limit=${limit}`,
+            `/api/ranking?scope=country&country=${worldData.yourCountry}&limit=${limit}&period=${period}`,
             { signal },
           );
           if (countryRes.ok) {
@@ -80,7 +80,7 @@ export function useRankings(
 
     fetchRankings();
     return () => controller.abort();
-  }, [limit, enabled]);
+  }, [limit, enabled, period]);
 
   return state;
 }

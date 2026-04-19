@@ -103,7 +103,9 @@
     "world": "Monde",
     "country": "Pays",
     "back": "Retour",
-    "viewRanking": "Voir le classement"
+    "viewRanking": "Voir le classement",
+    "monthly": "Mensuel",
+    "alltime": "Historique"
   },
   "profile": {
     "nameLabel": "NOM",

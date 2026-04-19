@@ -103,7 +103,9 @@
     "world": "世界",
     "country": "國內",
     "back": "返回",
-    "viewRanking": "查看排名"
+    "viewRanking": "查看排名",
+    "monthly": "本月",
+    "alltime": "歷代"
   },
   "profile": {
     "nameLabel": "顯示名稱",

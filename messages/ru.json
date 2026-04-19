@@ -103,7 +103,9 @@
     "world": "Мир",
     "country": "Страна",
     "back": "Назад",
-    "viewRanking": "Посмотреть рейтинг"
+    "viewRanking": "Посмотреть рейтинг",
+    "monthly": "За месяц",
+    "alltime": "За всё время"
   },
   "profile": {
     "nameLabel": "ИМЯ",

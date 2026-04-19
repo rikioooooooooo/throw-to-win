@@ -103,7 +103,9 @@
     "world": "विश्व",
     "country": "देश",
     "back": "वापस",
-    "viewRanking": "रैंकिंग देखें"
+    "viewRanking": "रैंकिंग देखें",
+    "monthly": "इस महीने",
+    "alltime": "सर्वकालिक"
   },
   "profile": {
     "nameLabel": "नाम",
