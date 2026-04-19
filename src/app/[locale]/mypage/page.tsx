@@ -277,9 +277,7 @@ export default function MyPage() {
               }}
             >
               <div className="flex justify-center mb-4">
-                <div className="w-32 h-32 border border-dashed border-accent/20 rounded-lg flex items-center justify-center text-accent/30 text-[10px] text-center">
-                  （仮）<br/>投擲記録
-                </div>
+                <img src="/assets/anim/kaikai.webp" alt="" width={96} height={96} className="opacity-50" aria-hidden="true" />
               </div>
               <p className="text-muted text-[13px] tracking-[0.05em]">
                 {t("noThrows")}

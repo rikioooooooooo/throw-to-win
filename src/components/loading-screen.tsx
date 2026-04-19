@@ -37,10 +37,8 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 gap-8 safe-top safe-bottom">
-      {/* Asset placeholder */}
-      <div className="w-24 h-24 border border-dashed border-accent/20 rounded-lg flex items-center justify-center text-accent/30 text-[10px] text-center mb-4">
-        （仮）<br/>ローディング
-      </div>
+      {/* Kosukuma animation */}
+      <img src="/assets/anim/utouto.webp" alt="" width={80} height={80} className="opacity-50 mb-4" aria-hidden="true" />
 
       {/* Circular progress ring */}
       <div className="relative w-48 h-48 flex items-center justify-center">

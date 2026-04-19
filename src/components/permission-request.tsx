@@ -74,11 +74,9 @@ export function PermissionRequest({ onGranted }: PermissionRequestProps) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
       <div className="w-full max-w-md flex flex-col gap-10 animate-fade-in-up">
-        {/* Asset placeholder */}
-        <div className="flex justify-center mb-4">
-          <div className="w-20 h-20 border border-dashed border-accent/20 rounded-lg flex items-center justify-center text-accent/30 text-[10px] text-center">
-            （仮）<br/>許可アセット
-          </div>
+        {/* Kosukuma animation */}
+        <div className="flex justify-center">
+          <img src="/assets/anim/osirihurihuri.webp" alt="" width={72} height={72} className="opacity-60" aria-hidden="true" />
         </div>
 
         {/* Heading */}

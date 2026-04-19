@@ -119,11 +119,9 @@ export default function LandingPage() {
 
       {/* Hero — title + subtitle + CTA grouped tightly */}
       <div className="flex-1 flex flex-col items-center justify-center">
-        {/* Logo placeholder */}
+        {/* Kosukuma animation */}
         <div className="mb-6 flex justify-center">
-          <div className="w-20 h-20 border border-dashed border-accent/30 rounded-lg flex items-center justify-center text-accent/40 text-[11px]">
-            （仮）ロゴ
-          </div>
+          <img src="/assets/anim/gorogoro.webp" alt="" width={80} height={80} className="opacity-60" aria-hidden="true" />
         </div>
 
         <h1
