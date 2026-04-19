@@ -18,7 +18,7 @@ const DEPTH_STEPS = 40; // more steps = smoother convergence to infinity
 const VANISH_SHIFT = 100; // how far the vanishing point moves on full tilt
 const LERP = 0.12;
 const OVERSHOOT = 1.4; // grid extends 40% beyond screen edges
-const GYRO_TIMEOUT_MS = 2000;
+const GYRO_TIMEOUT_MS = 5000;
 const W_NEAR = 3.0;
 const W_FAR = 0.15;
 
@@ -54,10 +54,7 @@ export function GyroBars({ className, onTilt }: GyroBarsProps) {
     };
     window.addEventListener("deviceorientation", handleOrientation);
 
-    let useFallback = false;
-    const gyroTimer = setTimeout(() => {
-      if (!hasGyroRef.current) useFallback = true;
-    }, GYRO_TIMEOUT_MS);
+    const gyroTimer = setTimeout(() => {}, GYRO_TIMEOUT_MS);
 
     const dpr = window.devicePixelRatio || 1;
     const resize = () => {
@@ -82,7 +79,9 @@ export function GyroBars({ className, onTilt }: GyroBarsProps) {
       const ch = window.innerHeight;
       if (cw === 0 || ch === 0) { rafRef.current = requestAnimationFrame(draw); return; }
 
-      if (useFallback) {
+      // Fallback: no gyro data after timeout → gentle sine animation
+      // Checks hasGyroRef every frame so real gyro data takes over instantly
+      if (!hasGyroRef.current && (now - startTime) > GYRO_TIMEOUT_MS) {
         const t = (now - startTime) / 1000;
         targetRef.current = {
           x: Math.sin(t * 0.35) * 0.25,
