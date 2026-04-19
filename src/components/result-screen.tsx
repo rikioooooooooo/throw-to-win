@@ -135,22 +135,6 @@ export function ResultScreen({
             </div>
           )}
 
-          {/* Tier breakthrough celebration */}
-          {tierInfo?.isBreakthrough && !resultData.isPersonalBest && (
-            <div className="flex flex-col items-center mb-3">
-              <img
-                src="/assets/final/emotion/celebrate.png"
-                alt=""
-                aria-hidden="true"
-                style={{
-                  width: "64px",
-                  height: "64px",
-                  animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
-                }}
-              />
-            </div>
-          )}
-
           {/* Celebration burst rings */}
           {(resultData.isPersonalBest || tierInfo?.isBreakthrough) && (
             <div className="relative w-full flex justify-center" style={{ height: 0 }} aria-hidden="true">

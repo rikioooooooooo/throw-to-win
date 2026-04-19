@@ -273,12 +273,6 @@ export default function MyPage() {
 
           {throws.length === 0 ? (
             <div className="game-card flex flex-col items-center text-center py-12 px-6">
-              <img
-                src="/assets/final/state/empty-ranking.png"
-                alt=""
-                aria-hidden="true"
-                style={{ width: "64px", height: "64px", marginBottom: "12px", opacity: 0.6 }}
-              />
               <p className="text-muted text-[13px] tracking-[0.05em]">
                 {t("noThrows")}
               </p>

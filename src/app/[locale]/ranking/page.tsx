@@ -102,12 +102,6 @@ export default function RankingPage() {
           <p className="text-center text-muted text-[13px] py-12">{t("common.loading")}</p>
         ) : entries.length === 0 ? (
           <div className="flex flex-col items-center py-12 game-card p-8">
-            <img
-              src="/assets/final/state/empty-ranking.png"
-              alt=""
-              aria-hidden="true"
-              style={{ width: "80px", height: "80px", marginBottom: "16px", opacity: 0.7 }}
-            />
             <p className="text-center text-muted text-[13px]">{t("landing.noRankings")}</p>
           </div>
         ) : (
