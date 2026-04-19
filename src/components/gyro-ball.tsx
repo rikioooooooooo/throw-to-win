@@ -42,14 +42,28 @@ export function GyroBars({ className, onTilt }: GyroBarsProps) {
     if (!canvas) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    // Capture the initial orientation as zero-reference so the parallax
+    // starts centered regardless of how the user holds their phone.
+    const initialOrientation = { gamma: 0, beta: 0, captured: false };
+
     const handleOrientation = (e: DeviceOrientationEvent) => {
       // Skip null values — iOS sometimes fires events with null,
       // which would snap the parallax to center (the "reset" bug)
       if (e.gamma == null || e.beta == null) return;
       hasGyroRef.current = true;
+
+      if (!initialOrientation.captured) {
+        initialOrientation.gamma = e.gamma;
+        initialOrientation.beta = e.beta;
+        initialOrientation.captured = true;
+      }
+
+      const relativeGamma = e.gamma - initialOrientation.gamma;
+      const relativeBeta = e.beta - initialOrientation.beta;
+
       targetRef.current = {
-        x: Math.max(-1, Math.min(1, e.gamma / 40)),
-        y: Math.max(-1, Math.min(1, (e.beta - 50) / 40)),
+        x: Math.max(-1, Math.min(1, relativeGamma / 40)),
+        y: Math.max(-1, Math.min(1, relativeBeta / 40)),
       };
     };
     window.addEventListener("deviceorientation", handleOrientation);
