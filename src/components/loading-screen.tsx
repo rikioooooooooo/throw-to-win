@@ -100,9 +100,9 @@ function useSyntheticProgress(realProgress: number): number {
 
 const completionBurstStyle = `
 @keyframes completionBurst {
-  0% { filter: drop-shadow(0 0 8px rgba(0,250,154,0.5)); }
-  50% { filter: drop-shadow(0 0 30px rgba(0,250,154,0.9)) drop-shadow(0 0 60px rgba(0,250,154,0.5)); }
-  100% { filter: drop-shadow(0 0 8px rgba(0,250,154,0.5)); }
+  0% { box-shadow: 0 0 0px rgba(0,250,154,0); transform: scale(1); }
+  40% { box-shadow: 0 0 40px rgba(0,250,154,0.7), 0 0 80px rgba(0,250,154,0.3); transform: scale(1.05); }
+  100% { box-shadow: 0 0 0px rgba(0,250,154,0); transform: scale(1); }
 }
 `;
 
@@ -133,7 +133,11 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
       <style dangerouslySetInnerHTML={{ __html: completionBurstStyle }} />
 
       {/* Ring + Dance container */}
-      <div className="relative" style={{ width: size, height: size }}>
+      <div className="relative" style={{
+        width: size, height: size,
+        borderRadius: "50%",
+        ...(completed ? { animation: "completionBurst 0.8s ease-out" } : {}),
+      }}>
         {/* Outer rotating halo */}
         <div
           className="absolute rounded-full"
@@ -152,12 +156,7 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
             width={size}
             height={size}
             className="block"
-            style={{
-              transform: "rotate(-90deg)",
-              ...(completed
-                ? { animation: "completionBurst 0.6s ease-out" }
-                : {}),
-            }}
+            style={{ transform: "rotate(-90deg)" }}
           >
             {/* Dashed track */}
             <circle
@@ -210,9 +209,8 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
             width={96}
             height={96}
             aria-hidden="true"
-            style={{
-              filter: `drop-shadow(0 0 ${6 + pct * 0.1}px rgba(0,250,154,${0.2 + pct * 0.004}))`,
-            }}
+            style={{}}
+
           />
         </div>
       </div>
