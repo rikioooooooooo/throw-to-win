@@ -178,8 +178,8 @@ export default function LandingPage() {
           {t("landing.subtitle")}
         </p>
 
-        {/* Show current name if set */}
-        {nameValid && (
+        {/* Show current name if no PB (name shows inside PB card when PB exists) */}
+        {nameValid && stats.personalBest <= 0 && (
           <button
             onClick={() => setShowNameOverlay(true)}
             className="mt-5 text-[13px] text-accent/60 hover:text-accent transition-colors tracking-[0.08em] animate-fade-in-up delay-120"
@@ -215,6 +215,14 @@ export default function LandingPage() {
             >
               <TierIcon tierId={tier.id} size={36} />
               <div className="flex-1">
+                {nameValid && (
+                  <button
+                    onClick={() => setShowNameOverlay(true)}
+                    className="text-[12px] text-foreground/50 hover:text-foreground/70 transition-colors tracking-[0.05em] mb-1 flex items-center gap-1"
+                  >
+                    {nameInput} <span className="text-accent/40 text-[10px]">✏️</span>
+                  </button>
+                )}
                 <div className="flex items-baseline gap-1.5">
                   <span className="height-number text-[26px] text-foreground">
                     {formatHeight(stats.personalBest)}
