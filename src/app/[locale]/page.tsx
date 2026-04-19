@@ -139,14 +139,12 @@ export default function LandingPage() {
       <div className="flex-1 flex flex-col items-center justify-center">
         {/* Logo — BIG, hero-level, with green glow halo */}
         <div className="relative animate-fade-in-up" style={{ marginBottom: "clamp(16px, 4vw, 28px)" }}>
-          {/* Green glow halo behind logo */}
+          {/* Green glow halo behind logo — no blur filter for perf */}
           <div
             className="absolute inset-0 rounded-full"
             style={{
-              background: "radial-gradient(circle, rgba(0, 250, 154, 0.18) 0%, rgba(0, 250, 154, 0.06) 40%, transparent 70%)",
-              transform: "scale(1.8)",
-              filter: "blur(20px)",
-              animation: "subtle-pulse 3s ease-in-out infinite",
+              background: "radial-gradient(circle, rgba(0, 250, 154, 0.12) 0%, rgba(0, 250, 154, 0.04) 30%, transparent 60%)",
+              transform: "scale(2.2)",
             }}
             aria-hidden="true"
           />
@@ -154,11 +152,11 @@ export default function LandingPage() {
             src="/assets/logo-landing.png"
             alt="Throw To Win"
             style={{
-              width: "clamp(140px, 36vw, 220px)",
+              width: "clamp(160px, 42vw, 260px)",
               height: "auto",
               position: "relative",
               zIndex: 1,
-              animation: "logo-hero-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both, logo-float 3.5s ease-in-out 0.8s infinite, logo-glow-pulse 4s ease-in-out 1s infinite",
+              animation: "logo-hero-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both, logo-float 3.5s ease-in-out 0.8s infinite",
             }}
           />
         </div>
