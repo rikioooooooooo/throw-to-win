@@ -164,7 +164,7 @@ export default function LandingPage() {
               onChange={e => setNameInput(e.target.value)}
               placeholder={t("landing.namePlaceholder")}
               maxLength={20}
-              className="w-full px-5 py-4 bg-white/5 border-2 border-accent/20 rounded-2xl text-foreground text-center text-[18px] font-medium placeholder:text-foreground/15 focus:outline-none focus:border-accent/60 focus:bg-white/8 transition-all"
+              className="w-full px-5 py-4 bg-white/8 border-2 border-accent/30 rounded-2xl text-foreground text-center text-[18px] font-medium placeholder:text-white/50 focus:outline-none focus:border-accent/60 focus:bg-white/10 transition-all"
               style={{ boxShadow: nameInput.trim() ? "0 0 16px rgba(0,250,154,0.1)" : "none" }}
             />
           </div>
