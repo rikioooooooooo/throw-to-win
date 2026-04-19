@@ -25,7 +25,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#060606",
+  themeColor: "#050a08",
 };
 
 type Props = {

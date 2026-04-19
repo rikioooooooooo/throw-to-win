@@ -124,39 +124,48 @@ export default function LandingPage() {
       {/* Top bar */}
       <header className="relative z-10 flex justify-between items-center pt-4">
         <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
-           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]" style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: "8px" }}>
+           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
           グッズ
         </a>
         <button
           onClick={() => router.push(`/${locale}/mypage`)}
-          className="label-text text-[13px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]"
-          style={{
-            border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: "8px",
-          }}
+          className="label-text text-[13px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border"
         >
           {t("landing.myPage")}
         </button>
       </header>
 
-      {/* Hero — title + subtitle + CTA grouped tightly */}
+      {/* Hero — game start screen layout */}
       <div className="flex-1 flex flex-col items-center justify-center">
-        {/* Logo */}
-        <img
-          src="/assets/logo-landing.png"
-          alt="Throw To Win"
-          className="animate-fade-in-up"
-          style={{
-            width: "clamp(80px, 22vw, 140px)",
-            height: "auto",
-            marginBottom: "clamp(12px, 3vw, 20px)",
-            filter: "drop-shadow(0 0 16px rgba(0, 250, 154, 0.12))",
-            animation: "fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both, logo-float 3s ease-in-out 0.5s infinite",
-          }}
-        />
+        {/* Logo — BIG, hero-level, with green glow halo */}
+        <div className="relative animate-fade-in-up" style={{ marginBottom: "clamp(16px, 4vw, 28px)" }}>
+          {/* Green glow halo behind logo */}
+          <div
+            className="absolute inset-0 rounded-full"
+            style={{
+              background: "radial-gradient(circle, rgba(0, 250, 154, 0.18) 0%, rgba(0, 250, 154, 0.06) 40%, transparent 70%)",
+              transform: "scale(1.8)",
+              filter: "blur(20px)",
+              animation: "subtle-pulse 3s ease-in-out infinite",
+            }}
+            aria-hidden="true"
+          />
+          <img
+            src="/assets/logo-landing.png"
+            alt="Throw To Win"
+            style={{
+              width: "clamp(140px, 36vw, 220px)",
+              height: "auto",
+              position: "relative",
+              zIndex: 1,
+              animation: "logo-hero-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both, logo-float 3.5s ease-in-out 0.8s infinite, logo-glow-pulse 4s ease-in-out 1s infinite",
+            }}
+          />
+        </div>
+
         <h1
           className="animate-fade-in-up text-center text-foreground uppercase"
-          style={{ fontSize: "clamp(3.2rem, 15vw, 6.5rem)", fontWeight: 700, lineHeight: 0.82, letterSpacing: "0.12em", textShadow: "0 0 40px rgba(0,250,154,0.15)", transformStyle: "preserve-3d" }}
+          style={{ fontSize: "clamp(3.4rem, 16vw, 7rem)", fontWeight: 800, lineHeight: 0.82, letterSpacing: "0.1em", textShadow: "0 0 48px rgba(0,250,154,0.25), 0 0 96px rgba(0,250,154,0.08)", transformStyle: "preserve-3d" }}
         >
           {"THROW".split("").map((ch, i) => (
             <span key={`t${i}`} ref={el => { charsRef.current[i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch}</span>
@@ -167,7 +176,7 @@ export default function LandingPage() {
           ))}
         </h1>
 
-        <p className="mt-5 text-[13px] tracking-[0.05em] text-foreground/50 text-center max-w-xs animate-fade-in-up delay-80" style={{ fontWeight: 400 }}>
+        <p className="mt-4 text-[13px] tracking-[0.06em] text-foreground/45 text-center max-w-xs animate-fade-in-up delay-80" style={{ fontWeight: 400 }}>
           {t("landing.subtitle")}
         </p>
 
@@ -175,63 +184,72 @@ export default function LandingPage() {
         {nameValid && (
           <button
             onClick={() => setShowNameOverlay(true)}
-            className="mt-6 text-[13px] text-accent/60 hover:text-accent transition-colors tracking-[0.08em] animate-fade-in-up delay-120"
+            className="mt-5 text-[13px] text-accent/60 hover:text-accent transition-colors tracking-[0.08em] animate-fade-in-up delay-120"
           >
             {nameInput} ✏️
           </button>
         )}
 
-        {/* CTA — tight to subtitle, not stuck at bottom */}
+        {/* CTA — big, game-style, unmissable */}
         {(!isDesktop || dismissedDesktop) && (
           <button
             ref={btnRef}
             onClick={handleStart}
             disabled={!nameValid}
-            className={`mt-6 w-full max-w-[320px] text-black cta-text text-[17px] tracking-[0.15em] animate-fade-in-up delay-160 transition-all ${nameValid ? "bg-accent neon-glow" : "bg-accent/30 cursor-not-allowed"}`}
+            className={`mt-6 w-full max-w-[320px] text-black cta-text text-[18px] tracking-[0.18em] animate-fade-in-up delay-160 transition-all ${nameValid ? "bg-accent neon-glow" : "bg-accent/30 cursor-not-allowed"}`}
             style={{
               borderRadius: "16px",
-              height: "62px",
-              fontWeight: 700,
+              height: "64px",
+              fontWeight: 800,
               willChange: "transform",
+              textShadow: nameValid ? "0 1px 0 rgba(0,0,0,0.15)" : "none",
             }}
           >
             {t("landing.start")}
           </button>
         )}
 
-        {/* PB + tier for returning users */}
+        {/* PB + tier for returning users — game-card style */}
         {stats.personalBest > 0 && (
-          <div className="mt-6 flex flex-col items-center animate-fade-in-up delay-240">
-            <div className="flex items-center gap-2">
-              <TierIcon tierId={tier.id} size={28} />
-              <span className="height-number text-[22px] text-foreground/80">
-                {formatHeight(stats.personalBest)}
-                <span className="text-[13px] text-muted/60 ml-0.5">m</span>
-              </span>
-              <span className="text-[12px] text-accent tracking-widest uppercase">PB</span>
-            </div>
-            <button
-              onClick={() => router.push(`/${locale}/ranking`)}
-              className="mt-2 text-foreground/40 text-[13px] tracking-[0.1em] hover:text-foreground/60 transition-colors"
+          <div className="mt-6 w-full max-w-[320px] animate-fade-in-up delay-240">
+            <div
+              className="game-card p-4 flex items-center gap-3"
             >
-              {t("ranking.viewRanking")} →
-            </button>
-
-            {/* Streak + Today's Best */}
-            {(stats.streakDays > 1 || stats.todayBest > 0) && (
-              <div className="flex items-center gap-4 mt-2">
-                {stats.streakDays > 1 && (
-                  <span className="text-foreground/35 text-[12px] tracking-[0.05em]">
-                    🔥 {stats.streakDays} {t("landing.streakDays")}
+              <TierIcon tierId={tier.id} size={36} />
+              <div className="flex-1">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="height-number text-[26px] text-foreground">
+                    {formatHeight(stats.personalBest)}
                   </span>
-                )}
-                {stats.todayBest > 0 && (
-                  <span className="text-foreground/35 text-[12px] tracking-[0.05em]">
-                    {t("landing.todaysBest")}: {formatHeight(stats.todayBest)}m
-                  </span>
+                  <span className="text-[13px] text-muted/60">m</span>
+                  <span className="text-[11px] text-accent tracking-[0.2em] uppercase font-bold ml-1">PB</span>
+                </div>
+                {/* Streak + Today's Best */}
+                {(stats.streakDays > 1 || stats.todayBest > 0) && (
+                  <div className="flex items-center gap-3 mt-1">
+                    {stats.streakDays > 1 && (
+                      <span className="text-foreground/30 text-[11px] tracking-[0.05em]">
+                        🔥 {stats.streakDays} {t("landing.streakDays")}
+                      </span>
+                    )}
+                    {stats.todayBest > 0 && (
+                      <span className="text-foreground/30 text-[11px] tracking-[0.05em]">
+                        {t("landing.todaysBest")}: {formatHeight(stats.todayBest)}m
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
-            )}
+              <button
+                onClick={() => router.push(`/${locale}/ranking`)}
+                className="text-accent/50 hover:text-accent transition-colors"
+                aria-label={t("ranking.viewRanking")}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -239,8 +257,7 @@ export default function LandingPage() {
       {/* Merch link */}
       <div className="mt-auto pt-6 flex justify-center">
         <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
-           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]"
-           style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: "8px" }}>
+           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
           グッズ
         </a>
       </div>
@@ -252,7 +269,7 @@ export default function LandingPage() {
       {isDesktop && !dismissedDesktop && (
         <div
           className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8"
-          style={{ backgroundColor: "rgba(6, 6, 6, 0.92)" }}
+          style={{ backgroundColor: "rgba(5, 10, 8, 0.94)" }}
         >
           <div className="flex flex-col items-center text-center max-w-md">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00fa9a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mb-6">
@@ -279,7 +296,7 @@ export default function LandingPage() {
 
       {/* Name overlay */}
       {showNameOverlay && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8" style={{ backgroundColor: "rgba(6, 6, 6, 0.95)" }}>
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8" style={{ backgroundColor: "rgba(5, 10, 8, 0.96)" }}>
           <div className="flex flex-col items-center text-center max-w-sm w-full animate-fade-in-up">
             <h2 className="text-[22px] font-semibold text-foreground mb-2 tracking-wide">
               ニックネームを入力
@@ -318,7 +335,7 @@ export default function LandingPage() {
 
       {/* Gyro permission overlay */}
       {showGyroOverlay && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8" style={{ backgroundColor: "rgba(6, 6, 6, 0.95)" }}>
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8" style={{ backgroundColor: "rgba(5, 10, 8, 0.96)" }}>
           <div className="flex flex-col items-center text-center max-w-sm w-full animate-fade-in-up">
             <div className="text-[48px] mb-4">📱</div>
             <h2 className="text-[20px] font-semibold text-foreground mb-2 tracking-wide">

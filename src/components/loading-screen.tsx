@@ -177,20 +177,48 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
       <style dangerouslySetInnerHTML={{ __html: completionBurstStyle }} />
 
+      {/* Subtle radial burst background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="radial-burst" style={{ opacity: 0.4 }} />
+      </div>
+
+      {/* Logo at top — brand presence */}
+      <img
+        src="/assets/logo-landing.png"
+        alt=""
+        aria-hidden="true"
+        className="absolute"
+        style={{
+          top: "clamp(60px, 12vh, 100px)",
+          width: "48px",
+          height: "auto",
+          opacity: 0.3,
+          animation: "logo-float 3s ease-in-out infinite",
+        }}
+      />
+
       {/* Ring + Dance container */}
       <div ref={refs.containerRef} className="relative" style={{
         width: size, height: size,
         borderRadius: "50%",
       }}>
-        {/* Outer rotating halo */}
+        {/* Outer rotating halo — double ring */}
         <div
           className="absolute rounded-full"
           style={{
-            inset: -12,
-            border: "1px solid rgba(0, 250, 154, 0.12)",
+            inset: -16,
+            border: "1px solid rgba(0, 250, 154, 0.1)",
             boxShadow:
-              "0 0 20px rgba(0,250,154,0.1), 0 0 40px rgba(0,250,154,0.05)",
-            animation: "spin-slow 8s linear infinite",
+              "0 0 24px rgba(0,250,154,0.08), 0 0 48px rgba(0,250,154,0.03)",
+            animation: "spin-slow 10s linear infinite",
+          }}
+        />
+        <div
+          className="absolute rounded-full"
+          style={{
+            inset: -28,
+            border: "1px dashed rgba(0, 250, 154, 0.06)",
+            animation: "spin-slow 15s linear infinite reverse",
           }}
         />
 
@@ -202,13 +230,13 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
             className="block"
             style={{ transform: "rotate(-90deg)" }}
           >
-            {/* Dashed track */}
+            {/* Dashed track — green tint */}
             <circle
               cx={size / 2}
               cy={size / 2}
               r={radius}
               fill="none"
-              stroke="rgba(255,255,255,0.06)"
+              stroke="rgba(0, 250, 154, 0.06)"
               strokeWidth={strokeWidth}
               strokeDasharray="4 8"
             />
@@ -225,59 +253,63 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
               strokeDasharray={circumference}
               strokeDashoffset={circumference}
               style={{
-                filter: "drop-shadow(0 0 8px rgba(0,250,154,0.5))",
+                filter: "drop-shadow(0 0 12px rgba(0,250,154,0.6))",
               }}
             />
           </svg>
 
-          {/* Leading edge glowing dot */}
+          {/* Leading edge glowing dot — bigger glow */}
           <div
             ref={refs.dotRef}
             className="absolute rounded-full"
             style={{
-              width: 10,
-              height: 10,
+              width: 12,
+              height: 12,
               left: 0,
               top: 0,
               background: "#fff",
-              boxShadow: "0 0 10px 3px #00fa9a",
+              boxShadow: "0 0 14px 4px #00fa9a, 0 0 28px 8px rgba(0,250,154,0.3)",
               display: "none",
             }}
           />
         </div>
 
-        {/* Dance animation centered inside ring */}
-        <div className="absolute inset-0 flex items-center justify-center">
+        {/* Logo + Dance animation centered inside ring */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <img
+            src="/assets/logo-landing.png"
+            alt=""
+            style={{ width: 40, height: "auto", opacity: 0.4 }}
+            aria-hidden="true"
+          />
           <img
             src="/assets/anim/dance.webp"
             alt=""
             width={96}
             height={96}
             aria-hidden="true"
-            style={{}}
-
           />
         </div>
       </div>
 
       {/* Status text + progress bar */}
-      <div className="flex flex-col items-center gap-4 w-full max-w-xs mt-10">
+      <div className="flex flex-col items-center gap-4 w-full max-w-xs mt-10 relative">
         <h2
-          className="text-[16px] font-medium tracking-[0.15em] uppercase text-foreground/80 text-center"
-          style={{ textShadow: "0 0 12px rgba(0,250,154,0.2)" }}
+          className="text-[16px] font-bold tracking-[0.15em] uppercase text-foreground/80 text-center"
+          style={{ textShadow: "0 0 16px rgba(0,250,154,0.25)" }}
         >
           {t("heading")}<span style={{ display: "inline-block", width: "1.5em", textAlign: "left" }}>{dots}</span>
         </h2>
-        <p className="text-foreground/30 text-[11px] tracking-[0.15em] uppercase text-center">
+        <p className="text-accent/30 text-[11px] tracking-[0.15em] uppercase text-center">
           {t(statusKey(status))}<span style={{ display: "inline-block", width: "1.5em", textAlign: "left" }}>{dots}</span>
         </p>
 
-        {/* Thin progress bar */}
-        <div className="w-full h-[2px] bg-white/5 relative overflow-hidden rounded-full">
+        {/* Progress bar — thicker, green-tinted track */}
+        <div className="w-full h-[3px] relative overflow-hidden rounded-full" style={{ backgroundColor: "rgba(0, 250, 154, 0.06)" }}>
           <div
             ref={refs.barRef}
             className="absolute inset-y-0 left-0 bg-accent rounded-full"
-            style={{ width: "0%", boxShadow: "0 0 8px rgba(0,250,154,0.4)" }}
+            style={{ width: "0%", boxShadow: "0 0 12px rgba(0,250,154,0.5), 0 0 24px rgba(0,250,154,0.2)" }}
           />
         </div>
       </div>

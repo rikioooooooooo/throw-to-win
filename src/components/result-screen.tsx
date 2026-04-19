@@ -76,23 +76,95 @@ export function ResultScreen({
 
   return (
     <main className="fixed inset-0 z-10 flex flex-col items-center bg-background overflow-y-auto safe-top safe-bottom">
-      <div className="flex-1 flex flex-col items-center px-6 py-8 w-full max-w-md">
+      {/* Radial burst lines behind everything — like manga impact lines */}
+      {(resultData.isPersonalBest || tierInfo?.isBreakthrough) && (
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+          <div className="radial-burst-intense" />
+          {/* Screen flash on PB */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "radial-gradient(circle at center, rgba(0, 250, 154, 0.25), transparent 60%)",
+              animation: "pb-flash 0.8s ease-out both",
+            }}
+          />
+        </div>
+      )}
+      {!resultData.isPersonalBest && !tierInfo?.isBreakthrough && (
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+          <div className="radial-burst" />
+        </div>
+      )}
+
+      <div className="flex-1 flex flex-col items-center px-6 py-8 w-full max-w-md relative z-10">
 
         {/* ---- Height hero ---- */}
-        <div className="text-center mt-4 mb-1 animate-fade-in-up">
+        <div className="text-center mt-4 mb-1 animate-fade-in-up relative">
+          {/* PB celebration asset */}
           {resultData.isPersonalBest && (
-            <p
-              className="label-text text-[11px] tracking-[0.25em] text-accent mb-5"
-              style={{
-                animation: "spring-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both",
-                backgroundColor: "rgba(0, 250, 154, 0.08)",
-                border: "1px solid var(--color-accent)",
-                borderRadius: "8px",
-                padding: "4px 12px",
-              }}
-            >
-              {t("result.newRecord")}
-            </p>
+            <div className="flex flex-col items-center mb-3">
+              <img
+                src="/assets/final/achievement/pb-update.png"
+                alt=""
+                aria-hidden="true"
+                style={{
+                  width: "72px",
+                  height: "72px",
+                  animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
+                }}
+              />
+              <p
+                className="achievement-badge label-text text-[12px] tracking-[0.25em] text-accent mt-2"
+              >
+                {t("result.newRecord")}
+              </p>
+            </div>
+          )}
+
+          {/* Tier breakthrough celebration */}
+          {tierInfo?.isBreakthrough && !resultData.isPersonalBest && (
+            <div className="flex flex-col items-center mb-3">
+              <img
+                src="/assets/final/emotion/celebrate.png"
+                alt=""
+                aria-hidden="true"
+                style={{
+                  width: "64px",
+                  height: "64px",
+                  animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
+                }}
+              />
+            </div>
+          )}
+
+          {/* Celebration burst rings */}
+          {(resultData.isPersonalBest || tierInfo?.isBreakthrough) && (
+            <div className="relative w-full flex justify-center" style={{ height: 0 }} aria-hidden="true">
+              <div
+                className="absolute rounded-full pointer-events-none"
+                style={{
+                  width: 200,
+                  height: 200,
+                  top: -100,
+                  left: "50%",
+                  border: `2px solid ${tierInfo?.isBreakthrough ? tierInfo.current.color : "var(--color-accent)"}`,
+                  animation: "radial-burst 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both",
+                }}
+              />
+              {tierInfo?.isBreakthrough && (
+                <div
+                  className="absolute rounded-full pointer-events-none"
+                  style={{
+                    width: 200,
+                    height: 200,
+                    top: -100,
+                    left: "50%",
+                    border: `2px solid ${tierInfo.current.color}`,
+                    animation: "radial-burst 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both",
+                  }}
+                />
+              )}
+            </div>
           )}
 
           <div className="flex items-baseline justify-center">
@@ -102,8 +174,10 @@ export function ResultScreen({
               className="height-number leading-none"
               style={{
                 color: tierColor,
-                fontSize: "clamp(5rem, 28vw, 9rem)",
-                textShadow: "0 0 30px currentColor",
+                fontSize: "clamp(5.5rem, 30vw, 10rem)",
+                textShadow: resultData.isPersonalBest || tierInfo?.isBreakthrough
+                  ? "0 0 40px currentColor, 0 0 80px currentColor"
+                  : "0 0 30px currentColor",
               }}
             />
             <span
@@ -118,21 +192,32 @@ export function ResultScreen({
             </span>
           </div>
 
-          {/* Tier badge */}
+          {/* Tier badge — game-style pill */}
           {tierInfo && (
             <div
               className="mt-3 flex items-center justify-center gap-2"
               style={{ animation: "badge-appear 0.3s ease-out 0.3s both" }}
             >
-              <TierIcon tierId={tierInfo.current.id} size={40} />
+              <TierIcon tierId={tierInfo.current.id} size={44} />
               <span
-                className="text-[14px] font-semibold tracking-[0.15em] uppercase"
+                className="text-[15px] font-bold tracking-[0.15em] uppercase"
                 style={{ color: tierInfo.current.color }}
               >
                 {t(`tier.${tierInfo.current.id}`)}
               </span>
               {tierInfo.isBreakthrough && (
-                <span className="text-accent text-[12px] font-bold tracking-wider">{t("tier.new")}</span>
+                <span
+                  className="achievement-badge text-[11px] font-bold tracking-wider"
+                  style={{
+                    color: tierInfo.current.color,
+                    borderColor: tierInfo.current.color,
+                    background: `${tierInfo.current.color}15`,
+                    boxShadow: `0 0 16px ${tierInfo.current.color}30`,
+                    padding: "3px 10px",
+                  }}
+                >
+                  {t("tier.new")}
+                </span>
               )}
             </div>
           )}
@@ -159,7 +244,7 @@ export function ResultScreen({
         {videoUrl && (
           <div
             className="w-full max-w-[260px] mb-5 relative overflow-hidden animate-fade-in-up delay-160"
-            style={{ borderRadius: "14px" }}
+            style={{ borderRadius: "14px", border: "1px solid var(--color-border-subtle)" }}
           >
             {resultData.ffmpegProcessed ? (
               <video
@@ -188,21 +273,13 @@ export function ResultScreen({
           <div className="grid grid-cols-2 gap-2 mb-5 w-full max-w-[260px] animate-fade-in-up delay-240">
             <button
               onClick={onSaveVideo}
-              className="py-3 text-foreground/60 text-[12px] tracking-widest uppercase active:scale-[0.97] transition-all hover:text-foreground"
-              style={{
-                border: "1px solid var(--color-border-subtle)",
-                borderRadius: "10px",
-              }}
+              className="py-3 text-foreground/60 text-[12px] tracking-widest uppercase active:scale-[0.97] transition-all hover:text-foreground game-border"
             >
               {t("result.downloadVideo")}
             </button>
             <button
               onClick={onShareVideo}
-              className="py-3 text-foreground/60 text-[12px] tracking-widest uppercase active:scale-[0.97] transition-all hover:text-foreground"
-              style={{
-                border: "1px solid var(--color-border-subtle)",
-                borderRadius: "10px",
-              }}
+              className="py-3 text-foreground/60 text-[12px] tracking-widest uppercase active:scale-[0.97] transition-all hover:text-foreground game-border"
             >
               {t("result.shareOn")}
             </button>
@@ -221,23 +298,37 @@ export function ResultScreen({
           {t("result.tryAgain")}
         </button>
 
-        {/* ---- Rank context ---- */}
+        {/* ---- Rank context — game card ---- */}
         {rankingData && (
-          <div className="mt-5 flex flex-col items-center animate-fade-in delay-480">
-            <div className="flex items-center gap-3 text-[14px]">
-              <span className="text-foreground/80 height-number">#{rankingData.worldRank}</span>
-              <span className="text-muted/60 text-[12px]">WORLD</span>
+          <div className="mt-5 w-full max-w-[260px] game-card p-4 animate-fade-in delay-480">
+            <div className="flex items-center justify-center gap-4 text-[14px]">
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] text-muted/60 tracking-[0.15em] uppercase mb-1">WORLD</span>
+                <span
+                  className="height-number text-[22px] text-accent font-semibold"
+                  style={{ animation: "rank-slam 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both" }}
+                >
+                  #{rankingData.worldRank}
+                </span>
+              </div>
               {rankingData.country && rankingData.country !== "XX" && (
                 <>
-                  <span className="text-muted/40">·</span>
-                  <span className="text-foreground/80 height-number">#{rankingData.countryRank}</span>
-                  <span className="text-muted/60 text-[12px]">{rankingData.country}</span>
+                  <div className="w-px h-8 bg-border-game" />
+                  <div className="flex flex-col items-center">
+                    <span className="text-[10px] text-muted/60 tracking-[0.15em] uppercase mb-1">{rankingData.country}</span>
+                    <span
+                      className="height-number text-[22px] text-foreground/80 font-semibold"
+                      style={{ animation: "rank-slam 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both" }}
+                    >
+                      #{rankingData.countryRank}
+                    </span>
+                  </div>
                 </>
               )}
             </div>
             <button
               onClick={() => router.push(`/${locale}/ranking`)}
-              className="mt-1.5 text-muted/60 text-[12px] tracking-[0.1em] hover:text-foreground/50 transition-colors"
+              className="mt-3 w-full text-center text-accent/50 text-[12px] tracking-[0.1em] hover:text-accent transition-colors"
             >
               {t("ranking.viewRanking")} →
             </button>
@@ -290,7 +381,7 @@ export function ResultScreen({
 
         {/* Merch link */}
         <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
-           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]" style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: "8px" }}>
+           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
           グッズ
         </a>
       </div>

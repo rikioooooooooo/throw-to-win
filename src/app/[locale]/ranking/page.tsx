@@ -20,75 +20,81 @@ export default function RankingPage() {
 
   return (
     <main className="min-h-screen bg-background px-5 safe-top safe-bottom">
-      <header className="flex items-center justify-between pt-4 mb-6">
-        <button
-          onClick={() => router.push(`/${locale}`)}
-          className="w-11 h-11 flex items-center justify-center active:scale-[0.97] transition-transform"
-          style={{
-            backgroundColor: "var(--color-surface)",
-            border: "1px solid var(--color-border-subtle)",
-            borderRadius: "10px",
-          }}
-          aria-label="Back"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <h1 className="label-text text-[12px] tracking-[0.2em] text-foreground uppercase">
-          {t("ranking.heading")}
-        </h1>
-        <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
-           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]" style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: "8px" }}>
-          グッズ
-        </a>
-      </header>
-
-      {/* Tabs */}
-      <div
-        className="flex mb-6 overflow-hidden"
-        style={{
-          backgroundColor: "var(--color-surface)",
-          border: "1px solid var(--color-border-subtle)",
-          borderRadius: "10px",
-        }}
-      >
-        <button
-          onClick={() => setTab("world")}
-          className="flex-1 py-3.5 text-center label-text text-[11px] tracking-[0.15em] transition-colors"
-          style={{
-            backgroundColor: tab === "world" ? "var(--color-accent)" : "transparent",
-            color: tab === "world" ? "#000000" : "var(--color-muted)",
-          }}
-        >
-          {t("ranking.world")}
-        </button>
-        <button
-          onClick={() => setTab("country")}
-          className="flex-1 py-3.5 text-center label-text text-[11px] tracking-[0.15em] transition-colors"
-          style={{
-            backgroundColor: tab === "country" ? "var(--color-accent)" : "transparent",
-            color: tab === "country" ? "#000000" : "var(--color-muted)",
-          }}
-        >
-          {t("ranking.country")}
-          {rankings.yourCountry && rankings.yourCountry !== "XX" && (
-            <span className="ml-1 text-[11px] opacity-70">({rankings.yourCountry})</span>
-          )}
-        </button>
+      {/* Subtle radial burst background */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="radial-burst" style={{ opacity: 0.5 }} />
       </div>
 
-      {rankings.loading ? (
-        <p className="text-center text-muted text-[13px] py-12">{t("common.loading")}</p>
-      ) : entries.length === 0 ? (
-        <div className="flex flex-col items-center py-12">
-          <p className="text-center text-muted text-[13px]">{t("landing.noRankings")}</p>
+      <div className="relative z-10">
+        <header className="flex items-center justify-between pt-4 mb-6">
+          <button
+            onClick={() => router.push(`/${locale}`)}
+            className="w-11 h-11 flex items-center justify-center active:scale-[0.97] transition-transform game-card"
+            aria-label="Back"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h1 className="label-text text-[14px] tracking-[0.2em] text-foreground uppercase font-bold">
+            {t("ranking.heading")}
+          </h1>
+          <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
+             className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
+            グッズ
+          </a>
+        </header>
+
+        {/* Tabs — game-card style */}
+        <div
+          className="flex mb-6 overflow-hidden game-card"
+          style={{ padding: 0 }}
+        >
+          <button
+            onClick={() => setTab("world")}
+            className="flex-1 py-3.5 text-center label-text text-[11px] tracking-[0.15em] transition-all"
+            style={{
+              backgroundColor: tab === "world" ? "var(--color-accent)" : "transparent",
+              color: tab === "world" ? "#000000" : "var(--color-muted)",
+              fontWeight: tab === "world" ? 800 : 600,
+            }}
+          >
+            {t("ranking.world")}
+          </button>
+          <button
+            onClick={() => setTab("country")}
+            className="flex-1 py-3.5 text-center label-text text-[11px] tracking-[0.15em] transition-all"
+            style={{
+              backgroundColor: tab === "country" ? "var(--color-accent)" : "transparent",
+              color: tab === "country" ? "#000000" : "var(--color-muted)",
+              fontWeight: tab === "country" ? 800 : 600,
+            }}
+          >
+            {t("ranking.country")}
+            {rankings.yourCountry && rankings.yourCountry !== "XX" && (
+              <span className="ml-1 text-[11px] opacity-70">({rankings.yourCountry})</span>
+            )}
+          </button>
         </div>
-      ) : (
-        <div className="pb-8">
-          <RankingList title={title} entries={entries} />
-        </div>
-      )}
+
+        {rankings.loading ? (
+          <p className="text-center text-muted text-[13px] py-12">{t("common.loading")}</p>
+        ) : entries.length === 0 ? (
+          <div className="flex flex-col items-center py-12 game-card p-8">
+            <img
+              src="/assets/final/state/empty-ranking.png"
+              alt=""
+              aria-hidden="true"
+              style={{ width: "80px", height: "80px", marginBottom: "16px", opacity: 0.7 }}
+            />
+            <p className="text-center text-muted text-[13px]">{t("landing.noRankings")}</p>
+          </div>
+        ) : (
+          <div className="pb-8">
+            <RankingList title={title} entries={entries} />
+          </div>
+        )}
+      </div>
     </main>
   );
 }

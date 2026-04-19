@@ -188,9 +188,9 @@ export function GyroBars({ className, onTilt }: GyroBarsProps) {
       if (vignetteSizeRef.current.w !== cw || vignetteSizeRef.current.h !== ch) {
         const diag = Math.sqrt(cx * cx + cy * cy);
         const grad = ctx.createRadialGradient(cx, cy, diag * 0.3, cx, cy, diag);
-        grad.addColorStop(0, "rgba(6, 6, 6, 0)");
-        grad.addColorStop(0.65, "rgba(6, 6, 6, 0.2)");
-        grad.addColorStop(1, "rgba(6, 6, 6, 0.55)");
+        grad.addColorStop(0, "rgba(5, 10, 8, 0)");
+        grad.addColorStop(0.65, "rgba(5, 10, 8, 0.2)");
+        grad.addColorStop(1, "rgba(5, 10, 8, 0.55)");
         vignetteRef.current = grad;
         vignetteSizeRef.current = { w: cw, h: ch };
       }

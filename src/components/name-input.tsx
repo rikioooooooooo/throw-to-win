@@ -43,7 +43,7 @@ export function NameInput({ currentName, onSave, saving }: NameInputProps) {
           className="flex-1 px-4 py-3 text-[14px] text-foreground bg-transparent outline-none"
           style={{
             backgroundColor: "var(--color-surface)",
-            border: "1px solid var(--color-border-subtle)",
+            border: "1px solid var(--color-border-game)",
             borderRadius: "10px",
           }}
           maxLength={MAX_LENGTH}

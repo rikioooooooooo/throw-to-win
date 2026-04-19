@@ -77,56 +77,65 @@ export default function MyPage() {
       <header
         className="px-5 py-5 flex items-center justify-between sticky top-0 z-10 safe-top"
         style={{
-          backgroundColor: "rgba(6, 6, 6, 0.88)",
+          backgroundColor: "rgba(5, 10, 8, 0.9)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
-          borderBottom: "1px solid var(--color-border-subtle)",
+          borderBottom: "1px solid var(--color-border-game)",
         }}
       >
         <button
           onClick={() => router.push(`/${locale}`)}
-          className="w-11 h-11 flex items-center justify-center active:scale-[0.97] transition-transform"
-          style={{
-            backgroundColor: "var(--color-surface)",
-            border: "1px solid var(--color-border-subtle)",
-            borderRadius: "10px",
-          }}
+          className="w-11 h-11 flex items-center justify-center active:scale-[0.97] transition-transform game-card"
           aria-label="Back"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="text-[18px] font-semibold tracking-wide uppercase">
+        <h1 className="text-[18px] font-bold tracking-wide uppercase">
           {t("heading")}
         </h1>
         <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
-           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]" style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: "8px" }}>
+           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
           グッズ
         </a>
       </header>
 
       <div className="flex-1 overflow-y-auto px-6 py-8">
-        {/* Stats grid */}
+        {/* Stats grid — game stat screen */}
         <div className="grid grid-cols-2 gap-3 mb-10 animate-fade-in-up">
-          {/* Personal best — full width, tier-colored glow */}
+          {/* Personal best — CROWN ACHIEVEMENT — dramatic game card */}
           <div
-            className="col-span-2 p-5"
+            className="col-span-2 p-5 relative overflow-hidden"
             style={{
-              background: `linear-gradient(135deg, ${getTierForHeight(stats.personalBest).color}08 0%, transparent 60%) var(--color-surface)`,
-              border: `1px solid ${getTierForHeight(stats.personalBest).color}40`,
-              borderRadius: "16px",
-              boxShadow: `0 2px 16px ${getTierForHeight(stats.personalBest).color}10`,
+              background: `linear-gradient(135deg, ${getTierForHeight(stats.personalBest).color}10 0%, transparent 50%) var(--color-surface)`,
+              border: `2px solid ${getTierForHeight(stats.personalBest).color}50`,
+              borderRadius: "18px",
+              boxShadow: `0 4px 24px ${getTierForHeight(stats.personalBest).color}15, 0 0 0 1px ${getTierForHeight(stats.personalBest).color}10`,
             }}
           >
-            <div className="flex items-center gap-2 mb-3">
-              <TierIcon tierId={getTierForHeight(stats.personalBest).id} size={24} />
-              <p className="label-text text-[11px] tracking-[0.2em]" style={{ color: getTierForHeight(stats.personalBest).color }}>
+            {/* Top highlight line */}
+            <div
+              className="absolute top-0 left-0 right-0 h-[2px]"
+              style={{ background: `linear-gradient(90deg, transparent, ${getTierForHeight(stats.personalBest).color}60, transparent)` }}
+            />
+            {/* Subtle radial burst inside PB card */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: `radial-gradient(circle at 80% 20%, ${getTierForHeight(stats.personalBest).color}08, transparent 50%)`,
+              }}
+            />
+            <div className="flex items-center gap-2 mb-3 relative">
+              <TierIcon tierId={getTierForHeight(stats.personalBest).id} size={32} />
+              <p className="label-text text-[12px] tracking-[0.2em] font-bold" style={{ color: getTierForHeight(stats.personalBest).color }}>
                 {t("personalBest")}
               </p>
             </div>
-            <div className="flex items-end">
-              <span className="height-number text-[52px] text-foreground leading-none">
+            <div className="flex items-end relative">
+              <span className="height-number text-[56px] text-foreground leading-none" style={{
+                textShadow: `0 0 30px ${getTierForHeight(stats.personalBest).color}30`,
+              }}>
                 {formatHeight(stats.personalBest)}
               </span>
               <span className="text-[16px] text-muted/60 ml-1 mb-1">{t("meters")}</span>
@@ -135,24 +144,30 @@ export default function MyPage() {
               const next = getNextTier(stats.personalBest);
               if (!next) return null;
               return (
-                <p className="mt-3 text-[12px] text-muted/70 tracking-[0.05em]">
-                  <span style={{ color: next.tier.color }}>{next.remaining}m</span>
-                  {" "}{t("nextTierTo")}{" "}
-                  <span style={{ color: next.tier.color }}>{tTier(next.tier.id as never)}</span>
-                </p>
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="flex-1 h-[3px] rounded-full bg-border-subtle overflow-hidden">
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${Math.min(100, ((stats.personalBest - getTierForHeight(stats.personalBest).minHeight) / (next.tier.minHeight - getTierForHeight(stats.personalBest).minHeight)) * 100)}%`,
+                        background: `linear-gradient(90deg, ${getTierForHeight(stats.personalBest).color}, ${next.tier.color})`,
+                        boxShadow: `0 0 6px ${getTierForHeight(stats.personalBest).color}50`,
+                      }}
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted/70 tracking-[0.05em] shrink-0">
+                    <span style={{ color: next.tier.color }}>{next.remaining}m</span>
+                    {" "}{t("nextTierTo")}{" "}
+                    <span style={{ color: next.tier.color }}>{tTier(next.tier.id as never)}</span>
+                  </p>
+                </div>
               );
             })()}
           </div>
 
-          <div
-            className="p-4"
-            style={{
-              background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 50%) var(--color-surface)",
-              border: "1px solid var(--color-border-subtle)",
-              borderRadius: "14px",
-            }}
-          >
-            <p className="label-text text-[11px] tracking-[0.15em] text-muted/70 mb-2">
+          {/* Stat cards — game card style */}
+          <div className="game-card p-4">
+            <p className="label-text text-[11px] tracking-[0.15em] text-accent/50 mb-2">
               {t("totalThrows")}
             </p>
             <span className="height-number text-[28px] text-foreground leading-none">
@@ -160,15 +175,8 @@ export default function MyPage() {
             </span>
           </div>
 
-          <div
-            className="p-4"
-            style={{
-              background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 50%) var(--color-surface)",
-              border: "1px solid var(--color-border-subtle)",
-              borderRadius: "14px",
-            }}
-          >
-            <p className="label-text text-[11px] tracking-[0.15em] text-muted/70 mb-2">
+          <div className="game-card p-4">
+            <p className="label-text text-[11px] tracking-[0.15em] text-accent/50 mb-2">
               {t("totalAirtime")}
             </p>
             <div className="flex items-end">
@@ -179,15 +187,8 @@ export default function MyPage() {
             </div>
           </div>
 
-          <div
-            className="col-span-2 p-4"
-            style={{
-              background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 50%) var(--color-surface)",
-              border: "1px solid var(--color-border-subtle)",
-              borderRadius: "14px",
-            }}
-          >
-            <p className="label-text text-[11px] tracking-[0.15em] text-muted/70 mb-2">
+          <div className="game-card col-span-2 p-4">
+            <p className="label-text text-[11px] tracking-[0.15em] text-accent/50 mb-2">
               {t("totalHeight")}
             </p>
             <div className="flex items-end">
@@ -199,20 +200,13 @@ export default function MyPage() {
           </div>
 
           {stats.streakDays > 0 && (
-            <div
-              className="col-span-2 p-4 flex items-center gap-3"
-              style={{
-                background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 50%) var(--color-surface)",
-                border: "1px solid var(--color-border-subtle)",
-                borderRadius: "14px",
-              }}
-            >
-              <span className="text-[24px]">🔥</span>
+            <div className="game-card col-span-2 p-4 flex items-center gap-3">
+              <span className="text-[28px]">🔥</span>
               <div>
-                <p className="label-text text-[11px] tracking-[0.15em] text-muted/70 mb-0.5">
+                <p className="label-text text-[11px] tracking-[0.15em] text-accent/50 mb-0.5">
                   {t("streak")}
                 </p>
-                <span className="height-number text-[22px] text-foreground leading-none">
+                <span className="height-number text-[24px] text-foreground leading-none">
                   {stats.streakDays}
                 </span>
                 <span className="text-[12px] text-muted/60 ml-1">{t("days")}</span>
@@ -233,20 +227,20 @@ export default function MyPage() {
         {/* Sort toggle + throw list */}
         <div className="animate-fade-in-up delay-80">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-[16px] font-semibold tracking-wide uppercase">
+            <h2 className="text-[16px] font-bold tracking-wide uppercase">
               {t("throws")}
             </h2>
             <div className="flex gap-2">
               <button
                 onClick={() => setSortBy("date")}
-                className={`px-4 py-3 label-text text-[11px] tracking-wide transition-colors active:scale-[0.97] ${
+                className={`px-4 py-3 label-text text-[11px] tracking-wide transition-all active:scale-[0.97] ${
                   sortBy === "date"
                     ? "text-accent"
                     : "text-muted"
                 }`}
                 style={{
-                  backgroundColor: sortBy === "date" ? "rgba(0, 250, 154, 0.08)" : "var(--color-surface)",
-                  border: sortBy === "date" ? "1px solid var(--color-accent)" : "1px solid var(--color-border-subtle)",
+                  backgroundColor: sortBy === "date" ? "rgba(0, 250, 154, 0.1)" : "var(--color-surface)",
+                  border: sortBy === "date" ? "1px solid var(--color-accent)" : "1px solid var(--color-border-game)",
                   borderRadius: "10px",
                 }}
               >
@@ -254,14 +248,14 @@ export default function MyPage() {
               </button>
               <button
                 onClick={() => setSortBy("height")}
-                className={`px-4 py-3 label-text text-[11px] tracking-wide transition-colors active:scale-[0.97] ${
+                className={`px-4 py-3 label-text text-[11px] tracking-wide transition-all active:scale-[0.97] ${
                   sortBy === "height"
                     ? "text-accent"
                     : "text-muted"
                 }`}
                 style={{
-                  backgroundColor: sortBy === "height" ? "rgba(0, 250, 154, 0.08)" : "var(--color-surface)",
-                  border: sortBy === "height" ? "1px solid var(--color-accent)" : "1px solid var(--color-border-subtle)",
+                  backgroundColor: sortBy === "height" ? "rgba(0, 250, 154, 0.1)" : "var(--color-surface)",
+                  border: sortBy === "height" ? "1px solid var(--color-accent)" : "1px solid var(--color-border-game)",
                   borderRadius: "10px",
                 }}
               >
@@ -271,34 +265,43 @@ export default function MyPage() {
           </div>
 
           {throws.length === 0 ? (
-            <div
-              className="flex flex-col items-center text-center py-12"
-              style={{
-                backgroundColor: "var(--color-surface)",
-                border: "1px solid var(--color-border-subtle)",
-                borderRadius: "14px",
-              }}
-            >
+            <div className="game-card flex flex-col items-center text-center py-12 px-6">
+              <img
+                src="/assets/final/state/empty-ranking.png"
+                alt=""
+                aria-hidden="true"
+                style={{ width: "64px", height: "64px", marginBottom: "12px", opacity: 0.6 }}
+              />
               <p className="text-muted text-[13px] tracking-[0.05em]">
                 {t("noThrows")}
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {throws.map((record, index) => (
                 <div
                   key={record.id}
-                  className="flex items-center justify-between p-4"
+                  className={`flex items-center justify-between p-4 relative overflow-hidden ${record.isPersonalBest ? "" : "game-card"}`}
                   style={{
-                    backgroundColor: record.isPersonalBest ? "rgba(0, 250, 154, 0.04)" : "var(--color-surface)",
-                    border: record.isPersonalBest ? "1px solid var(--color-accent)" : "1px solid var(--color-border-subtle)",
-                    borderRadius: "12px",
+                    ...(record.isPersonalBest ? {
+                      background: `linear-gradient(135deg, rgba(0, 250, 154, 0.06) 0%, transparent 50%) var(--color-surface)`,
+                      border: "1px solid rgba(0, 250, 154, 0.3)",
+                      borderRadius: "16px",
+                      boxShadow: "0 0 12px rgba(0, 250, 154, 0.08)",
+                    } : {}),
                     opacity: 0,
                     animation: `fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${index * 40}ms forwards`,
                   }}
                 >
+                  {/* PB glow line at top */}
+                  {record.isPersonalBest && (
+                    <div
+                      className="absolute top-0 left-0 right-0 h-[2px]"
+                      style={{ background: "linear-gradient(90deg, transparent, rgba(0, 250, 154, 0.5), transparent)" }}
+                    />
+                  )}
                   <div className="flex flex-col">
-                    <span className="label-text text-[11px] tracking-[0.15em] text-muted mb-1">
+                    <span className="label-text text-[10px] tracking-[0.15em] text-muted mb-1">
                       {new Date(record.timestamp).toLocaleDateString(locale, {
                         month: "short",
                         day: "numeric",
@@ -311,6 +314,7 @@ export default function MyPage() {
                         className="height-number text-[22px]"
                         style={{
                           color: record.isPersonalBest ? "var(--color-accent)" : "var(--color-foreground)",
+                          textShadow: record.isPersonalBest ? "0 0 12px rgba(0, 250, 154, 0.3)" : "none",
                         }}
                       >
                         {formatHeight(record.heightMeters)}m
@@ -322,8 +326,8 @@ export default function MyPage() {
                   </div>
                   {record.isPersonalBest && (
                     <div
-                      className="px-2.5 py-1 bg-accent text-black label-text text-[11px] tracking-wider"
-                      style={{ borderRadius: "6px" }}
+                      className="px-3 py-1.5 bg-accent text-black label-text text-[10px] tracking-[0.2em] font-bold"
+                      style={{ borderRadius: "8px", boxShadow: "0 0 8px rgba(0, 250, 154, 0.25)" }}
                     >
                       PB
                     </div>
@@ -344,8 +348,7 @@ export default function MyPage() {
         {/* Merch link */}
         <div className="mt-6 flex justify-center">
           <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
-             className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]"
-             style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: "8px" }}>
+             className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
             グッズ
           </a>
         </div>

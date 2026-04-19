@@ -47,13 +47,7 @@ export function WorldMap({ countries }: WorldMapProps) {
     <div className="animate-fade-in-up">
       {/* Summary header */}
       <div
-        className="p-5 mb-4"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(0, 250, 154, 0.04) 0%, transparent 60%) var(--color-surface)",
-          border: "1px solid var(--color-border-subtle)",
-          borderRadius: "16px",
-        }}
+        className="game-card p-5 mb-4"
       >
         <div className="flex items-center justify-between mb-3">
           <p
@@ -70,7 +64,7 @@ export function WorldMap({ countries }: WorldMapProps) {
         <div
           className="w-full h-[6px] overflow-hidden"
           style={{
-            backgroundColor: "rgba(255, 255, 255, 0.06)",
+            backgroundColor: "rgba(0, 250, 154, 0.06)",
             borderRadius: "3px",
           }}
         >
@@ -88,14 +82,7 @@ export function WorldMap({ countries }: WorldMapProps) {
 
       {/* Country grid */}
       {countries.length === 0 ? (
-        <div
-          className="text-center py-12"
-          style={{
-            backgroundColor: "var(--color-surface)",
-            border: "1px solid var(--color-border-subtle)",
-            borderRadius: "14px",
-          }}
-        >
+        <div className="game-card text-center py-12 px-6">
           <p className="text-muted text-[13px] tracking-[0.05em]">
             {t("noThrows")}
           </p>
@@ -105,11 +92,8 @@ export function WorldMap({ countries }: WorldMapProps) {
           {countries.map((entry, index) => (
             <div
               key={entry.country}
-              className="flex items-center gap-3 p-4"
+              className="flex items-center gap-3 p-4 game-card"
               style={{
-                backgroundColor: "var(--color-surface)",
-                border: "1px solid var(--color-border-subtle)",
-                borderRadius: "12px",
                 opacity: 0,
                 animation: `fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${index * 40}ms forwards`,
               }}
