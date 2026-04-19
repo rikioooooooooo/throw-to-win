@@ -97,6 +97,8 @@ export default function PlayPage() {
   const finishTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   /** Survives overlay state resets — holds the v0 trajectory peak for the result handler */
   const v0PeakRef = useRef(0);
+  /** Locked at landing — the final unified height for display, storage, and ranking */
+  const unifiedHeightRef = useRef(0);
   /** Track PB before this throw for tier breakthrough detection */
   const prevBestRef = useRef(0);
   const overlayStateRef = useRef<{
@@ -362,6 +364,8 @@ export default function PlayPage() {
       // so that video overlay, result screen, and ranking all show the same number.
       const trackedMax = v0PeakRef.current;
       const displayHeight = trackedMax > 0 ? trackedMax : result.heightMeters;
+      // Lock at landing — all downstream reads use this ref, not v0PeakRef
+      unifiedHeightRef.current = displayHeight;
       const displayResult: ThrowResult = trackedMax > 0
         ? { ...result, heightMeters: displayHeight }
         : result;
@@ -475,8 +479,8 @@ export default function PlayPage() {
       // Re-read personal best before addThrowRecord updates stats
       // (isPersonalBest state was set earlier for the camera-phase UI,
       // but the useCallback closure may hold a stale value)
-      // Use the same display height everywhere (video, result, ranking, local storage)
-      const unifiedHeight = v0PeakRef.current > 0 ? v0PeakRef.current : throwResult.heightMeters;
+      // Use the height locked at landing (unifiedHeightRef) — never re-read v0PeakRef in async
+      const unifiedHeight = unifiedHeightRef.current;
 
       const pbBeforeAdd = loadData().stats.personalBest;
       prevBestRef.current = pbBeforeAdd;
@@ -577,6 +581,7 @@ export default function PlayPage() {
     }
     finishingRef.current = false;
     v0PeakRef.current = 0;
+    unifiedHeightRef.current = 0;
     challengeDataRef.current = null;
     turnstileTokenRef.current = null;
     setResultData(null);
