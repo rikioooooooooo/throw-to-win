@@ -85,6 +85,7 @@ export async function submitThrow(
   throwResult: { heightMeters: number; airtimeSeconds: number },
   sensorSamples: readonly AccelSample[],
   fingerprint: string,
+  displayName: string,
 ): Promise<VerifyResponse> {
   let res: Response;
   try {
@@ -99,6 +100,7 @@ export async function submitThrow(
         heightMeters: throwResult.heightMeters,
         airtimeSeconds: throwResult.airtimeSeconds,
         sensorData: sensorSamples,
+        displayName,
       }),
     });
   } catch {

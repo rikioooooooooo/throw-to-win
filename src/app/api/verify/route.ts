@@ -19,6 +19,7 @@ type VerifyBody = {
   heightMeters?: number;
   airtimeSeconds?: number;
   sensorData?: readonly AccelSample[];
+  displayName?: string;
 };
 
 function isValidNumber(v: unknown, min: number, max: number): v is number {
@@ -135,14 +136,15 @@ export async function POST(request: Request) {
     // Batch: upsert device + insert throw in a single round-trip
     await env.DB.batch([
       env.DB.prepare(
-        `INSERT INTO devices (id, first_seen, last_seen, total_throws, personal_best, country, flagged)
-         VALUES (?, datetime('now'), datetime('now'), 1, ?, ?, 0)
+        `INSERT INTO devices (id, first_seen, last_seen, total_throws, personal_best, country, flagged, display_name)
+         VALUES (?, datetime('now'), datetime('now'), 1, ?, ?, 0, ?)
          ON CONFLICT(id) DO UPDATE SET
            last_seen = datetime('now'),
            total_throws = total_throws + 1,
            personal_best = MAX(personal_best, excluded.personal_best),
-           country = excluded.country`,
-      ).bind(body.deviceFingerprint, verifiedHeight, country),
+           country = excluded.country,
+           display_name = excluded.display_name`,
+      ).bind(body.deviceFingerprint, verifiedHeight, country, body.displayName || ''),
       env.DB.prepare(
         "INSERT INTO throws (id, device_id, height_meters, airtime_seconds, country, challenge_nonce, anomaly_score) VALUES (?, ?, ?, ?, ?, ?, ?)",
       ).bind(

@@ -493,6 +493,7 @@ export default function PlayPage() {
           { heightMeters: throwResult.heightMeters, airtimeSeconds: throwResult.airtimeSeconds },
           sensorSamples,
           fp,
+          loadData().displayName,
         )
           .then((verifyResult) => {
             setRankingData(verifyResult);

@@ -266,10 +266,10 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
           className="text-[16px] font-medium tracking-[0.15em] uppercase text-foreground/80 text-center"
           style={{ textShadow: "0 0 12px rgba(0,250,154,0.2)" }}
         >
-          {t("heading")}{dots}
+          {t("heading")}<span style={{ display: "inline-block", width: "1.5em", textAlign: "left" }}>{dots}</span>
         </h2>
         <p className="text-foreground/30 text-[11px] tracking-[0.15em] uppercase text-center">
-          {t(statusKey(status))}{dots}
+          {t(statusKey(status))}<span style={{ display: "inline-block", width: "1.5em", textAlign: "left" }}>{dots}</span>
         </p>
 
         {/* Thin progress bar */}
