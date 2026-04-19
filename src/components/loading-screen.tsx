@@ -10,9 +10,9 @@ type LoadingScreenProps = {
 };
 
 function useAnimatedDots(intervalMs = 500): string {
-  const [count, setCount] = useState(1);
+  const [count, setCount] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setCount(c => (c % 3) + 1), intervalMs);
+    const id = setInterval(() => setCount(c => (c + 1) % 4), intervalMs);
     return () => clearInterval(id);
   }, [intervalMs]);
   return ".".repeat(count);

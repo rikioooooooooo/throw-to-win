@@ -35,11 +35,17 @@ export default function LandingPage() {
   });
 
   // Load existing displayName on mount, show overlay if no name
+  // For returning users on iOS: show gyro permission overlay directly
   useEffect(() => {
     if (typeof window === "undefined") return;
     const existing = loadData().displayName;
     if (existing) {
       setNameInput(existing);
+      // Returning user — check if iOS gyro permission needed
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (typeof (DeviceMotionEvent as any).requestPermission === "function" && !gyroRequestedRef.current) {
+        setShowGyroOverlay(true);
+      }
     } else {
       setShowNameOverlay(true);
     }
