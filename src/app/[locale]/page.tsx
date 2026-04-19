@@ -119,7 +119,7 @@ export default function LandingPage() {
       {/* Canvas OUTSIDE main — stays fixed to viewport, unaffected by main's 3D transform */}
       <GyroBars className="fixed inset-0 z-0 pointer-events-none" onTilt={handleTilt} />
 
-      <main ref={mainRef} className="relative flex-1 flex flex-col px-6" style={{ transformOrigin: "center center", willChange: "transform" }}>
+      <main ref={mainRef} className="relative flex-1 flex flex-col px-6 h-dvh overflow-hidden" style={{ transformOrigin: "center center", willChange: "transform" }}>
 
       {/* Top bar */}
       <header className="relative z-10 flex justify-between items-center pt-4">
@@ -152,7 +152,7 @@ export default function LandingPage() {
             src="/assets/logo-landing.png"
             alt="Throw To Win"
             style={{
-              width: "clamp(180px, 48vw, 300px)",
+              width: "clamp(200px, 52vw, 320px)",
               height: "auto",
               position: "relative",
               zIndex: 1,
@@ -250,14 +250,6 @@ export default function LandingPage() {
             </div>
           </div>
         )}
-      </div>
-
-      {/* Merch link */}
-      <div className="mt-auto pt-6 flex justify-center">
-        <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
-           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
-          グッズ
-        </a>
       </div>
 
       {/* Bottom spacer for safe area */}
