@@ -76,29 +76,37 @@ export function ResultScreen({
 
   return (
     <main className="fixed inset-0 z-10 flex flex-col items-center bg-background overflow-y-auto safe-top safe-bottom">
-      {/* Ambient green glow — always present */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 25%, rgba(0, 250, 154, 0.05) 0%, transparent 55%)" }} />
+      {/* Background effects — tier-colored for special, subtle for normal */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {(resultData.isPersonalBest || tierInfo?.isBreakthrough) ? (
+          <>
+            {/* Tier-colored ambient glow — large, dramatic */}
+            <div
+              className="absolute"
+              style={{
+                top: "10%",
+                left: "50%",
+                width: "150vw",
+                height: "80vh",
+                transform: "translateX(-50%)",
+                background: `radial-gradient(ellipse at 50% 30%, ${tierInfo?.current.color ?? "var(--color-accent)"}18 0%, ${tierInfo?.current.color ?? "var(--color-accent)"}06 35%, transparent 65%)`,
+                animation: "result-glow 3s ease-in-out infinite",
+              }}
+            />
+            {/* Expanding rings — one-shot, staggered */}
+            <div className="absolute inset-0 flex items-start justify-center" style={{ paddingTop: "18vh" }}>
+              <div className="absolute rounded-full" style={{ width: 300, height: 300, border: `1.5px solid ${tierInfo?.current.color ?? "var(--color-accent)"}`, animation: "radial-burst 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both" }} />
+              <div className="absolute rounded-full" style={{ width: 300, height: 300, border: `1px solid ${tierInfo?.current.color ?? "var(--color-accent)"}`, animation: "radial-burst 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both" }} />
+              <div className="absolute rounded-full" style={{ width: 300, height: 300, border: `0.5px solid ${tierInfo?.current.color ?? "var(--color-accent)"}`, animation: "radial-burst 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both" }} />
+            </div>
+            {/* Brief screen flash */}
+            <div className="absolute inset-0" style={{ background: `radial-gradient(circle at 50% 20%, ${tierInfo?.current.color ?? "var(--color-accent)"}30, transparent 50%)`, animation: "pb-flash 0.6s ease-out both" }} />
+          </>
+        ) : (
+          /* Normal throw — subtle green ambient only */
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 20%, rgba(0, 250, 154, 0.06) 0%, transparent 50%)" }} />
+        )}
       </div>
-      {/* Radial burst lines behind everything — like manga impact lines */}
-      {(resultData.isPersonalBest || tierInfo?.isBreakthrough) && (
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-          <div className="radial-burst-intense" />
-          {/* Screen flash on PB */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: "radial-gradient(circle at center, rgba(0, 250, 154, 0.25), transparent 60%)",
-              animation: "pb-flash 0.8s ease-out both",
-            }}
-          />
-        </div>
-      )}
-      {!resultData.isPersonalBest && !tierInfo?.isBreakthrough && (
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-          <div className="radial-burst" />
-        </div>
-      )}
 
       <div className="flex-1 flex flex-col items-center px-6 py-8 w-full max-w-md relative z-10">
 
