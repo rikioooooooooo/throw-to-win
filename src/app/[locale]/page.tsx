@@ -116,7 +116,11 @@ export default function LandingPage() {
       <main ref={mainRef} className="relative flex-1 flex flex-col px-6" onClick={handleGyroPermission} style={{ transformOrigin: "center center", willChange: "transform" }}>
 
       {/* Top bar */}
-      <header className="relative z-10 flex justify-end items-center pt-4">
+      <header className="relative z-10 flex justify-between items-center pt-4">
+        <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
+           className="text-[10px] text-foreground/20 hover:text-accent/40 transition-colors">
+          グッズ
+        </a>
         <button
           onClick={() => router.push(`/${locale}/mypage`)}
           className="label-text text-[13px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]"
@@ -160,14 +164,6 @@ export default function LandingPage() {
               className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-foreground text-center text-[15px] placeholder:text-foreground/20 focus:outline-none focus:border-accent/50 transition-colors"
             />
           </div>
-        )}
-
-        {/* Merch link — equipment style */}
-        {(!isDesktop || dismissedDesktop) && (
-          <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
-             className="mt-2 text-[11px] text-foreground/20 hover:text-accent/50 transition-colors tracking-[0.08em]">
-            この装備、どこで手に入る？
-          </a>
         )}
 
         {/* CTA — tight to subtitle, not stuck at bottom */}
@@ -225,11 +221,10 @@ export default function LandingPage() {
         )}
       </div>
 
-      {/* Merch easter egg */}
+      {/* Merch link */}
       <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
-         className="text-[10px] text-foreground/15 hover:text-accent/40 transition-colors tracking-widest mt-auto pt-6 text-center block"
-         style={{ fontFamily: "monospace" }}>
-        🛒 GOODS
+         className="text-[10px] text-foreground/20 hover:text-accent/40 transition-colors mt-auto pt-6 text-center block">
+        グッズ
       </a>
 
       {/* Bottom spacer for safe area */}

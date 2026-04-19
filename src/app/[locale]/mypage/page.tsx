@@ -100,7 +100,10 @@ export default function MyPage() {
         <h1 className="text-[18px] font-semibold tracking-wide uppercase">
           {t("heading")}
         </h1>
-        <div className="w-11" />
+        <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
+           className="text-[10px] text-foreground/20 hover:text-accent/40 transition-colors">
+          グッズ
+        </a>
       </header>
 
       <div className="flex-1 overflow-y-auto px-6 py-8">
@@ -340,8 +343,8 @@ export default function MyPage() {
         </div>
         {/* Merch link */}
         <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
-           className="mt-6 py-3 text-[11px] text-foreground/25 hover:text-accent/50 transition-colors tracking-[0.1em] text-center block border-t border-white/5">
-          公式グッズショップ 🛒
+           className="text-[10px] text-foreground/20 hover:text-accent/40 transition-colors mt-6 text-center block">
+          グッズ
         </a>
       </div>
     </main>
