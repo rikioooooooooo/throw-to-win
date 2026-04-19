@@ -68,32 +68,31 @@ export default function LandingPage() {
   const handleTilt = useCallback((x: number, y: number) => {
     const el = mainRef.current;
     if (!el) return;
-    // Main container movement
-    const moveX = x * 40;
-    const moveY = y * 30;
-    const rotY = x * 12;
-    const rotX = -y * 8;
-    el.style.transform = `translate3d(${moveX.toFixed(1)}px, ${moveY.toFixed(1)}px, 0) perspective(350px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg)`;
+    const moveX = x * 50;
+    const moveY = y * 35;
+    const rotY = x * 16;
+    const rotX = -y * 10;
+    el.style.transform = `translate3d(${moveX.toFixed(1)}px, ${moveY.toFixed(1)}px, 0) perspective(280px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg)`;
 
-    // Per-character bending: each char gets different rotateY based on its position
+    // Per-character bending — aggressive curve
     const chars = charsRef.current;
     for (let i = 0; i < chars.length; i++) {
       const ch = chars[i];
       if (!ch) continue;
-      // Position: -1 (left) to +1 (right) based on index
       const pos = (i / (chars.length - 1)) * 2 - 1;
-      const charRotY = pos * x * 18;        // outer chars bend more
-      const charRotX = pos * -y * 8;
-      const charZ = Math.abs(pos) * x * 15; // depth offset
-      ch.style.transform = `perspective(300px) rotateY(${charRotY.toFixed(1)}deg) rotateX(${charRotX.toFixed(1)}deg) translateZ(${charZ.toFixed(1)}px)`;
+      const charRotY = pos * x * 30;
+      const charRotX = pos * -y * 14;
+      const charZ = Math.abs(pos) * x * 25;
+      ch.style.transform = `perspective(200px) rotateY(${charRotY.toFixed(1)}deg) rotateX(${charRotX.toFixed(1)}deg) translateZ(${charZ.toFixed(1)}px)`;
     }
 
-    // Button bending
+    // Button — strong bend
     const btn = btnRef.current;
     if (btn) {
-      const btnRotY = x * 8;
-      const btnRotX = -y * 5;
-      btn.style.transform = `perspective(400px) rotateX(${btnRotX.toFixed(1)}deg) rotateY(${btnRotY.toFixed(1)}deg)`;
+      const btnRotY = x * 14;
+      const btnRotX = -y * 8;
+      const btnSkew = x * 3;
+      btn.style.transform = `perspective(300px) rotateX(${btnRotX.toFixed(1)}deg) rotateY(${btnRotY.toFixed(1)}deg) skewY(${btnSkew.toFixed(1)}deg)`;
     }
   }, []);
 
