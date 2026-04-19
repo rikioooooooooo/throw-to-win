@@ -94,6 +94,7 @@ export default function PlayPage() {
   } = useCamera();
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const finishingRef = useRef(false);
+  const startingRef = useRef(false);
   const finishTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   /** Survives overlay state resets — holds the v0 trajectory peak for the result handler */
   const v0PeakRef = useRef(0);
@@ -372,7 +373,7 @@ export default function PlayPage() {
 
       // Compute personal best early — use the authoritative server height
       const currentData = loadData();
-      setIsPersonalBest(result.heightMeters > currentData.stats.personalBest);
+      setIsPersonalBest(displayHeight > currentData.stats.personalBest);
 
       // Set peak with display height — DOM HeightDisplay and canvas overlay match.
       setPeakResult(displayResult);
@@ -398,14 +399,19 @@ export default function PlayPage() {
         handleThrowComplete(result);
       }, 5000);
     }
+    // No cleanup here — the timeout must survive re-renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result, gameState]);
+
+  // Unmount-only cleanup for finish timeout
+  useEffect(() => {
     return () => {
       if (finishTimeoutRef.current) {
         clearTimeout(finishTimeoutRef.current);
         finishTimeoutRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [result, gameState]);
+  }, []);
 
   // Create/revoke video URL
   useEffect(() => {
@@ -432,6 +438,8 @@ export default function PlayPage() {
   }, [startPreview]);
 
   const handleStartCountdown = useCallback(async () => {
+    if (startingRef.current) return;
+    startingRef.current = true;
     setGameState("countdown");
     startCalibration();
     setOverlayRenderer(overlayRenderer);
@@ -580,6 +588,7 @@ export default function PlayPage() {
       finishTimeoutRef.current = null;
     }
     finishingRef.current = false;
+    startingRef.current = false;
     v0PeakRef.current = 0;
     unifiedHeightRef.current = 0;
     challengeDataRef.current = null;

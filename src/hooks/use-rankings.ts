@@ -49,7 +49,7 @@ export function useRankings(
         if (signal.aborted) return;
 
         let countryRankings: RankEntry[] = [];
-        if (worldData.yourCountry && worldData.yourCountry !== "XX") {
+        if ((worldData.yourCountry ?? "") !== "" && worldData.yourCountry !== "XX") {
           const countryRes = await fetch(
             `/api/ranking?scope=country&country=${worldData.yourCountry}&limit=${limit}`,
             { signal },
@@ -58,15 +58,15 @@ export function useRankings(
             const countryData = (await countryRes.json()) as {
               rankings: RankEntry[];
             };
-            countryRankings = countryData.rankings;
+            countryRankings = countryData.rankings ?? [];
           }
         }
 
         if (!signal.aborted) {
           setState({
-            world: worldData.rankings,
+            world: worldData.rankings ?? [],
             country: countryRankings,
-            yourCountry: worldData.yourCountry,
+            yourCountry: worldData.yourCountry ?? "",
             loading: false,
           });
         }

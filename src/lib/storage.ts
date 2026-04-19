@@ -55,17 +55,29 @@ export function loadData(): AppData {
     // Ensure userId exists
     if (!parsed.userId) return initData();
     // Backward compatibility: fill missing stats fields
+    const rawStats = parsed.stats ?? {};
     const stats: UserStats = {
-      ...parsed.stats,
-      totalHeightMeters: parsed.stats.totalHeightMeters ?? 0,
-      todayDateISO: parsed.stats.todayDateISO ?? "",
-      todayBest: parsed.stats.todayBest ?? 0,
-      streakDays: parsed.stats.streakDays ?? 0,
-      lastActiveDateISO: parsed.stats.lastActiveDateISO ?? "",
+      ...rawStats,
+      personalBest: rawStats.personalBest ?? 0,
+      totalThrows: rawStats.totalThrows ?? 0,
+      totalAirtimeSeconds: rawStats.totalAirtimeSeconds ?? 0,
+      totalHeightMeters: rawStats.totalHeightMeters ?? 0,
+      todayDateISO: rawStats.todayDateISO ?? "",
+      todayBest: rawStats.todayBest ?? 0,
+      streakDays: rawStats.streakDays ?? 0,
+      lastActiveDateISO: rawStats.lastActiveDateISO ?? "",
     };
     return { ...parsed, stats };
   } catch {
-    return initData();
+    // Don't overwrite corrupted data — return empty without saving
+    return {
+      userId: generateUUID(),
+      displayName: "",
+      consent: { agreed: false, agreedAt: "", version: CONSENT_VERSION },
+      settings: { cameraDirection: "rear", locale: DEFAULT_LOCALE },
+      stats: { personalBest: 0, totalThrows: 0, totalAirtimeSeconds: 0, totalHeightMeters: 0, todayDateISO: "", todayBest: 0, streakDays: 0, lastActiveDateISO: "" },
+      throws: [],
+    };
   }
 }
 

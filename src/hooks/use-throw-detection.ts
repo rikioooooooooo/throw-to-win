@@ -77,6 +77,7 @@ export function useThrowDetection(): UseThrowDetectionReturn {
   const startDetection = useCallback(() => {
     const detector = detectorRef.current;
     if (!detector) return;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
     detector.startWaitingForThrow();
     rafRef.current = requestAnimationFrame(tickRef.current);
   }, []);

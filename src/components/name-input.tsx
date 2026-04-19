@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 type NameInputProps = {
@@ -16,9 +16,10 @@ export function NameInput({ currentName, onSave, saving }: NameInputProps) {
   const [value, setValue] = useState(currentName);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+  // Auto-focus disabled — triggers virtual keyboard on mobile which shifts layout
+  // useEffect(() => {
+  //   inputRef.current?.focus();
+  // }, []);
 
   const trimmed = value.trim();
   const canSave = trimmed.length > 0 && trimmed.length <= MAX_LENGTH && trimmed !== currentName;

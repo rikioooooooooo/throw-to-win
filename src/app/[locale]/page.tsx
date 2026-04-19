@@ -144,7 +144,7 @@ export default function LandingPage() {
       {/* Hero — game start screen layout */}
       <div className="flex-1 flex flex-col items-center justify-center">
         {/* Logo — BIG, hero-level, with green glow halo */}
-        <div className="relative animate-fade-in-up" style={{ marginBottom: "clamp(16px, 4vw, 28px)" }}>
+        <div className="relative animate-fade-in-up" style={{ marginBottom: "clamp(8px, 2vw, 28px)" }}>
           {/* Green glow halo behind logo — no blur filter for perf */}
           <div
             className="absolute inset-0 rounded-full"

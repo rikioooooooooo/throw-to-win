@@ -54,8 +54,6 @@ export function GyroBars({ className, onTilt }: GyroBarsProps) {
     };
     window.addEventListener("deviceorientation", handleOrientation);
 
-    const gyroTimer = setTimeout(() => {}, GYRO_TIMEOUT_MS);
-
     const dpr = window.devicePixelRatio || 1;
     const resize = () => {
       const w = window.innerWidth;
@@ -205,7 +203,6 @@ export function GyroBars({ className, onTilt }: GyroBarsProps) {
 
     return () => {
       cancelAnimationFrame(rafRef.current);
-      clearTimeout(gyroTimer);
       window.removeEventListener("deviceorientation", handleOrientation);
       window.removeEventListener("resize", resize);
     };

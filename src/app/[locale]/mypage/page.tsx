@@ -297,7 +297,7 @@ export default function MyPage() {
                       boxShadow: "0 0 12px rgba(0, 250, 154, 0.08)",
                     } : {}),
                     opacity: 0,
-                    animation: `fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${index * 40}ms forwards`,
+                    animation: `fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${Math.min(index * 40, 400)}ms forwards`,
                   }}
                 >
                   {/* PB glow line at top */}
