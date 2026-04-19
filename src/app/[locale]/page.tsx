@@ -18,6 +18,7 @@ export default function LandingPage() {
   const [isDesktop, setIsDesktop] = useState(false);
   const [dismissedDesktop, setDismissedDesktop] = useState(false);
   const [nameInput, setNameInput] = useState("");
+  const [showNameOverlay, setShowNameOverlay] = useState(false);
 
   useEffect(() => {
     const isMobile = typeof navigator !== "undefined" && (
@@ -32,11 +33,15 @@ export default function LandingPage() {
     return loadData().stats;
   });
 
-  // Load existing displayName on mount
+  // Load existing displayName on mount, show overlay if no name
   useEffect(() => {
     if (typeof window === "undefined") return;
     const existing = loadData().displayName;
-    if (existing) setNameInput(existing);
+    if (existing) {
+      setNameInput(existing);
+    } else {
+      setShowNameOverlay(true);
+    }
   }, []);
 
   const nameValid = nameInput.trim().length > 0;
@@ -152,22 +157,14 @@ export default function LandingPage() {
           {t("landing.subtitle")}
         </p>
 
-        {/* Name input — show before START */}
-        {(!isDesktop || dismissedDesktop) && (
-          <div className="mt-10 w-full max-w-[320px] animate-fade-in-up delay-120 flex flex-col items-center gap-2">
-            <label className="text-[13px] text-accent/70 tracking-[0.1em] uppercase font-medium">
-              Your Name
-            </label>
-            <input
-              type="text"
-              value={nameInput}
-              onChange={e => setNameInput(e.target.value)}
-              placeholder={t("landing.namePlaceholder")}
-              maxLength={20}
-              className="w-full px-5 py-4 bg-white/8 border-2 border-accent/30 rounded-2xl text-foreground text-center text-[18px] font-medium placeholder:text-white/50 focus:outline-none focus:border-accent/60 focus:bg-white/10 transition-all"
-              style={{ boxShadow: nameInput.trim() ? "0 0 16px rgba(0,250,154,0.1)" : "none" }}
-            />
-          </div>
+        {/* Show current name if set */}
+        {nameValid && (
+          <button
+            onClick={() => setShowNameOverlay(true)}
+            className="mt-6 text-[13px] text-accent/60 hover:text-accent transition-colors tracking-[0.08em] animate-fade-in-up delay-120"
+          >
+            {nameInput} ✏️
+          </button>
         )}
 
         {/* CTA — tight to subtitle, not stuck at bottom */}
@@ -261,6 +258,36 @@ export default function LandingPage() {
               className="text-muted/50 text-[12px] tracking-[0.1em] hover:text-muted transition-colors"
             >
               {t("landing.continueAnyway")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Name overlay */}
+      {showNameOverlay && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8" style={{ backgroundColor: "rgba(5, 5, 8, 0.95)" }}>
+          <div className="flex flex-col items-center text-center max-w-sm w-full animate-fade-in-up">
+            <h2 className="text-[22px] font-semibold text-foreground mb-2 tracking-wide">
+              ニックネームを入力
+            </h2>
+            <p className="text-[13px] text-foreground/40 mb-8">
+              ランキングに表示される名前です
+            </p>
+            <input
+              type="text"
+              value={nameInput}
+              onChange={e => setNameInput(e.target.value)}
+              placeholder={t("landing.namePlaceholder")}
+              maxLength={20}
+              autoFocus
+              className="w-full px-5 py-4 bg-white/8 border-2 border-accent/30 rounded-2xl text-foreground text-center text-[20px] font-semibold placeholder:text-white/30 focus:outline-none focus:border-accent/60 focus:bg-white/10 transition-all mb-6"
+            />
+            <button
+              onClick={() => { if (nameInput.trim()) { saveDisplayName(nameInput.trim()); setShowNameOverlay(false); } }}
+              disabled={!nameInput.trim()}
+              className={`w-full py-4 rounded-2xl text-[16px] font-bold tracking-[0.1em] transition-all ${nameInput.trim() ? "bg-accent text-black neon-glow" : "bg-accent/20 text-foreground/30 cursor-not-allowed"}`}
+            >
+              OK
             </button>
           </div>
         </div>
