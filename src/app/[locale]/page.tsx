@@ -152,7 +152,7 @@ export default function LandingPage() {
             src="/assets/logo-landing.png"
             alt="Throw To Win"
             style={{
-              width: "clamp(160px, 42vw, 260px)",
+              width: "clamp(180px, 48vw, 300px)",
               height: "auto",
               position: "relative",
               zIndex: 1,
