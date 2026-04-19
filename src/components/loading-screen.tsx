@@ -259,19 +259,13 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
           />
         </div>
 
-        {/* Logo + Dance animation centered inside ring */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-          <img
-            src="/assets/logo-landing.png"
-            alt=""
-            style={{ width: 48, height: "auto", opacity: 0.5, animation: "logo-float 3s ease-in-out infinite" }}
-            aria-hidden="true"
-          />
+        {/* Dance animation centered inside ring */}
+        <div className="absolute inset-0 flex items-center justify-center">
           <img
             src="/assets/anim/dance.webp"
             alt=""
-            width={80}
-            height={80}
+            width={96}
+            height={96}
             aria-hidden="true"
           />
         </div>
