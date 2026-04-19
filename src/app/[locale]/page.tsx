@@ -309,25 +309,30 @@ export default function LandingPage() {
           <div className="flex flex-col items-center text-center max-w-sm w-full animate-fade-in-up">
             <div className="text-[48px] mb-4">📱</div>
             <h2 className="text-[20px] font-semibold text-foreground mb-2 tracking-wide">
-              センサーを使います
+              センサーとカメラを使います
             </h2>
             <p className="text-[13px] text-foreground/40 mb-3 leading-relaxed">
-              スマホの傾きを検知して
+              スマホの傾き検知と
               <br />
-              背景の演出に使用します
+              投擲中の撮影に使用します
             </p>
             <p className="text-[11px] text-foreground/25 mb-8">
-              次に表示されるダイアログで「許可」を選んでください
+              表示されるダイアログで「許可」を選んでください
             </p>
             <button
-              onClick={() => {
-                // This is the user gesture — request permission here
+              onClick={async () => {
+                // Request both motion + camera in one user gesture
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 if (typeof (DeviceMotionEvent as any).requestPermission === "function") {
                   gyroRequestedRef.current = true;
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  (DeviceMotionEvent as any).requestPermission().catch(() => {});
+                  await (DeviceMotionEvent as any).requestPermission().catch(() => {});
                 }
+                // Pre-request camera permission (stop stream immediately)
+                try {
+                  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+                  stream.getTracks().forEach(t => t.stop());
+                } catch { /* user denied or no camera */ }
                 setShowGyroOverlay(false);
               }}
               className="w-full py-4 rounded-2xl text-[16px] font-bold tracking-[0.1em] bg-accent text-black neon-glow"

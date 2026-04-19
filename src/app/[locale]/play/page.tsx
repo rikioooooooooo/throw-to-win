@@ -336,6 +336,19 @@ export default function PlayPage() {
     }
   }, [router, locale]);
 
+  // Auto-skip permissions if camera is already granted (pre-authorized on landing)
+  useEffect(() => {
+    if (gameState !== "permissions") return;
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+      .then(stream => {
+        stream.getTracks().forEach(t => t.stop());
+        // Camera already granted — skip straight to preview
+        handlePermissionsGranted();
+      })
+      .catch(() => { /* not granted, show permission screen as normal */ });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ---- Handle throw result ----
   // At landing: flash peak height in accent and FREEZE. The overlay sync useEffect
   // sets isAtPeak=true which stops live computation and locks the display.
