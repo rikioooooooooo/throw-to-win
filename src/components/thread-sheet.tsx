@@ -21,7 +21,7 @@ type ThreadSheetProps = {
 };
 
 function countryFlag(code: string): string {
-  if (!code || code.length !== 2) return code;
+  if (!code || code.length !== 2 || code === "XX") return "";
   const upper = code.toUpperCase();
   return String.fromCodePoint(
     upper.charCodeAt(0) + 0x1f1a5,
@@ -112,20 +112,11 @@ export function ThreadSheet({ open, onClose }: ThreadSheetProps) {
 
       if (!res.ok) return;
 
-      // Prepend optimistic post
-      const data = loadData();
-      const newPost: Post = {
-        id: Date.now(),
-        displayName: data.displayName ?? "",
-        body: trimmed,
-        heightMeters: data.stats.personalBest,
-        country: "XX",
-        createdAt: new Date().toISOString().replace("Z", ""),
-      };
-      setPosts((prev) => [newPost, ...prev]);
+      // Re-fetch to get real post ID from DB (auto-increment)
       setInput("");
       setStatusMsg(t("posted"));
       setTimeout(() => setStatusMsg(null), 2000);
+      await fetchPosts();
     } catch {
       // silent
     } finally {
