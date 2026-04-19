@@ -584,6 +584,8 @@ export default function PlayPage() {
     unifiedHeightRef.current = 0;
     challengeDataRef.current = null;
     turnstileTokenRef.current = null;
+    // Reset throw detection state (clears stale result that would re-trigger the landing useEffect)
+    resetDetection();
     setResultData(null);
     setVideoUrl(null);
     setPeakResult(null);
@@ -596,7 +598,7 @@ export default function PlayPage() {
     // Restart camera preview (re-enumerates lenses)
     const success = await startPreview("rear");
     setGameState(success ? "prepare" : "permissions");
-  }, [startPreview]);
+  }, [startPreview, resetDetection]);
 
   const handleSaveVideo = useCallback(async () => {
     if (!resultData?.videoBlob) return;
