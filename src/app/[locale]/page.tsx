@@ -48,6 +48,13 @@ export default function LandingPage() {
 
   const handleStart = () => {
     if (!nameValid) return;
+    // Request gyro permission on START tap (iOS requires user gesture)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (typeof (DeviceMotionEvent as any).requestPermission === "function" && !gyroRequestedRef.current) {
+      gyroRequestedRef.current = true;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (DeviceMotionEvent as any).requestPermission().catch(() => {});
+    }
     saveDisplayName(nameInput.trim());
     if (!hasValidConsent()) {
       setShowConsent(true);
@@ -118,7 +125,7 @@ export default function LandingPage() {
       {/* Canvas OUTSIDE main — stays fixed to viewport, unaffected by main's 3D transform */}
       <GyroBars className="fixed inset-0 z-0 pointer-events-none" onTilt={handleTilt} />
 
-      <main ref={mainRef} className="relative flex-1 flex flex-col px-6" onClick={handleGyroPermission} style={{ transformOrigin: "center center", willChange: "transform" }}>
+      <main ref={mainRef} className="relative flex-1 flex flex-col px-6" style={{ transformOrigin: "center center", willChange: "transform" }}>
 
       {/* Top bar */}
       <header className="relative z-10 flex justify-between items-center pt-4">
