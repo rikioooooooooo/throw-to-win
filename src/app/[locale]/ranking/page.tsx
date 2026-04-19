@@ -20,9 +20,10 @@ export default function RankingPage() {
 
   return (
     <main className="min-h-screen bg-background px-5 safe-top safe-bottom">
-      {/* Subtle radial burst background */}
+      {/* Layered background — radial burst + green ambient glow */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="radial-burst" style={{ opacity: 0.5 }} />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(0, 250, 154, 0.04) 0%, transparent 60%)" }} />
       </div>
 
       <div className="relative z-10">
@@ -36,9 +37,12 @@ export default function RankingPage() {
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="label-text text-[14px] tracking-[0.2em] text-foreground uppercase font-bold">
-            {t("ranking.heading")}
-          </h1>
+          <div className="flex items-center gap-2">
+            <img src="/assets/logo-landing.png" alt="" aria-hidden="true" style={{ width: 24, height: "auto", opacity: 0.6 }} />
+            <h1 className="label-text text-[14px] tracking-[0.2em] text-foreground uppercase font-bold">
+              {t("ranking.heading")}
+            </h1>
+          </div>
           <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
              className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
             グッズ

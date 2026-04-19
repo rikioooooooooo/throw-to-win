@@ -72,7 +72,11 @@ export default function MyPage() {
   }, []);
 
   return (
-    <main className="flex-1 flex flex-col min-h-screen safe-bottom">
+    <main className="flex-1 flex flex-col min-h-screen safe-bottom relative">
+      {/* Background ambient glow */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 20%, rgba(0, 250, 154, 0.04) 0%, transparent 50%)" }} />
+      </div>
       {/* Sticky header */}
       <header
         className="px-5 py-5 flex items-center justify-between sticky top-0 z-10 safe-top"
@@ -92,9 +96,12 @@ export default function MyPage() {
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="text-[18px] font-bold tracking-wide uppercase">
-          {t("heading")}
-        </h1>
+        <div className="flex items-center gap-2">
+          <img src="/assets/logo-landing.png" alt="" aria-hidden="true" style={{ width: 24, height: "auto", opacity: 0.6 }} />
+          <h1 className="text-[18px] font-bold tracking-wide uppercase">
+            {t("heading")}
+          </h1>
+        </div>
         <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
            className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
           グッズ

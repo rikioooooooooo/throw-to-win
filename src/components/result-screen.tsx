@@ -76,6 +76,10 @@ export function ResultScreen({
 
   return (
     <main className="fixed inset-0 z-10 flex flex-col items-center bg-background overflow-y-auto safe-top safe-bottom">
+      {/* Ambient green glow — always present */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 25%, rgba(0, 250, 154, 0.05) 0%, transparent 55%)" }} />
+      </div>
       {/* Radial burst lines behind everything — like manga impact lines */}
       {(resultData.isPersonalBest || tierInfo?.isBreakthrough) && (
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">

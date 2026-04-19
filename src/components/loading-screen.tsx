@@ -182,21 +182,6 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
         <div className="radial-burst" style={{ opacity: 0.4 }} />
       </div>
 
-      {/* Logo at top — brand presence */}
-      <img
-        src="/assets/logo-landing.png"
-        alt=""
-        aria-hidden="true"
-        className="absolute"
-        style={{
-          top: "clamp(60px, 12vh, 100px)",
-          width: "48px",
-          height: "auto",
-          opacity: 0.3,
-          animation: "logo-float 3s ease-in-out infinite",
-        }}
-      />
-
       {/* Ring + Dance container */}
       <div ref={refs.containerRef} className="relative" style={{
         width: size, height: size,
@@ -275,18 +260,18 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
         </div>
 
         {/* Logo + Dance animation centered inside ring */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
           <img
             src="/assets/logo-landing.png"
             alt=""
-            style={{ width: 40, height: "auto", opacity: 0.4 }}
+            style={{ width: 48, height: "auto", opacity: 0.5, animation: "logo-float 3s ease-in-out infinite" }}
             aria-hidden="true"
           />
           <img
             src="/assets/anim/dance.webp"
             alt=""
-            width={96}
-            height={96}
+            width={80}
+            height={80}
             aria-hidden="true"
           />
         </div>
