@@ -269,13 +269,18 @@ export default function MyPage() {
 
           {throws.length === 0 ? (
             <div
-              className="text-center py-12"
+              className="flex flex-col items-center text-center py-12"
               style={{
                 backgroundColor: "var(--color-surface)",
                 border: "1px solid var(--color-border-subtle)",
                 borderRadius: "14px",
               }}
             >
+              <div className="flex justify-center mb-4">
+                <div className="w-32 h-32 border border-dashed border-accent/20 rounded-lg flex items-center justify-center text-accent/30 text-[10px] text-center">
+                  （仮）<br/>投擲記録
+                </div>
+              </div>
               <p className="text-muted text-[13px] tracking-[0.05em]">
                 {t("noThrows")}
               </p>

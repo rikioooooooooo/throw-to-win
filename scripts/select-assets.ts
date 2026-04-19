@@ -69,6 +69,93 @@ function scanAssets(): AssetEntry[] {
 }
 
 // ---------------------------------------------------------------------------
+// Japanese descriptions for each asset
+// ---------------------------------------------------------------------------
+
+const CATEGORY_NAMES: Record<string, string> = {
+  emotion: "感情表現系",
+  state: "状態系",
+  achievement: "達成系",
+  decoration: "装飾系",
+};
+
+const KIND_DESCRIPTIONS: Record<string, Record<string, string>> = {
+  emotion: {
+    celebrate: "歓喜 — 自己ベスト更新・ティア昇格時のリアクション",
+    wow: "驚き — すごい高さが出た時",
+    pride: "誇り — 安定して良い記録を出した時",
+    determined: "集中 — 投げる前の画面、気合い",
+    "sad-but-ok": "惜しい — PB逃した時のリアクション",
+    chill: "リラックス — 通常の結果画面",
+    fire: "燃える — 連続PB更新中",
+    sparkle: "キラキラ — ティア昇格時",
+    dizzy: "めまい — センサーエラー時",
+    sleeping: "居眠り — 待機画面",
+    confused: "困惑 — エラー時",
+    excited: "興奮 — 高い記録が出た時",
+    cool: "クール — 上位ランク",
+    "thumbs-up": "承認 — 投げ成功",
+    peace: "ピース — シェア時",
+  },
+  state: {
+    "empty-ranking": "ランキングが空 — まだ誰もいない時",
+    "empty-history": "投擲履歴なし — マイページの空状態",
+    "empty-pb": "PBなし — まだ記録がない時",
+    "loading-video": "動画処理中 — ffmpegスローモ処理",
+    "loading-initial": "初回ロード — アプリ起動時",
+    "error-sensor": "センサーエラー — 加速度センサーが使えない",
+    "error-network": "通信エラー — ネットワーク接続失敗",
+    "error-generic": "エラー — その他のエラー",
+    "permission-camera": "カメラ許可待ち — 許可ダイアログ前",
+    "permission-motion": "モーション許可待ち — 許可ダイアログ前",
+  },
+  achievement: {
+    "pb-update": "自己ベスト更新 — PB更新時のバッジ",
+    "tier-up-rookie": "ルーキー昇格",
+    "tier-up-iron": "アイアン昇格",
+    "tier-up-bronze": "ブロンズ昇格",
+    "tier-up-silver": "シルバー昇格",
+    "tier-up-gold": "ゴールド昇格",
+    "tier-up-platinum": "プラチナ昇格",
+    "tier-up-emerald": "エメラルド昇格",
+    "tier-up-diamond": "ダイヤモンド昇格",
+    "tier-up-master": "マスター昇格",
+    "tier-up-legend": "レジェンド昇格",
+    "streak-3": "3日連続投げ達成",
+    "streak-7": "7日連続投げ達成",
+    "streak-30": "30日連続投げ達成（特別）",
+    "world-rank-update": "世界ランク上昇",
+    "country-rank-update": "国内ランク上昇",
+  },
+  decoration: {
+    "star-small": "小さい星 — 装飾用",
+    "star-medium": "中くらいの星 — 装飾用",
+    "star-large": "大きい星 — 装飾用",
+    "sparkle-1": "キラキラ1 — 形違い装飾",
+    "sparkle-2": "キラキラ2 — 形違い装飾",
+    "sparkle-3": "キラキラ3 — 形違い装飾",
+    "burst-small": "小さい爆発 — 光線エフェクト",
+    "burst-medium": "中くらいの爆発",
+    "burst-large": "大きい爆発",
+    "arrow-up": "上向き矢印",
+    "arrow-down": "下向き矢印",
+    "arrow-left": "左向き矢印",
+    "arrow-right": "右向き矢印",
+    "wing-left": "左翼パーツ",
+    "wing-right": "右翼パーツ",
+    "hand-open": "開いた手パーツ",
+    "hand-closed": "閉じた手パーツ",
+    "speed-line-1": "集中線1",
+    "speed-line-2": "集中線2",
+    "dot-pattern": "ドットパターン",
+  },
+};
+
+function getDescription(category: string, kind: string): string {
+  return KIND_DESCRIPTIONS[category]?.[kind] ?? kind;
+}
+
+// ---------------------------------------------------------------------------
 // HTML templates
 // ---------------------------------------------------------------------------
 
@@ -82,33 +169,36 @@ function indexPage(entries: AssetEntry[]): string {
 
   let listHtml = "";
   for (const [category, items] of categoryMap) {
-    listHtml += `<h2>${category} (${items.length} kinds)</h2><ul>`;
+    const catName = CATEGORY_NAMES[category] ?? category;
+    listHtml += `<h2>${catName}（${items.length}種）</h2><ul>`;
     for (const item of items) {
+      const desc = getDescription(category, item.kind);
       const badge = item.selected
-        ? ' <span style="color:#00fa9a;font-weight:bold">[SELECTED]</span>'
+        ? ' <span style="color:#00fa9a;font-weight:bold">✓ 選別済み</span>'
         : "";
-      listHtml += `<li><a href="/?category=${category}&kind=${item.kind}">${item.kind}</a> (${item.files.length} candidates)${badge}</li>`;
+      listHtml += `<li><a href="/?category=${category}&kind=${item.kind}">${desc}</a>（${item.files.length}候補）${badge}</li>`;
     }
     listHtml += "</ul>";
   }
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>Asset Selector — Throw To Win</title>
+<title>アセット選別 — Throw To Win</title>
 <style>
   body { background: #0a0a0f; color: #e0e0e0; font-family: system-ui, sans-serif; padding: 2rem; }
-  a { color: #00fa9a; }
+  a { color: #00fa9a; text-decoration: none; }
+  a:hover { text-decoration: underline; }
   h1 { color: #00fa9a; }
   h2 { color: #4dffbc; margin-top: 2rem; }
   ul { list-style: none; padding: 0; }
-  li { padding: 0.3rem 0; }
+  li { padding: 0.4rem 0; font-size: 15px; }
 </style>
 </head>
 <body>
-<h1>Asset Selector</h1>
-<p>Click a kind to view candidates and select the best one.</p>
+<h1>アセット選別</h1>
+<p>クリックして候補一覧を表示。ベストな1枚を選んでください。</p>
 ${listHtml}
 </body>
 </html>`;
@@ -126,19 +216,21 @@ function gridPage(
     <div class="card" data-file="${file}">
       <img src="/raw/${category}/${file}" alt="${file}" loading="lazy">
       <div class="label">${file}</div>
-      <button class="select-btn" onclick="selectAsset('${category}','${kind}','${file}')">Select</button>
+      <button class="select-btn" onclick="selectAsset('${category}','${kind}','${file}')">これを採用</button>
     </div>`;
   }
 
+  const desc = getDescription(category, kind);
+  const catName = CATEGORY_NAMES[category] ?? category;
   const selectedBadge = isSelected
-    ? `<div class="selected-badge">Current selection exists in final/</div>`
+    ? `<div class="selected-badge">✓ 選別済み（再選択で上書き可能）</div>`
     : "";
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>${category}/${kind} — Asset Selector</title>
+<title>${desc} — アセット選別</title>
 <style>
   body { background: #0a0a0f; color: #e0e0e0; font-family: system-ui, sans-serif; padding: 2rem; }
   a { color: #00fa9a; }
@@ -162,11 +254,11 @@ function gridPage(
 </style>
 </head>
 <body>
-<a href="/" class="back">Back to index</a>
-<h1>${category} / ${kind}</h1>
+<a href="/" class="back">← 一覧に戻る</a>
+<h1>${catName} / ${desc}</h1>
 ${selectedBadge}
 <div class="grid">${gridHtml}</div>
-<div class="feedback" id="feedback">Selected!</div>
+<div class="feedback" id="feedback">採用しました！</div>
 <script>
 async function selectAsset(category, kind, file) {
   const res = await fetch('/api/select', {
@@ -179,7 +271,7 @@ async function selectAsset(category, kind, file) {
     fb.style.display = 'block';
     setTimeout(() => { fb.style.display = 'none'; }, 2000);
   } else {
-    alert('Selection failed: ' + (await res.text()));
+    alert('採用に失敗しました: ' + (await res.text()));
   }
 }
 </script>

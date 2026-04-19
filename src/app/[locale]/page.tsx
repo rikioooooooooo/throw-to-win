@@ -107,9 +107,9 @@ export default function LandingPage() {
       <header className="relative z-10 flex justify-end items-center pt-4">
         <button
           onClick={() => router.push(`/${locale}/mypage`)}
-          className="label-text text-[12px] text-muted hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]"
+          className="label-text text-[13px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]"
           style={{
-            border: "1px solid var(--color-border-subtle)",
+            border: "1px solid rgba(255,255,255,0.12)",
             borderRadius: "8px",
           }}
         >
@@ -119,20 +119,27 @@ export default function LandingPage() {
 
       {/* Hero — title + subtitle + CTA grouped tightly */}
       <div className="flex-1 flex flex-col items-center justify-center">
+        {/* Logo placeholder */}
+        <div className="mb-6 flex justify-center">
+          <div className="w-20 h-20 border border-dashed border-accent/30 rounded-lg flex items-center justify-center text-accent/40 text-[11px]">
+            （仮）ロゴ
+          </div>
+        </div>
+
         <h1
-          className="animate-fade-in-up text-center leading-[0.82] tracking-[0.08em] uppercase text-foreground font-normal"
-          style={{ fontSize: "clamp(3.2rem, 15vw, 6.5rem)", textShadow: "0 0 40px rgba(0,250,154,0.15)", transformStyle: "preserve-3d" }}
+          className="animate-fade-in-up text-center text-foreground"
+          style={{ fontSize: "clamp(2.4rem, 8vw, 3.8rem)", fontWeight: 700, lineHeight: 1.1, letterSpacing: "0.02em", textShadow: "0 0 40px rgba(0,250,154,0.15)", transformStyle: "preserve-3d" }}
         >
-          {"THROW".split("").map((ch, i) => (
+          {"投げろ、".split("").map((ch, i) => (
             <span key={`t${i}`} ref={el => { charsRef.current[i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch}</span>
           ))}
           <br />
-          {"TO WIN".split("").map((ch, i) => (
-            <span key={`w${i}`} ref={el => { charsRef.current[5 + i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch === " " ? "\u00A0" : ch}</span>
+          {"スマホを。".split("").map((ch, i) => (
+            <span key={`w${i}`} ref={el => { charsRef.current[4 + i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch}</span>
           ))}
         </h1>
 
-        <p className="mt-5 text-[13px] tracking-[0.25em] uppercase text-muted text-center max-w-xs animate-fade-in-up delay-80">
+        <p className="mt-5 text-[14px] tracking-[0.05em] text-foreground/50 text-center max-w-xs animate-fade-in-up delay-80" style={{ fontWeight: 500 }}>
           {t("landing.subtitle")}
         </p>
 
@@ -141,10 +148,11 @@ export default function LandingPage() {
           <button
             ref={btnRef}
             onClick={handleStart}
-            className="mt-10 w-full max-w-[320px] bg-accent text-black cta-text text-[15px] tracking-[0.15em] animate-fade-in-up delay-160 neon-glow"
+            className="mt-10 w-full max-w-[320px] bg-accent text-black cta-text text-[17px] tracking-[0.15em] animate-fade-in-up delay-160 neon-glow"
             style={{
               borderRadius: "16px",
-              height: "58px",
+              height: "62px",
+              fontWeight: 700,
               willChange: "transform",
             }}
           >
@@ -161,11 +169,11 @@ export default function LandingPage() {
                 {formatHeight(stats.personalBest)}
                 <span className="text-[13px] text-muted/60 ml-0.5">m</span>
               </span>
-              <span className="text-[12px] text-muted/60 tracking-widest uppercase">PB</span>
+              <span className="text-[12px] text-accent tracking-widest uppercase">PB</span>
             </div>
             <button
               onClick={() => router.push(`/${locale}/ranking`)}
-              className="mt-2 text-muted/70 text-[12px] tracking-[0.1em] hover:text-foreground/60 transition-colors"
+              className="mt-2 text-foreground/40 text-[13px] tracking-[0.1em] hover:text-foreground/60 transition-colors"
             >
               {t("ranking.viewRanking")} →
             </button>
@@ -174,12 +182,12 @@ export default function LandingPage() {
             {(stats.streakDays > 1 || stats.todayBest > 0) && (
               <div className="flex items-center gap-4 mt-2">
                 {stats.streakDays > 1 && (
-                  <span className="text-muted text-[11px] tracking-[0.05em]">
+                  <span className="text-foreground/35 text-[12px] tracking-[0.05em]">
                     🔥 {stats.streakDays} {t("landing.streakDays")}
                   </span>
                 )}
                 {stats.todayBest > 0 && (
-                  <span className="text-muted text-[11px] tracking-[0.05em]">
+                  <span className="text-foreground/35 text-[12px] tracking-[0.05em]">
                     {t("landing.todaysBest")}: {formatHeight(stats.todayBest)}m
                   </span>
                 )}

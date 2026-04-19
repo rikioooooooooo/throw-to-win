@@ -78,7 +78,14 @@ export default function RankingPage() {
       {rankings.loading ? (
         <p className="text-center text-muted text-[13px] py-12">{t("common.loading")}</p>
       ) : entries.length === 0 ? (
-        <p className="text-center text-muted text-[13px] py-12">{t("landing.noRankings")}</p>
+        <div className="flex flex-col items-center py-12">
+          <div className="flex justify-center mb-4">
+            <div className="w-32 h-32 border border-dashed border-accent/20 rounded-lg flex items-center justify-center text-accent/30 text-[10px] text-center">
+              （仮）<br/>ランキング
+            </div>
+          </div>
+          <p className="text-center text-muted text-[13px]">{t("landing.noRankings")}</p>
+        </div>
       ) : (
         <div className="pb-8">
           <RankingList title={title} entries={entries} />

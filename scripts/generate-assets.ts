@@ -10,9 +10,9 @@ const __dirname = path.dirname(__filename);
 // Prompt templates from visual-system.md
 // ---------------------------------------------------------------------------
 
-const BASE_PROMPT = `STYLE: Sticker-style illustration, bold cartoon outlines, flat solid fill (no gradient), Y2K skater/pop aesthetic, vibrant neon mint green (#00FA9A) as primary color with black outlines. Transparent background. Centered composition with 5% margin. Reference image provided: match ONLY the art style, color palette, and outline weight of the reference — do NOT copy the subject (winged phone). Create a DIFFERENT subject in the same visual language.
+const BASE_PROMPT = `STYLE: Sticker-style illustration with bold black cartoon outlines, flat solid color fill (no gradient), Y2K skater/pop aesthetic. Primary color is vibrant neon mint green (#00FA9A) with black outlines. Transparent background. Centered composition with 5% margin.
 
-DO NOT: Use minimal thin-line icons, photorealistic rendering, 3D CGI, anime/manga style, watercolor, sketch, muted colors, non-neon palettes, or backgrounds. Do NOT draw a phone with wings — that is the logo, not the subject.`;
+DO NOT: Use thin-line icons, photorealistic rendering, 3D CGI, anime/manga style, watercolor, sketch, muted colors, or backgrounds. Do NOT draw any phones, devices, screens, human figures, characters, faces, bodies, animals, or living creatures. Express everything through abstract shapes, objects, symbols, icons, and graphic elements only.`;
 
 function emotionPrompt(def: EmotionDef): string {
   return `${BASE_PROMPT}
@@ -111,109 +111,123 @@ type AssetDef =
 
 const EMOTION_DEFS: Record<string, EmotionDef> = {
   celebrate: {
-    emotion: "celebration and joy after an incredible throw",
-    subject: "A bold cartoon rocket or arrow shooting straight up through clouds, leaving a green trail of fire behind, with explosion of stars at the top",
-    pose: "Dynamic upward motion, breaking through a barrier",
-    expression: "Pure triumph, record-breaking energy",
-    decoration: "Explosion burst, speed lines, confetti rain, lightning bolts, stars",
+    emotion: "celebration and joy",
+    subject: "A bold cartoon trophy or medal exploding with energy, surrounded by fireworks burst and confetti",
+    pose: "Central trophy/medal radiating outward",
+    expression: "Triumphant, victorious energy",
+    decoration: "Fireworks, confetti, speed lines, stars, lightning bolts",
     energy: 10,
   },
   wow: {
     emotion: "surprise and amazement",
-    pose: "Leaning back slightly, wings flared wide",
-    expression: "Wide open eyes, mouth in a big O shape",
-    decoration: "Exclamation marks, small stars popping out",
+    subject: "A giant bold exclamation mark bursting open like a firework, with a starburst behind it",
+    pose: "Central exclamation mark cracking open with rays flaring outward in all directions",
+    expression: "Explosive shock energy conveyed through jagged burst lines and bright flash",
+    decoration: "Exclamation marks, small stars popping out, radial shock waves",
     energy: 8,
   },
   pride: {
     emotion: "pride and confidence",
-    pose: "Standing tall, chest puffed out, wings half-spread",
-    expression: "Smug grin, one eyebrow raised, half-closed eyes",
-    decoration: "Subtle glow aura, a few sparkles",
+    subject: "A gleaming crown sitting atop a pedestal with a proud golden aura radiating outward",
+    pose: "Crown centered on a small podium, symmetrical glow rays spreading from behind",
+    expression: "Regal, self-assured warmth conveyed through steady golden glow and polished shine",
+    decoration: "Subtle glow aura, a few sparkles, small laurel branches flanking the crown",
     energy: 7,
   },
   determined: {
     emotion: "intense focus and determination",
-    pose: "Leaning forward aggressively, wings angled back",
-    expression: "Narrowed eyes, tight jaw, fierce look",
-    decoration: "Concentration lines (speed lines) radiating from center",
+    subject: "A bullseye target with crosshairs locked dead-center, surrounded by converging energy arrows",
+    pose: "Target centered with arrows and speed lines converging inward toward the bullseye",
+    expression: "Laser-focused intensity conveyed through tight converging lines and a glowing red center dot",
+    decoration: "Concentration lines (speed lines) radiating from center, small lightning bolts",
     energy: 9,
   },
   "sad-but-ok": {
     emotion: "mild disappointment but still positive",
-    pose: "Slightly drooping wings, small shrug",
-    expression: "Watery eyes with a small smile, single sweat drop",
-    decoration: "A few fading sparkles, small comforting star",
+    subject: "A cracked medal being repaired with gold in kintsugi style, a rain cloud above with a rainbow peeking through",
+    pose: "Medal centered with golden repair lines visible, small rain cloud at top with rainbow arc emerging",
+    expression: "Bittersweet resilience conveyed through the gold-filled cracks and the emerging rainbow",
+    decoration: "A few fading sparkles, small comforting star, single raindrop turning into a sparkle",
     energy: 4,
   },
   chill: {
     emotion: "relaxation and casual confidence",
-    pose: "Leaning back casually, one wing folded, thumbs up",
-    expression: "One eye closed in a wink, relaxed grin",
-    decoration: "Small stars, peace sign vibes",
+    subject: "A floating cloud with gentle sparkles drifting around it, shaped loosely like a hammock",
+    pose: "Soft cloud shape centered and gently floating, slight upward drift with sparkles trailing below",
+    expression: "Easygoing calm conveyed through soft rounded edges and gentle pastel sparkle trail",
+    decoration: "Small stars, peace symbols, gentle breeze lines",
     energy: 5,
   },
   fire: {
     emotion: "burning passion and intensity",
-    pose: "Dynamic forward lean, wings spread with flame shapes",
-    expression: "Fierce determined eyes with fire reflected in them",
-    decoration: "Flames surrounding the character, heat waves rising",
+    subject: "A blazing flame icon with an upward arrow core, engulfed in intense fire energy",
+    pose: "Central flame shape towering upward with dynamic flickering edges spreading wide",
+    expression: "Ferocious intensity conveyed through sharp flame tongues and deep orange-red heat glow",
+    decoration: "Flames layered around the icon, heat wave distortion lines rising upward",
     energy: 10,
   },
   sparkle: {
     emotion: "magical excitement and wonder",
-    pose: "Floating upward with wings gently spread",
-    expression: "Starry eyes, open mouth smile of wonder",
-    decoration: "Dense field of stars and sparkles all around",
+    subject: "A glowing crystal orb floating upward surrounded by a dense constellation of twinkling stars",
+    pose: "Crystal orb centered and floating upward, surrounded by orbiting sparkle particles",
+    expression: "Magical wonder conveyed through prismatic light refractions and shimmering glow",
+    decoration: "Dense field of stars and sparkles all around, tiny light trails",
     energy: 7,
   },
   dizzy: {
     emotion: "dizziness and disorientation",
-    pose: "Tilted at an angle, wings askew",
-    expression: "Spiral eyes, wobbly mouth",
-    decoration: "Circling stars above head, motion swirls",
+    subject: "A spinning compass with its needle whirling out of control, surrounded by spiral motion trails",
+    pose: "Compass tilted at an angle with the needle blurred in circular motion, spiral trails around it",
+    expression: "Wobbly disorientation conveyed through spiral patterns and tilted off-axis composition",
+    decoration: "Circling stars orbiting the compass, motion swirl lines, small dizzy spiral icons",
     energy: 6,
   },
   sleeping: {
     emotion: "peaceful sleeping",
-    pose: "Wings folded in, slight lean to one side",
-    expression: "Closed eyes, peaceful face, tiny snore bubble",
-    decoration: "Zzz letters floating up, tiny stars",
+    subject: "A crescent moon resting on a small cloud pillow with Zzz letters floating gently upward",
+    pose: "Crescent moon nestled into a fluffy cloud, tilted slightly to one side as if resting",
+    expression: "Serene tranquility conveyed through soft curves, dim gentle glow, and slow-floating Zzz",
+    decoration: "Zzz letters floating up, tiny dim stars, faint stardust trail",
     energy: 2,
   },
   confused: {
     emotion: "confusion and uncertainty",
-    pose: "Head tilted, one wing up one wing down",
-    expression: "One raised eyebrow, squiggly mouth",
-    decoration: "Question marks floating around, swirl lines",
+    subject: "A tangled knot of arrows pointing in conflicting directions with question marks scattered around",
+    pose: "Central arrow knot with paths splitting in contradictory directions, slightly tilted composition",
+    expression: "Puzzled uncertainty conveyed through tangled overlapping paths and mismatched directional arrows",
+    decoration: "Question marks floating around, swirl lines, small ellipsis dots",
     energy: 5,
   },
   excited: {
     emotion: "hyper excitement and anticipation",
-    pose: "Bouncing pose, wings flapping rapidly",
-    expression: "Huge grin, wide sparkling eyes, sweat drops from excitement",
-    decoration: "Action lines, exclamation marks, small hearts",
+    subject: "A coiled spring launching a star upward with explosive energy, bouncing with dynamic action lines",
+    pose: "Spring compressed and releasing upward, star projectile bursting from the top with bounce arcs",
+    expression: "Electrifying anticipation conveyed through kinetic bounce energy and rapid motion blur",
+    decoration: "Action lines, exclamation marks, small energy sparks, speed streaks",
     energy: 9,
   },
   cool: {
     emotion: "coolness and swagger",
-    pose: "Confident lean, wings folded like a cape",
-    expression: "Wearing sunglasses, slight smirk",
-    decoration: "Subtle sparkle on sunglasses, cool aura glow",
+    subject: "A pair of bold sunglasses icon with a subtle ice-crystal shimmer and a cool mint aura behind it",
+    pose: "Sunglasses centered with a slight casual tilt, cool-toned aura radiating from behind",
+    expression: "Effortless swagger conveyed through reflective lens gleam and frosty shimmer effect",
+    decoration: "Subtle sparkle on lens surface, cool aura glow, tiny snowflake accents",
     energy: 6,
   },
   "thumbs-up": {
     emotion: "approval and encouragement",
-    pose: "One hand giving thumbs up, wings relaxed",
-    expression: "Confident smile, friendly wink",
-    decoration: "Sparkle on the thumb, small approval stars",
+    subject: "A bold checkmark badge with a glowing approval seal and upward sparkle burst",
+    pose: "Checkmark centered inside a circular badge, radiating small approval rays outward",
+    expression: "Confident approval conveyed through a solid bold checkmark and warm green glow",
+    decoration: "Sparkle on the badge edge, small approval stars, tiny plus signs",
     energy: 6,
   },
   peace: {
     emotion: "peace and friendliness",
-    pose: "Peace sign with fingers, wings casually spread",
-    expression: "Happy closed-eye smile, tongue slightly out",
-    decoration: "Small hearts, peace symbols, gentle sparkles",
+    subject: "A peace symbol icon surrounded by gentle hearts and floating flower petals",
+    pose: "Peace symbol centered with hearts and petals orbiting in a gentle circular flow",
+    expression: "Warm friendliness conveyed through soft rounded shapes and pastel-tinted accents",
+    decoration: "Small hearts, peace symbols, gentle sparkles, floating petal shapes",
     energy: 6,
   },
 };
@@ -228,129 +242,129 @@ const STATE_DEFS: Record<string, StateDef> = {
   },
   "empty-history": {
     state: "No throw history yet",
-    mainVisual:
-      "Winged phone character looking at an empty scroll or blank page",
+    subject: "An empty open book or journal with blank pages and a bookmark ribbon, a small upward arrow inviting the first entry",
+    mainVisual: "An open blank journal/book with empty dotted lines, a bookmark ribbon hanging off the side",
     mood: "Inviting, encouraging first try",
-    keyElements: "Empty frame outline, small arrow pointing upward",
+    keyElements: "Empty book with blank pages, dotted placeholder lines, small upward arrow, faint pencil icon",
   },
   "empty-pb": {
     state: "No personal best recorded",
-    mainVisual:
-      "Winged phone character holding a blank trophy or medal outline",
+    subject: "A dotted-outline trophy silhouette with a question mark inside, waiting to be filled in",
+    mainVisual: "A trophy shape drawn in dashed/dotted lines (unfilled), with a glowing question mark at its center",
     mood: "Anticipating, ready to start",
-    keyElements: "Dotted outline of a trophy, small question mark stars",
+    keyElements: "Dotted outline of a trophy, question mark inside, small sparkle stars around the outline",
   },
   "loading-video": {
     state: "Processing video",
-    mainVisual:
-      "Winged phone character with a loading spinner or film reel spinning around it",
+    subject: "A film reel with a spinning star at its center, processing frames with circular motion lines",
+    mainVisual: "A film reel icon with its frames spinning, a glowing star rotating at the hub center",
     mood: "Patient, working on it",
-    keyElements: "Circular loading dots, small gear icons",
+    keyElements: "Film reel with spinning frames, central rotating star, circular loading dots, small gear icons",
   },
   "loading-initial": {
     state: "Initial loading",
-    mainVisual:
-      "Winged phone character stretching and yawning, getting ready",
+    subject: "A power-up battery icon gradually filling with glowing energy from bottom to top",
+    mainVisual: "A bold battery shape with energy bars filling up progressively, sparks at the charging tip",
     mood: "Waking up, energizing",
-    keyElements: "Gradual sparkle build-up, warming glow",
+    keyElements: "Battery icon with gradual fill, sparkle build-up at top, warming glow, small lightning bolt",
   },
   "error-sensor": {
     state: "Sensor not available",
-    mainVisual:
-      "Winged phone character with a crossed-out motion sensor icon, looking puzzled",
+    subject: "A broken compass or gauge dial with a bold red X mark over it",
+    mainVisual: "A compass/gauge with its needle snapped and a prominent red X overlaid on top",
     mood: "Helpful, suggesting a fix",
-    keyElements: "Red X mark over sensor icon, question marks",
+    keyElements: "Broken gauge needle, red X mark overlay, small question marks, warning triangle accent",
   },
   "error-network": {
     state: "Network connection failed",
-    mainVisual:
-      "Winged phone character tangled in a broken wifi signal or disconnected cable",
+    subject: "A wifi signal icon with cracked/broken signal waves and a disconnected plug below",
+    mainVisual: "A wifi symbol with fractured signal arcs breaking apart, an unplugged cable dangling below",
     mood: "Oops, try again",
-    keyElements: "Broken signal waves, small lightning bolt of disconnection",
+    keyElements: "Broken wifi signal arcs, disconnected plug icon, small lightning bolt of disconnection",
   },
   "error-generic": {
     state: "Something went wrong",
-    mainVisual:
-      "Winged phone character with bandages and a tiny wrench, fixing itself",
+    subject: "A wrench crossed with a screwdriver over a gear icon, with a small bandage patch on the gear",
+    mainVisual: "A gear icon with a bandage cross on it, a wrench and screwdriver crossed behind it in an X pattern",
     mood: "Reassuring, we will fix this",
-    keyElements: "Small wrench, bandage cross, apologetic sweat drop",
+    keyElements: "Gear with bandage patch, crossed wrench and screwdriver, small sorry-style sweat drop accent",
   },
   "permission-camera": {
     state: "Camera permission needed",
-    mainVisual:
-      "Winged phone character pointing at a camera icon with an encouraging gesture",
+    subject: "A camera lens icon with a lock symbol overlaid, and a glowing unlock arrow pointing to the lock",
+    mainVisual: "A bold camera lens shape with a padlock at its center, a curved arrow suggesting unlocking action",
     mood: "Friendly request, please allow",
-    keyElements: "Camera icon with glow, pointing hand, small sparkle",
+    keyElements: "Camera lens icon, lock symbol, unlock arrow, small sparkle glow around the lens",
   },
   "permission-motion": {
     state: "Motion sensor permission needed",
-    mainVisual:
-      "Winged phone character shaking itself to demonstrate motion, with a permission toggle icon",
+    subject: "A gyroscope/motion sensor icon with wave ripples emanating outward, and a toggle switch set to ON",
+    mainVisual: "A gyroscope or accelerometer icon emitting concentric motion waves, with a toggle switch icon beside it",
     mood: "Playful demonstration",
-    keyElements: "Motion wave lines, toggle switch icon, shake indicators",
+    keyElements: "Gyroscope/sensor icon, concentric motion wave lines, toggle switch icon, shake indicator arrows",
   },
 };
 
 const ACHIEVEMENT_DEFS: Record<string, AchievementDef> = {
   "pb-update": {
     achievement: "Personal Best Updated",
-    central: "A glowing crown or medal with upward arrow breaking through a ceiling, hands raised in triumph",
+    central: "A glowing crown or medal with upward arrow breaking through a ceiling",
     radiating: "Lightning bolts, explosion lines, stars, fireworks burst",
     text: "PB",
     energy: 9,
   },
   "tier-up-iron": {
     achievement: "Tier Up to Iron",
-    central: "Winged phone breaking through an iron shield",
+    central: "Glowing emblem breaking through an iron shield",
     radiating: "Metal shards, sparks, upward arrows",
     text: "IRON",
     energy: 6,
   },
   "tier-up-bronze": {
     achievement: "Tier Up to Bronze",
-    central: "Winged phone wearing a bronze laurel crown",
+    central: "Glowing emblem wearing a bronze laurel crown",
     radiating: "Bronze-tinted stars, warm sparkles",
     text: "BRONZE",
     energy: 7,
   },
   "tier-up-silver": {
     achievement: "Tier Up to Silver",
-    central: "Winged phone with shimmering silver aura",
+    central: "Glowing emblem with shimmering silver aura",
     radiating: "Silver stars, crescent moon shapes, gleaming rays",
     text: "SILVER",
     energy: 7,
   },
   "tier-up-gold": {
     achievement: "Tier Up to Gold",
-    central: "Winged phone with golden crown and wings glowing",
+    central: "Glowing emblem with golden crown and rays glowing",
     radiating: "Gold coins, trophy shapes, sunburst rays",
     text: "GOLD",
     energy: 8,
   },
   "tier-up-platinum": {
     achievement: "Tier Up to Platinum",
-    central: "Winged phone encased in platinum crystalline glow",
+    central: "Glowing emblem encased in platinum crystalline glow",
     radiating: "Diamond sparkles, prismatic light rays",
     text: "PLATINUM",
     energy: 8,
   },
   "tier-up-emerald": {
     achievement: "Tier Up to Emerald",
-    central: "Winged phone surrounded by emerald gem formations",
+    central: "Glowing emblem surrounded by emerald gem formations",
     radiating: "Green crystal shards, nature energy swirls",
     text: "EMERALD",
     energy: 9,
   },
   "tier-up-diamond": {
     achievement: "Tier Up to Diamond",
-    central: "Winged phone transformed into a brilliant diamond shape",
+    central: "Glowing emblem transformed into a brilliant diamond shape",
     radiating: "Prismatic rainbow refractions, intense sparkles",
     text: "DIAMOND",
     energy: 9,
   },
   "tier-up-master": {
     achievement: "Tier Up to Master",
-    central: "Winged phone with master emblem, intense power aura",
+    central: "Glowing emblem with master emblem, intense power aura",
     radiating: "Lightning, cosmic energy rings, star explosions",
     text: "MASTER",
     energy: 10,
@@ -358,7 +372,7 @@ const ACHIEVEMENT_DEFS: Record<string, AchievementDef> = {
   "tier-up-legend": {
     achievement: "Tier Up to Legend",
     central:
-      "Winged phone ascended to godlike form, massive wings, divine halo",
+      "Glowing emblem ascended to godlike form, massive rays, divine halo",
     radiating:
       "Supernova burst, cascading stars, heavenly light pillars",
     text: "LEGEND",
@@ -366,21 +380,21 @@ const ACHIEVEMENT_DEFS: Record<string, AchievementDef> = {
   },
   "tier-up-rookie": {
     achievement: "Tier Up to Rookie",
-    central: "Winged phone taking its first flight, small but eager",
+    central: "Glowing emblem taking its first flight, small but eager",
     radiating: "Gentle sparkles, small stars, upward motion lines",
     text: "ROOKIE",
     energy: 5,
   },
   "streak-3": {
     achievement: "3-Day Streak",
-    central: "Winged phone with a flame trail showing 3 days",
+    central: "Glowing emblem with a flame trail showing 3 days",
     radiating: "Three flame icons, streak lines, small stars",
     text: "3",
     energy: 6,
   },
   "streak-7": {
     achievement: "7-Day Streak",
-    central: "Winged phone surrounded by a ring of seven flames",
+    central: "Glowing emblem surrounded by a ring of seven flames",
     radiating: "Fire ring, intense sparkles, momentum arrows",
     text: "7",
     energy: 8,
@@ -388,7 +402,7 @@ const ACHIEVEMENT_DEFS: Record<string, AchievementDef> = {
   "streak-30": {
     achievement: "30-Day Streak — Legendary Dedication",
     central:
-      "Winged phone with massive blazing aura, crown of flames",
+      "Glowing emblem with massive blazing aura, crown of flames",
     radiating:
       "Inferno burst, golden stars, legendary badge, cosmic fire",
     text: "30",
@@ -396,14 +410,14 @@ const ACHIEVEMENT_DEFS: Record<string, AchievementDef> = {
   },
   "world-rank-update": {
     achievement: "World Rank Improved",
-    central: "Winged phone standing on top of a globe",
+    central: "Glowing emblem standing on top of a globe",
     radiating: "Upward arrows, world map outline, ranking stars",
     text: "UP",
     energy: 8,
   },
   "country-rank-update": {
     achievement: "Country Rank Improved",
-    central: "Winged phone with a flag-style banner behind it",
+    central: "Glowing emblem with a flag-style banner behind it",
     radiating: "Upward arrows, country silhouette, ranking sparkles",
     text: "UP",
     energy: 7,
@@ -774,6 +788,7 @@ async function main(): Promise<void> {
             );
             const buf = await generateImage(prompt, refImage, {
               resolution: cliArgs.resolution,
+              skipReference: true, // Don't send logo — prevents Gemini from copying the phone subject
             });
 
             if (!fs.existsSync(outDir)) {

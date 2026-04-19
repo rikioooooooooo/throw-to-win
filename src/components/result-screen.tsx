@@ -138,6 +138,13 @@ export function ResultScreen({
           )}
         </div>
 
+        {/* (仮) 達成アセット - PB更新/ティア昇格/ランク更新時に表示 */}
+        <div className="flex justify-center mt-4">
+          <div className="w-24 h-24 border border-dashed border-accent/20 rounded-lg flex items-center justify-center text-accent/30 text-[10px] text-center">
+            （仮）<br/>達成アセット
+          </div>
+        </div>
+
         <p className="text-muted/60 text-[14px] tracking-[0.15em] mb-3 animate-fade-in-up delay-80">
           {resultData.airtime.toFixed(2)}
           <span className="text-[10px] ml-0.5">s</span>

@@ -18,7 +18,7 @@ function sleep(ms: number): Promise<void> {
 export async function generateImage(
   prompt: string,
   referenceImagePath: string,
-  options?: { resolution?: "512" | "1K" | "2K" | "4K" }
+  options?: { resolution?: "512" | "1K" | "2K" | "4K"; skipReference?: boolean }
 ): Promise<Buffer> {
   const apiKey = process.env.GOOGLE_API_KEY;
   if (!apiKey) {
@@ -30,16 +30,18 @@ export async function generateImage(
   const resolution = options?.resolution ?? "1K";
   const resolutionStr = RESOLUTION_MAP[resolution];
 
-  // Load reference image as base64
-  const absRef = path.resolve(referenceImagePath);
-  if (!fs.existsSync(absRef)) {
-    throw new Error(`Reference image not found: ${absRef}`);
-  }
-  const refBytes = fs.readFileSync(absRef);
-  const refBase64 = refBytes.toString("base64");
-  const refPart = createPartFromBase64(refBase64, "image/png");
-
   const fullPrompt = `${prompt}\n\nOUTPUT: ${resolutionStr} PNG with transparent background.`;
+
+  // Optionally skip reference image (prevents Gemini from copying the logo subject)
+  let refPart: ReturnType<typeof createPartFromBase64> | null = null;
+  if (!options?.skipReference) {
+    const absRef = path.resolve(referenceImagePath);
+    if (fs.existsSync(absRef)) {
+      const refBytes = fs.readFileSync(absRef);
+      const refBase64 = refBytes.toString("base64");
+      refPart = createPartFromBase64(refBase64, "image/png");
+    }
+  }
 
   const client = new GoogleGenAI({ apiKey });
 
@@ -57,7 +59,7 @@ export async function generateImage(
           contents: [
             {
               role: "user",
-              parts: [refPart, { text: fullPrompt }],
+              parts: refPart ? [refPart, { text: fullPrompt }] : [{ text: fullPrompt }],
             },
           ],
           config: {
