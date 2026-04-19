@@ -149,6 +149,12 @@ export function ResultScreen({
           </p>
         )}
 
+        {/* Merch recommendation */}
+        <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
+           className="mt-3 text-[10px] text-foreground/20 hover:text-accent/40 transition-colors tracking-[0.1em] text-center block">
+          今日のおすすめグッズ ↗
+        </a>
+
         {submitError && !rankingData && (
           <p className="text-muted/60 text-[13px] tracking-widest mb-4">
             {t("result.scoreNotSaved")}
@@ -287,6 +293,12 @@ export function ResultScreen({
         >
           {t("result.backToTop")}
         </button>
+
+        {/* Merch link — collection */}
+        <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
+           className="mt-4 text-[10px] text-foreground/15 hover:text-accent/30 transition-colors tracking-[0.08em] text-center block">
+          リアルでもコレクション →
+        </a>
       </div>
     </main>
   );

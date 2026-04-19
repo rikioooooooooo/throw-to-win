@@ -86,6 +86,11 @@ export default function RankingPage() {
           <RankingList title={title} entries={entries} />
         </div>
       )}
+      {/* Merch link */}
+      <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
+         className="mt-6 mb-4 text-[10px] text-foreground/20 hover:text-accent/40 transition-colors tracking-[0.1em] text-center block">
+        上位プレイヤー注目のアイテム ↗
+      </a>
     </main>
   );
 }

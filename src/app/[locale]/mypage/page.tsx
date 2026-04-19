@@ -338,6 +338,11 @@ export default function MyPage() {
           </h2>
           <WorldMap countries={worldCountries} />
         </div>
+        {/* Merch link */}
+        <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
+           className="mt-6 py-3 text-[11px] text-foreground/25 hover:text-accent/50 transition-colors tracking-[0.1em] text-center block border-t border-white/5">
+          公式グッズショップ 🛒
+        </a>
       </div>
     </main>
   );

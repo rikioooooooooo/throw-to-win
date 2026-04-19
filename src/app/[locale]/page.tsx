@@ -162,6 +162,14 @@ export default function LandingPage() {
           </div>
         )}
 
+        {/* Merch link — equipment style */}
+        {(!isDesktop || dismissedDesktop) && (
+          <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
+             className="mt-2 text-[11px] text-foreground/20 hover:text-accent/50 transition-colors tracking-[0.08em]">
+            この装備、どこで手に入る？
+          </a>
+        )}
+
         {/* CTA — tight to subtitle, not stuck at bottom */}
         {(!isDesktop || dismissedDesktop) && (
           <button
@@ -216,6 +224,13 @@ export default function LandingPage() {
           </div>
         )}
       </div>
+
+      {/* Merch easter egg */}
+      <a href="https://kosukumaofficialshop.pages.dev/" target="_blank" rel="noopener noreferrer"
+         className="text-[10px] text-foreground/15 hover:text-accent/40 transition-colors tracking-widest mt-auto pt-6 text-center block"
+         style={{ fontFamily: "monospace" }}>
+        🛒 GOODS
+      </a>
 
       {/* Bottom spacer for safe area */}
       <div className="safe-bottom" />
