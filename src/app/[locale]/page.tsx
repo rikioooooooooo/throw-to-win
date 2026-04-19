@@ -86,11 +86,11 @@ export default function LandingPage() {
   const handleTilt = useCallback((x: number, y: number) => {
     const el = mainRef.current;
     if (!el) return;
-    const moveX = x * 50;
-    const moveY = y * 35;
-    const rotY = x * 16;
-    const rotX = -y * 10;
-    el.style.transform = `translate3d(${moveX.toFixed(1)}px, ${moveY.toFixed(1)}px, 0) perspective(280px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg)`;
+    const moveX = x * 70;
+    const moveY = y * 50;
+    const rotY = x * 24;
+    const rotX = -y * 16;
+    el.style.transform = `translate3d(${moveX.toFixed(1)}px, ${moveY.toFixed(1)}px, 0) perspective(220px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg)`;
 
     // Per-character bending — aggressive curve
     const chars = charsRef.current;
@@ -98,19 +98,19 @@ export default function LandingPage() {
       const ch = chars[i];
       if (!ch) continue;
       const pos = (i / (chars.length - 1)) * 2 - 1;
-      const charRotY = pos * x * 30;
-      const charRotX = pos * -y * 14;
-      const charZ = Math.abs(pos) * x * 25;
-      ch.style.transform = `perspective(200px) rotateY(${charRotY.toFixed(1)}deg) rotateX(${charRotX.toFixed(1)}deg) translateZ(${charZ.toFixed(1)}px)`;
+      const charRotY = pos * x * 45;
+      const charRotX = pos * -y * 22;
+      const charZ = Math.abs(pos) * x * 40;
+      ch.style.transform = `perspective(160px) rotateY(${charRotY.toFixed(1)}deg) rotateX(${charRotX.toFixed(1)}deg) translateZ(${charZ.toFixed(1)}px)`;
     }
 
     // Button — strong bend
     const btn = btnRef.current;
     if (btn) {
-      const btnRotY = x * 14;
-      const btnRotX = -y * 8;
-      const btnSkew = x * 3;
-      btn.style.transform = `perspective(300px) rotateX(${btnRotX.toFixed(1)}deg) rotateY(${btnRotY.toFixed(1)}deg) skewY(${btnSkew.toFixed(1)}deg)`;
+      const btnRotY = x * 22;
+      const btnRotX = -y * 14;
+      const btnSkew = x * 5;
+      btn.style.transform = `perspective(240px) rotateX(${btnRotX.toFixed(1)}deg) rotateY(${btnRotY.toFixed(1)}deg) skewY(${btnSkew.toFixed(1)}deg)`;
     }
   }, []);
 
