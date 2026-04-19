@@ -173,5 +173,18 @@
       "meters": "m",
       "seconds": "秒"
     }
+  },
+  "thread": {
+    "voices": "投完手機的人們的心聲",
+    "title": "大家的聲音",
+    "placeholder": "寫下感想...",
+    "send": "發送",
+    "empty": "還沒有聲音",
+    "emptyHint": "成為第一個發聲的人！",
+    "mustThrow": "先投一次才能發言",
+    "loadMore": "載入更多",
+    "charCount": "{count}/100",
+    "rateLimited": "每小時最多發送5條",
+    "posted": "已發送！"
   }
 }

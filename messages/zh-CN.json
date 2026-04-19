@@ -173,5 +173,18 @@
       "meters": "m",
       "seconds": "秒"
     }
+  },
+  "thread": {
+    "voices": "投过的人们的心声",
+    "title": "大家的声音",
+    "placeholder": "写下感想...",
+    "send": "发送",
+    "empty": "还没有声音",
+    "emptyHint": "成为第一个发声的人！",
+    "mustThrow": "先投一次才能发言",
+    "loadMore": "加载更多",
+    "charCount": "{count}/100",
+    "rateLimited": "每小时最多发送5条",
+    "posted": "已发送！"
   }
 }

@@ -173,5 +173,18 @@
       "meters": "m",
       "seconds": "s"
     }
+  },
+  "thread": {
+    "voices": "Vozes dos arremessadores",
+    "title": "Vozes",
+    "placeholder": "Compartilhe sua opinião...",
+    "send": "Enviar",
+    "empty": "Sem vozes ainda",
+    "emptyHint": "Seja o primeiro!",
+    "mustThrow": "Lance primeiro para postar",
+    "loadMore": "Ver mais",
+    "charCount": "{count}/100",
+    "rateLimited": "Máximo 5 por hora",
+    "posted": "Publicado!"
   }
 }

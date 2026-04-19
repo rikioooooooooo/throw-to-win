@@ -173,5 +173,18 @@
       "meters": "m",
       "seconds": "s"
     }
+  },
+  "thread": {
+    "voices": "Stimmen der Werfer",
+    "title": "Stimmen",
+    "placeholder": "Teile deine Meinung...",
+    "send": "Senden",
+    "empty": "Noch keine Stimmen",
+    "emptyHint": "Sei der Erste!",
+    "mustThrow": "Erst werfen, dann posten",
+    "loadMore": "Mehr laden",
+    "charCount": "{count}/100",
+    "rateLimited": "Max. 5 pro Stunde",
+    "posted": "Gepostet!"
   }
 }

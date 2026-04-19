@@ -173,5 +173,18 @@
       "meters": "m",
       "seconds": "s"
     }
+  },
+  "thread": {
+    "voices": "Voices from throwers",
+    "title": "Voices",
+    "placeholder": "Share your thoughts...",
+    "send": "Post",
+    "empty": "No voices yet",
+    "emptyHint": "Be the first to speak!",
+    "mustThrow": "Throw first to post",
+    "loadMore": "Load more",
+    "charCount": "{count}/100",
+    "rateLimited": "Max 5 posts per hour",
+    "posted": "Posted!"
   }
 }

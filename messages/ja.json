@@ -173,5 +173,18 @@
       "meters": "m",
       "seconds": "秒"
     }
+  },
+  "thread": {
+    "voices": "投げ終わった人たちの声",
+    "title": "みんなの声",
+    "placeholder": "感想を書こう...",
+    "send": "送信",
+    "empty": "まだ声がありません",
+    "emptyHint": "最初の一声を投稿しよう！",
+    "mustThrow": "投げてから書き込めます",
+    "loadMore": "もっと見る",
+    "charCount": "{count}/100",
+    "rateLimited": "投稿は1時間に5回までです",
+    "posted": "投稿しました！"
   }
 }

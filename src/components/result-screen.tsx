@@ -9,6 +9,7 @@ import { SlowMoPlayer } from "@/components/slow-mo-player";
 import { RankingList } from "@/components/ranking-list";
 import { useRankings } from "@/hooks/use-rankings";
 import { TierIcon } from "@/components/tier-icon";
+import { ThreadSheet } from "@/components/thread-sheet";
 import type { HeightTier } from "@/components/height-display";
 import type { VerifyResponse } from "@/lib/challenge";
 
@@ -61,6 +62,7 @@ export function ResultScreen({
   const router = useRouter();
   const locale = useLocale();
   const rankings = useRankings({ limit: 10, enabled: !!rankingData });
+  const [showThread, setShowThread] = useState(false);
   const [todayStats] = useState(() => {
     if (typeof window === "undefined") return { todayBest: 0, streakDays: 0 };
     const d = loadData();
@@ -383,6 +385,14 @@ export function ResultScreen({
           </div>
         )}
 
+        {/* Thread button */}
+        <button
+          onClick={() => setShowThread(true)}
+          className="mt-4 w-full max-w-[260px] py-3.5 text-center text-accent/50 text-[12px] tracking-[0.08em] hover:text-accent/70 active:scale-[0.97] transition-all animate-fade-in delay-560 game-border"
+        >
+          {t("thread.voices")}
+        </button>
+
         {/* Ghost back button */}
         <button
           onClick={onGoHome}
@@ -397,6 +407,8 @@ export function ResultScreen({
           グッズ
         </a>
       </div>
+
+      <ThreadSheet open={showThread} onClose={() => setShowThread(false)} />
     </main>
   );
 }

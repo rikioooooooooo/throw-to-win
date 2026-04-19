@@ -173,5 +173,18 @@
       "meters": "م",
       "seconds": "ث"
     }
+  },
+  "thread": {
+    "voices": "أصوات اللاعبين",
+    "title": "الأصوات",
+    "placeholder": "شاركنا رأيك...",
+    "send": "إرسال",
+    "empty": "لا أصوات بعد",
+    "emptyHint": "كن أول من يتحدث!",
+    "mustThrow": "ارمِ أولاً لتتمكن من النشر",
+    "loadMore": "عرض المزيد",
+    "charCount": "{count}/100",
+    "rateLimited": "5 منشورات في الساعة كحد أقصى",
+    "posted": "تم النشر!"
   }
 }

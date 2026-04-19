@@ -483,6 +483,12 @@ input:focus-visible {
   100% { transform: rotate(360deg); }
 }
 
+/* Thread sheet slide-up */
+@keyframes slide-up-sheet {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+
 /* ============================================================
    Reduced Motion — respect user accessibility preference
    ============================================================ */
