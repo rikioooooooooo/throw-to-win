@@ -534,8 +534,11 @@ export default function PlayPage() {
         samples: throwSamples,
       });
 
+      // Signal 100% to loading screen, then wait for completion burst
+      setProcessingProgress(100);
       stopPreview();
       resetDetection();
+      await new Promise(r => setTimeout(r, 1000));
       setGameState("done");
     },
     [stopRecording, stopPreview, resetDetection, getRecordingStartTime, getSamples],
