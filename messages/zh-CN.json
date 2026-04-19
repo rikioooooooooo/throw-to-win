@@ -60,7 +60,12 @@
     "applyingSlowmo": "生成慢动作...",
     "addingOverlay": "添加高度叠加层...",
     "encoding": "视频编码中...",
-    "almostDone": "马上就好..."
+    "almostDone": "马上就好...",
+    "analyzing": "轨迹分析中...",
+    "calculating": "计算滞空时间...",
+    "processing": "数据处理中...",
+    "almostThere": "即将完成...",
+    "finalizing": "生成你的精彩瞬间!"
   },
   "result": {
     "height": "高度",

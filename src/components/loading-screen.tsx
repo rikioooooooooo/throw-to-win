@@ -23,43 +23,144 @@ function statusKey(status: VideoProcessingStatus): string {
   }
 }
 
+function getEncouragingKey(progress: number): string {
+  if (progress < 20) return "analyzing";
+  if (progress < 45) return "calculating";
+  if (progress < 70) return "processing";
+  if (progress < 90) return "almostThere";
+  return "finalizing";
+}
+
 export function LoadingScreen({ status, progress }: LoadingScreenProps) {
   const t = useTranslations("processing");
 
   const hasProgress =
     typeof progress === "number" && progress >= 0 && progress <= 100;
+  const pct = hasProgress ? progress! : 0;
+
+  // SVG circle math
+  const size = 200;
+  const strokeWidth = 8;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference * (1 - pct / 100);
+
+  // Leading edge dot position
+  const angle = (pct / 100) * 2 * Math.PI - Math.PI / 2;
+  const dotX = size / 2 + radius * Math.cos(angle);
+  const dotY = size / 2 + radius * Math.sin(angle);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 gap-8 safe-top safe-bottom">
-      {/* Dance animation */}
-      <img src="/assets/anim/dance.webp" alt="" width={96} height={96} className="opacity-60" aria-hidden="true" />
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 safe-top safe-bottom">
+      {/* Ring + Dance container */}
+      <div className="relative" style={{ width: size, height: size }}>
+        {/* Outer rotating halo */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            inset: -12,
+            border: "1px solid rgba(0, 250, 154, 0.12)",
+            boxShadow:
+              "0 0 20px rgba(0,250,154,0.1), 0 0 40px rgba(0,250,154,0.05)",
+            animation: "spin-slow 8s linear infinite",
+          }}
+        />
 
-      {/* Percentage below animation */}
-      {hasProgress && (
-        <span className="height-number text-[28px] text-foreground">
-          {Math.round(progress!)}%
-        </span>
-      )}
+        {/* Breathing scale on the ring */}
+        <div style={{ animation: "subtle-pulse 2.5s ease-in-out infinite" }}>
+          <svg
+            width={size}
+            height={size}
+            className="block"
+            style={{ transform: "rotate(-90deg)" }}
+          >
+            {/* Dashed track */}
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              stroke="rgba(255,255,255,0.06)"
+              strokeWidth={strokeWidth}
+              strokeDasharray="4 8"
+            />
+            {/* Progress arc */}
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              stroke="#00fa9a"
+              strokeWidth={strokeWidth}
+              strokeLinecap="round"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              style={{
+                transition:
+                  "stroke-dashoffset 400ms cubic-bezier(0.22, 0.8, 0.25, 1)",
+                filter: "drop-shadow(0 0 8px rgba(0,250,154,0.5))",
+              }}
+            />
+          </svg>
 
-      {/* Status text */}
-      <div className="flex flex-col items-center gap-4 w-full max-w-xs">
-        <h2 className="text-[20px] font-semibold uppercase tracking-widest text-foreground text-center">
-          {t("heading")}
+          {/* Leading edge glowing dot */}
+          {pct > 0 && (
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: 10,
+                height: 10,
+                left: dotX - 5,
+                top: dotY - 5,
+                background: "#fff",
+                boxShadow: "0 0 10px 3px #00fa9a",
+                transition: "left 400ms ease-out, top 400ms ease-out",
+              }}
+            />
+          )}
+        </div>
+
+        {/* Dance animation centered inside ring */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <img
+            src="/assets/anim/dance.webp"
+            alt=""
+            width={96}
+            height={96}
+            aria-hidden="true"
+            style={{
+              filter: `drop-shadow(0 0 ${6 + pct * 0.1}px rgba(0,250,154,${0.2 + pct * 0.004}))`,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Status text + progress bar */}
+      <div className="flex flex-col items-center gap-4 w-full max-w-xs mt-10">
+        <h2
+          className="text-[16px] font-medium tracking-[0.15em] uppercase text-foreground/80 text-center"
+          style={{ textShadow: "0 0 12px rgba(0,250,154,0.2)" }}
+        >
+          {hasProgress ? t(getEncouragingKey(pct)) : t("heading")}
         </h2>
-        <p className="text-muted text-[12px] tracking-[0.15em] uppercase text-center">
+        <p className="text-foreground/30 text-[11px] tracking-[0.15em] uppercase text-center">
           {t(statusKey(status))}
         </p>
 
-        {/* Progress bar */}
-        <div className="w-full h-[2px] bg-border-subtle relative overflow-hidden">
+        {/* Thin progress bar */}
+        <div className="w-full h-[2px] bg-white/5 relative overflow-hidden rounded-full">
           {hasProgress ? (
             <div
-              className="absolute inset-y-0 left-0 bg-accent transition-all duration-300 ease-out"
-              style={{ width: `${progress}%` }}
+              className="absolute inset-y-0 left-0 bg-accent rounded-full"
+              style={{
+                width: `${pct}%`,
+                transition: "width 300ms ease-out",
+                boxShadow: "0 0 8px rgba(0,250,154,0.4)",
+              }}
             />
           ) : (
             <div
-              className="absolute inset-y-0 left-0 w-1/3 bg-accent"
+              className="absolute inset-y-0 left-0 w-1/3 bg-accent rounded-full"
               style={{ animation: "subtle-pulse 1.5s ease-in-out infinite" }}
             />
           )}

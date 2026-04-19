@@ -60,7 +60,12 @@
     "applyingSlowmo": "Création du ralenti...",
     "addingOverlay": "Ajout de la hauteur...",
     "encoding": "Encodage de la vidéo...",
-    "almostDone": "Presque fini..."
+    "almostDone": "Presque fini...",
+    "analyzing": "Analyse de la trajectoire...",
+    "calculating": "Calcul du temps en l'air...",
+    "processing": "Traitement des données...",
+    "almostThere": "Presque terminé...",
+    "finalizing": "Création de ton moment!"
   },
   "result": {
     "height": "Hauteur",

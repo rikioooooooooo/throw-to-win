@@ -60,7 +60,12 @@
     "applyingSlowmo": "슬로모션 생성 중...",
     "addingOverlay": "높이 오버레이 추가 중...",
     "encoding": "비디오 인코딩 중...",
-    "almostDone": "거의 다 됐어요..."
+    "almostDone": "거의 다 됐어요...",
+    "analyzing": "궤적 분석 중...",
+    "calculating": "체공 시간 계산 중...",
+    "processing": "데이터 처리 중...",
+    "almostThere": "거의 완료...",
+    "finalizing": "최고의 순간을 만드는 중!"
   },
   "result": {
     "height": "높이",

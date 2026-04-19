@@ -60,7 +60,12 @@
     "applyingSlowmo": "Creando cámara lenta...",
     "addingOverlay": "Añadiendo altura...",
     "encoding": "Codificando video...",
-    "almostDone": "Casi listo..."
+    "almostDone": "Casi listo...",
+    "analyzing": "Analizando trayectoria...",
+    "calculating": "Calculando tiempo en el aire...",
+    "processing": "Procesando datos...",
+    "almostThere": "Ya casi...",
+    "finalizing": "Creando tu momento!"
   },
   "result": {
     "height": "Altura",

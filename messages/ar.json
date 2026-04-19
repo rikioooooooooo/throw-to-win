@@ -60,7 +60,12 @@
     "applyingSlowmo": "إنشاء حركة بطيئة...",
     "addingOverlay": "إضافة طبقة الارتفاع...",
     "encoding": "ترميز الفيديو...",
-    "almostDone": "يكاد ينتهي..."
+    "almostDone": "يكاد ينتهي...",
+    "analyzing": "تحليل المسار...",
+    "calculating": "حساب وقت الطيران...",
+    "processing": "معالجة البيانات...",
+    "almostThere": "اقتربنا...",
+    "finalizing": "نصنع لحظتك!"
   },
   "result": {
     "height": "الارتفاع",

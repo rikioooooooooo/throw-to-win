@@ -60,7 +60,12 @@
     "applyingSlowmo": "スローモーション作成中...",
     "addingOverlay": "高度オーバーレイ追加中...",
     "encoding": "エンコード中...",
-    "almostDone": "もうすぐ..."
+    "almostDone": "もうすぐ...",
+    "analyzing": "軌道データを解析中...",
+    "calculating": "滞空時間を計算中...",
+    "processing": "データ処理中...",
+    "almostThere": "もうすぐ完成...",
+    "finalizing": "最高の瞬間を生成中!"
   },
   "result": {
     "height": "高度",

@@ -60,7 +60,12 @@
     "applyingSlowmo": "Creating slow-motion...",
     "addingOverlay": "Adding height overlay...",
     "encoding": "Encoding video...",
-    "almostDone": "Almost done..."
+    "almostDone": "Almost done...",
+    "analyzing": "Analyzing trajectory...",
+    "calculating": "Calculating airtime...",
+    "processing": "Processing data...",
+    "almostThere": "Almost there...",
+    "finalizing": "Creating your moment!"
   },
   "result": {
     "height": "Height",

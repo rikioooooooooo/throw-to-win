@@ -60,7 +60,12 @@
     "applyingSlowmo": "Zeitlupe wird erstellt...",
     "addingOverlay": "Höhenanzeige wird hinzugefügt...",
     "encoding": "Video wird kodiert...",
-    "almostDone": "Fast fertig..."
+    "almostDone": "Fast fertig...",
+    "analyzing": "Flugbahn wird analysiert...",
+    "calculating": "Flugzeit wird berechnet...",
+    "processing": "Daten werden verarbeitet...",
+    "almostThere": "Gleich geschafft...",
+    "finalizing": "Dein Moment wird erstellt!"
   },
   "result": {
     "height": "Höhe",
