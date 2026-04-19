@@ -357,9 +357,9 @@ export default function PlayPage() {
     if (result && gameState === "active" && !finishingRef.current) {
       finishingRef.current = true;
 
-      // Landing: v0PeakRef tracks the canvas overlay trajectory max for display only.
-      // result.heightMeters (from calculateScoreHeight in sensor.ts) is the authoritative
-      // value for server submission. Keep them separate.
+      // Landing: v0PeakRef tracks the canvas overlay trajectory max.
+      // This is used as the unified height for display, local storage, and server submission
+      // so that video overlay, result screen, and ranking all show the same number.
       const trackedMax = v0PeakRef.current;
       const displayHeight = trackedMax > 0 ? trackedMax : result.heightMeters;
       const displayResult: ThrowResult = trackedMax > 0
@@ -475,12 +475,15 @@ export default function PlayPage() {
       // Re-read personal best before addThrowRecord updates stats
       // (isPersonalBest state was set earlier for the camera-phase UI,
       // but the useCallback closure may hold a stale value)
+      // Use the same display height everywhere (video, result, ranking, local storage)
+      const unifiedHeight = v0PeakRef.current > 0 ? v0PeakRef.current : throwResult.heightMeters;
+
       const pbBeforeAdd = loadData().stats.personalBest;
       prevBestRef.current = pbBeforeAdd;
-      const isPB = throwResult.heightMeters > pbBeforeAdd;
+      const isPB = unifiedHeight > pbBeforeAdd;
 
       addThrowRecord(
-        throwResult.heightMeters,
+        unifiedHeight,
         throwResult.airtimeSeconds,
       );
 
@@ -490,7 +493,7 @@ export default function PlayPage() {
       if (challenge && fp) {
         submitThrow(
           challenge,
-          { heightMeters: throwResult.heightMeters, airtimeSeconds: throwResult.airtimeSeconds },
+          { heightMeters: unifiedHeight, airtimeSeconds: throwResult.airtimeSeconds },
           sensorSamples,
           fp,
           loadData().displayName,
@@ -538,11 +541,8 @@ export default function PlayPage() {
           return { t: s.t - throwResult.freefallStartTime, h };
         });
 
-      // Use displayHeight (same as video overlay) so result screen matches the recorded video.
-      // Server submission still uses throwResult.heightMeters (authoritative) at line 491-493.
-      const finalDisplayHeight = v0PeakRef.current > 0 ? v0PeakRef.current : throwResult.heightMeters;
       setResultData({
-        height: finalDisplayHeight,
+        height: unifiedHeight,
         airtime: throwResult.airtimeSeconds,
         isPersonalBest: isPB,
         videoBlob: processedBlob,
