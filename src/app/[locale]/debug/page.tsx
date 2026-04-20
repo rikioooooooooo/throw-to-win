@@ -104,6 +104,7 @@ export default function DebugPage() {
     useState<AchievementState | null>(null);
   const [activeTierId, setActiveTierId] = useState<string>("");
   const [activeCountry, setActiveCountry] = useState<string>("");
+  const [flashKey, setFlashKey] = useState(0);
 
   const triggerCracker = (level: CrackerLevel) => {
     setCrackerActive(false);
@@ -126,6 +127,7 @@ export default function DebugPage() {
     setAchievementResult(result);
     setActiveTierId(scenario.tierId);
     setActiveCountry(scenario.country);
+    setFlashKey(k => k + 1);
     triggerCracker(result.crackerLevel);
   };
 
@@ -246,6 +248,24 @@ export default function DebugPage() {
             {JSON.stringify(achievementResult, null, 2)}
           </pre>
         </section>
+      )}
+
+      {/* Background flash overlay */}
+      {achievementResult && (
+        <div key={flashKey} className="fixed inset-0 pointer-events-none z-40">
+          {achievementResult.isWorldRecord && (
+            <div className="absolute inset-0" style={{ animation: "celebration-flash-wr 3s ease-out both" }} />
+          )}
+          {!achievementResult.isWorldRecord && achievementResult.worldTop5Rank !== null && (
+            <div className="absolute inset-0" style={{ animation: "celebration-flash-world5 2s ease-out both" }} />
+          )}
+          {!achievementResult.isWorldRecord && achievementResult.worldTop5Rank === null && achievementResult.countryTop5Rank !== null && (
+            <div className="absolute inset-0" style={{ animation: "celebration-flash-country5 1.5s ease-out both" }} />
+          )}
+          {achievementResult.isChuuniTier && (
+            <div className="absolute inset-0" style={{ animation: "celebration-flash-wr 3s ease-out 0.5s both" }} />
+          )}
+        </div>
       )}
 
       <CrackerParticles level={activeLevel} active={crackerActive} />
