@@ -12,7 +12,31 @@ import { useRankings } from "@/hooks/use-rankings";
 import { GyroBars } from "@/components/gyro-ball";
 import { ThreadSheet } from "@/components/thread-sheet";
 import { LandingThrowDetector } from "@/lib/landing-throw-detector";
-import { Manifesto } from "@/components/manifesto";
+
+function ScrollTrigger({ onTrigger }: { readonly onTrigger: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const triggered = useRef(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !triggered.current) {
+          triggered.current = true;
+          onTrigger();
+        }
+      },
+      { threshold: 0.1 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [onTrigger]);
+  return (
+    <div ref={ref} style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <span className="text-foreground text-[14px]" style={{ opacity: 0.1 }}>・</span>
+    </div>
+  );
+}
 
 export default function LandingPage() {
   const t = useTranslations();
@@ -138,13 +162,12 @@ export default function LandingPage() {
     }
   }, []);
 
-  // ---- Manifesto: hidden scroll target ----
-  const manifestoRef = useRef<HTMLDivElement>(null);
-  const scrollToManifesto = useCallback(() => {
-    manifestoRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+  // ---- Manifesto: navigate to separate page ----
+  const navigateToManifesto = useCallback(() => {
+    router.push(`/${locale}/manifesto`);
+  }, [router, locale]);
 
-  // Logo 5-tap → scroll to manifesto
+  // Logo 5-tap → navigate to manifesto
   const logoTapCount = useRef(0);
   const logoTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleLogoTap = useCallback(() => {
@@ -152,24 +175,24 @@ export default function LandingPage() {
     if (logoTapTimer.current) clearTimeout(logoTapTimer.current);
     if (logoTapCount.current >= 5) {
       logoTapCount.current = 0;
-      scrollToManifesto();
+      navigateToManifesto();
       return;
     }
     logoTapTimer.current = setTimeout(() => {
       logoTapCount.current = 0;
     }, 1200);
-  }, [scrollToManifesto]);
+  }, [navigateToManifesto]);
 
-  // Throw detector — scroll to manifesto on throw-and-catch
+  // Throw detector — navigate to manifesto on throw-and-catch
   useEffect(() => {
     const detector = new LandingThrowDetector({
       onThrow: () => {
-        scrollToManifesto();
+        navigateToManifesto();
       },
     });
     detector.start();
     return () => detector.stop();
-  }, [scrollToManifesto]);
+  }, [navigateToManifesto]);
 
   return (
     <>
@@ -323,13 +346,8 @@ export default function LandingPage() {
       {/* Bottom spacer for safe area */}
       <div className="safe-bottom" />
 
-      {/* Subtle hint that content exists below */}
-      <div className="flex justify-center py-8">
-        <span className="text-foreground text-[14px]" style={{ opacity: 0.1 }}>・</span>
-      </div>
-
-      {/* Hidden manifesto — revealed by 5-tap on logo or throwing the phone */}
-      <Manifesto ref={manifestoRef} />
+      {/* Subtle hint that content exists below — scroll trigger to manifesto */}
+      <ScrollTrigger onTrigger={navigateToManifesto} />
 
       <ThreadSheet open={showThread} onClose={() => setShowThread(false)} />
 
