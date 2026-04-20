@@ -140,11 +140,11 @@
     "sections": {
       "deviceDamage": {
         "title": "Geräteschäden",
-        "content": "Throw To Win beinhaltet das Werfen deines Mobilgeräts in die Luft. Durch die Nutzung dieses Dienstes erkennst du an, dass diese Aktivität ein inhärentes Risiko einer Beschädigung deines Geräts mit sich bringt. Kosukuma Inc. haftet nicht für Schäden an deinem Gerät, die durch die Nutzung dieses Dienstes entstehen."
+        "content": "Throw To Win beinhaltet das Werfen deines Mobilgeräts in die Luft. Durch die Nutzung dieses Dienstes erkennst du an, dass diese Aktivität ein inhärentes Risiko einer Beschädigung deines Geräts mit sich bringt. Kosu.kuma.inc haftet nicht für Schäden an deinem Gerät, die durch die Nutzung dieses Dienstes entstehen."
       },
       "personalInjury": {
         "title": "Körperverletzung",
-        "content": "Das Werfen eines Mobilgeräts kann zu Körperverletzungen führen. Nutzer übernehmen alle Risiken für Verletzungen an sich selbst oder anderen. Kosukuma Inc. haftet nicht für Verletzungen, die bei der Nutzung dieses Dienstes entstehen."
+        "content": "Das Werfen eines Mobilgeräts kann zu Körperverletzungen führen. Nutzer übernehmen alle Risiken für Verletzungen an sich selbst oder anderen. Kosu.kuma.inc haftet nicht für Verletzungen, die bei der Nutzung dieses Dienstes entstehen."
       },
       "propertyDamage": {
         "title": "Sachschäden",
@@ -156,11 +156,11 @@
       },
       "accuracy": {
         "title": "Aufzeichnungsgenauigkeit",
-        "content": "Höhenmessungen sind Schätzungen auf Basis von Beschleunigungssensordaten. Kosukuma Inc. übernimmt keine Garantie für die Genauigkeit von Messungen oder Aufzeichnungen."
+        "content": "Höhenmessungen sind Schätzungen auf Basis von Beschleunigungssensordaten. Kosu.kuma.inc übernimmt keine Garantie für die Genauigkeit von Messungen oder Aufzeichnungen."
       },
       "dataLoss": {
         "title": "Datenverlust",
-        "content": "Alle Daten werden lokal auf deinem Gerät gespeichert. Das Wechseln des Geräts, das Löschen von Browserdaten oder andere Aktionen können zum dauerhaften Verlust deiner Aufzeichnungen führen. Kosukuma Inc. haftet nicht für Datenverluste."
+        "content": "Alle Daten werden lokal auf deinem Gerät gespeichert. Das Wechseln des Geräts, das Löschen von Browserdaten oder andere Aktionen können zum dauerhaften Verlust deiner Aufzeichnungen führen. Kosu.kuma.inc haftet nicht für Datenverluste."
       }
     },
     "back": "Zurück"

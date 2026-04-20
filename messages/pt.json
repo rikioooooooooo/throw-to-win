@@ -140,11 +140,11 @@
     "sections": {
       "deviceDamage": {
         "title": "Danos ao dispositivo",
-        "content": "Throw To Win envolve arremessar seu dispositivo móvel para o ar. Ao usar este serviço, você reconhece que esta atividade carrega risco inerente de danos ao seu dispositivo. Kosukuma Inc. não se responsabiliza por danos ao dispositivo decorrentes do uso deste serviço."
+        "content": "Throw To Win envolve arremessar seu dispositivo móvel para o ar. Ao usar este serviço, você reconhece que esta atividade carrega risco inerente de danos ao seu dispositivo. Kosu.kuma.inc não se responsabiliza por danos ao dispositivo decorrentes do uso deste serviço."
       },
       "personalInjury": {
         "title": "Lesões pessoais",
-        "content": "Arremessar um dispositivo móvel pode resultar em lesões pessoais. Os usuários assumem todos os riscos de lesões a si mesmos ou a terceiros. Kosukuma Inc. não se responsabiliza por lesões sofridas durante o uso deste serviço."
+        "content": "Arremessar um dispositivo móvel pode resultar em lesões pessoais. Os usuários assumem todos os riscos de lesões a si mesmos ou a terceiros. Kosu.kuma.inc não se responsabiliza por lesões sofridas durante o uso deste serviço."
       },
       "propertyDamage": {
         "title": "Danos materiais",
@@ -156,11 +156,11 @@
       },
       "accuracy": {
         "title": "Precisão dos registros",
-        "content": "As medições de altura são estimativas baseadas nos dados do acelerômetro. Kosukuma Inc. não garante a precisão de nenhuma medição ou registro."
+        "content": "As medições de altura são estimativas baseadas nos dados do acelerômetro. Kosu.kuma.inc não garante a precisão de nenhuma medição ou registro."
       },
       "dataLoss": {
         "title": "Perda de dados",
-        "content": "Todos os dados são armazenados localmente no seu dispositivo. Trocar de dispositivo, limpar dados do navegador ou outras ações podem resultar na perda permanente dos seus registros. Kosukuma Inc. não se responsabiliza por perda de dados."
+        "content": "Todos os dados são armazenados localmente no seu dispositivo. Trocar de dispositivo, limpar dados do navegador ou outras ações podem resultar na perda permanente dos seus registros. Kosu.kuma.inc não se responsabiliza por perda de dados."
       }
     },
     "back": "Voltar"

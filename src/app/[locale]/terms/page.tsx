@@ -100,7 +100,7 @@ export default function TermsPage() {
               {t("back")}
             </button>
             <p className="text-muted/60 text-[12px]">
-              Throw To Win &mdash; Kosukuma Inc.
+              Throw To Win &mdash; Kosu.kuma.inc
             </p>
           </div>
         </div>

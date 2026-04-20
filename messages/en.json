@@ -140,11 +140,11 @@
     "sections": {
       "deviceDamage": {
         "title": "Device Damage",
-        "content": "Throw To Win involves throwing your mobile device into the air. By using this service, you acknowledge that this activity carries inherent risk of damage to your device. Kosukuma Inc. is not responsible for any damage to your device resulting from use of this service."
+        "content": "Throw To Win involves throwing your mobile device into the air. By using this service, you acknowledge that this activity carries inherent risk of damage to your device. Kosu.kuma.inc is not responsible for any damage to your device resulting from use of this service."
       },
       "personalInjury": {
         "title": "Personal Injury",
-        "content": "Throwing a mobile device may result in personal injury. Users assume all risk of injury to themselves or others. Kosukuma Inc. is not liable for any injuries sustained during use of this service."
+        "content": "Throwing a mobile device may result in personal injury. Users assume all risk of injury to themselves or others. Kosu.kuma.inc is not liable for any injuries sustained during use of this service."
       },
       "propertyDamage": {
         "title": "Property Damage",
@@ -156,11 +156,11 @@
       },
       "accuracy": {
         "title": "Record Accuracy",
-        "content": "Height measurements are estimates based on accelerometer data. Kosukuma Inc. does not guarantee the accuracy of any measurements or records."
+        "content": "Height measurements are estimates based on accelerometer data. Kosu.kuma.inc does not guarantee the accuracy of any measurements or records."
       },
       "dataLoss": {
         "title": "Data Loss",
-        "content": "All data is stored locally on your device. Changing devices, clearing browser data, or other actions may result in permanent loss of your records. Kosukuma Inc. is not responsible for any data loss."
+        "content": "All data is stored locally on your device. Changing devices, clearing browser data, or other actions may result in permanent loss of your records. Kosu.kuma.inc is not responsible for any data loss."
       }
     },
     "back": "Back"
