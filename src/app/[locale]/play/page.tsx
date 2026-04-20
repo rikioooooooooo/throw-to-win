@@ -54,6 +54,8 @@ export default function PlayPage() {
     ffmpegProcessed: boolean;
     /** Height trajectory samples for CountUpHeight replay */
     samples: { t: number; h: number }[];
+    /** Personal best before this throw — for achievement detection */
+    previousBest: number;
   } | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [peakResult, setPeakResult] = useState<ThrowResult | null>(null);

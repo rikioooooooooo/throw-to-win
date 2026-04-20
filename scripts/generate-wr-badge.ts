@@ -43,9 +43,8 @@ Output as a single PNG image.`,
     },
   });
 
-  const part = response.candidates?.[0]?.content?.parts?.find(
-    (p: { inlineData?: { data: string } }) => p.inlineData?.data,
-  );
+  const parts = response.candidates?.[0]?.content?.parts ?? [];
+  const part = parts.find((p) => p.inlineData?.data);
   if (!part?.inlineData?.data) {
     console.error("No image data in response");
     process.exit(1);
