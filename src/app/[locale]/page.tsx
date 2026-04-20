@@ -139,7 +139,7 @@ export default function LandingPage() {
       {/* Canvas OUTSIDE main — stays fixed to viewport, unaffected by main's 3D transform */}
       <GyroBars className="fixed inset-0 z-0 pointer-events-none" onTilt={handleTilt} />
 
-      <main ref={mainRef} className="relative flex-1 flex flex-col px-6 h-dvh overflow-hidden" style={{ transformOrigin: "center center", willChange: "transform" }}>
+      <main ref={mainRef} className="relative flex-1 flex flex-col px-6 h-dvh overflow-hidden" style={{ transformOrigin: "center center" }}>
 
       {/* Top bar */}
       <header className="relative z-10 flex justify-between items-center pt-4">
@@ -176,7 +176,7 @@ export default function LandingPage() {
               height: "auto",
               position: "relative",
               zIndex: 1,
-              animation: "logo-hero-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both, logo-float 3.5s ease-in-out 0.8s infinite",
+              animation: "logo-hero-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both",
             }}
           />
         </div>
@@ -186,11 +186,11 @@ export default function LandingPage() {
           style={{ fontSize: "clamp(3.4rem, 16vw, 7rem)", fontWeight: 800, lineHeight: 0.82, letterSpacing: "0.1em", textShadow: "0 0 48px rgba(0,250,154,0.25), 0 0 96px rgba(0,250,154,0.08)", transformStyle: "preserve-3d" }}
         >
           {"THROW".split("").map((ch, i) => (
-            <span key={`t${i}`} ref={el => { charsRef.current[i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch}</span>
+            <span key={`t${i}`} ref={el => { charsRef.current[i] = el; }} style={{ display: "inline-block" }}>{ch}</span>
           ))}
           <br />
           {"TO\u00A0WIN".split("").map((ch, i) => (
-            <span key={`w${i}`} ref={el => { charsRef.current[5 + i] = el; }} style={{ display: "inline-block", willChange: "transform" }}>{ch}</span>
+            <span key={`w${i}`} ref={el => { charsRef.current[5 + i] = el; }} style={{ display: "inline-block" }}>{ch}</span>
           ))}
         </h1>
 
@@ -219,7 +219,6 @@ export default function LandingPage() {
               borderRadius: "16px",
               height: "64px",
               fontWeight: 800,
-              willChange: "transform",
               textShadow: nameValid ? "0 1px 0 rgba(0,0,0,0.15)" : "none",
             }}
           >
