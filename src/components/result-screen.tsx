@@ -98,13 +98,18 @@ export function ResultScreen({
     <main className="fixed inset-0 z-10 flex flex-col bg-background safe-top safe-bottom">
       {/* Background effects — tier-colored for special, subtle for normal */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {(achievement.isWorldRecord || achievement.isChuuniTier) && (
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              animation: "celebration-flash 2s ease-out both",
-            }}
-          />
+        {/* Ranked flash — intensity by achievement */}
+        {achievement.isWorldRecord && (
+          <div className="absolute inset-0 pointer-events-none" style={{ animation: "celebration-flash-wr 3s ease-out both" }} />
+        )}
+        {!achievement.isWorldRecord && achievement.worldTop5Rank !== null && (
+          <div className="absolute inset-0 pointer-events-none" style={{ animation: "celebration-flash-world5 2s ease-out both" }} />
+        )}
+        {!achievement.isWorldRecord && achievement.worldTop5Rank === null && achievement.countryTop5Rank !== null && (
+          <div className="absolute inset-0 pointer-events-none" style={{ animation: "celebration-flash-country5 1.5s ease-out both" }} />
+        )}
+        {achievement.isChuuniTier && (
+          <div className="absolute inset-0 pointer-events-none" style={{ animation: "celebration-flash-wr 3s ease-out 0.5s both" }} />
         )}
         {(resultData.isPersonalBest || tierInfo?.isBreakthrough) ? (
           <>
