@@ -95,7 +95,16 @@
     "diamond": "Diamond",
     "master": "Master",
     "legend": "Legend",
-    "new": "NEW!"
+    "new": "NEW!",
+    "mythic": "神話",
+    "stellar": "恒星",
+    "celestial": "天界",
+    "cosmic": "宇宙",
+    "galactic": "銀河",
+    "nebula": "星雲",
+    "void": "虛空",
+    "karman": "卡門線",
+    "omega": "終極"
   },
   "ranking": {
     "heading": "排名",

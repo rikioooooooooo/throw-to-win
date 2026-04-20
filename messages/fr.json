@@ -95,7 +95,16 @@
     "diamond": "Diamond",
     "master": "Master",
     "legend": "Legend",
-    "new": "NEW!"
+    "new": "NEW!",
+    "mythic": "Mythic",
+    "stellar": "Stellar",
+    "celestial": "Celestial",
+    "cosmic": "Cosmic",
+    "galactic": "Galactic",
+    "nebula": "Nebula",
+    "void": "Void",
+    "karman": "Karman",
+    "omega": "Omega"
   },
   "ranking": {
     "heading": "Classement",

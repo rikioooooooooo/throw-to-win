@@ -95,7 +95,16 @@
     "diamond": "ダイヤモンド",
     "master": "マスター",
     "legend": "レジェンド",
-    "new": "NEW!"
+    "new": "NEW!",
+    "mythic": "ミシック",
+    "stellar": "ステラ",
+    "celestial": "セレスティアル",
+    "cosmic": "コズミック",
+    "galactic": "ギャラクティック",
+    "nebula": "ネビュラ",
+    "void": "ヴォイド",
+    "karman": "カーマン",
+    "omega": "オメガ"
   },
   "ranking": {
     "heading": "ランキング",

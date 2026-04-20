@@ -9,22 +9,34 @@ export type TierDef = {
 };
 
 /**
- * 10-tier progression system.
+ * 19-tier progression system.
  * Low tiers (0–1.2m) are closely spaced for early dopamine hits.
  * High tiers (5–10m) are wide gaps reflecting exponential difficulty.
+ * Chuunibyou tiers (30m–400km) are symbolic — human arm limit is ~10m,
+ * above that requires drones/balloons/rockets.
  * Sorted ascending by minHeight — binary search friendly.
  */
 const TIERS: readonly TierDef[] = [
-  { id: "rookie",   minHeight: 0,    color: "#666666" },
-  { id: "iron",     minHeight: 0.3,  color: "#8A8A8A" },
-  { id: "bronze",   minHeight: 0.7,  color: "#CD7F32" },
-  { id: "silver",   minHeight: 1.2,  color: "#C0C0C0" },
-  { id: "gold",     minHeight: 1.8,  color: "#FFB800" },
-  { id: "platinum", minHeight: 2.5,  color: "#E5E4E2" },
-  { id: "emerald",  minHeight: 3.5,  color: "#50C878" },
-  { id: "diamond",  minHeight: 5.0,  color: "#B9F2FF" },
-  { id: "master",   minHeight: 7.0,  color: "#9B59B6" },
-  { id: "legend",   minHeight: 10.0, color: "#FF2D2D" },
+  { id: "rookie",    minHeight: 0,       color: "#666666" },
+  { id: "iron",      minHeight: 0.3,     color: "#8A8A8A" },
+  { id: "bronze",    minHeight: 0.7,     color: "#CD7F32" },
+  { id: "silver",    minHeight: 1.2,     color: "#C0C0C0" },
+  { id: "gold",      minHeight: 1.8,     color: "#FFB800" },
+  { id: "platinum",  minHeight: 2.5,     color: "#E5E4E2" },
+  { id: "emerald",   minHeight: 3.5,     color: "#50C878" },
+  { id: "diamond",   minHeight: 5.0,     color: "#B9F2FF" },
+  { id: "master",    minHeight: 7.0,     color: "#9B59B6" },
+  { id: "legend",    minHeight: 10.0,    color: "#FF2D2D" },
+  // --- Chuunibyou tiers (beyond human arm) ---
+  { id: "mythic",    minHeight: 30,      color: "#F5DEB3" },
+  { id: "stellar",   minHeight: 50,      color: "#FFD700" },
+  { id: "celestial", minHeight: 100,     color: "#87CEEB" },
+  { id: "cosmic",    minHeight: 500,     color: "#6A5ACD" },
+  { id: "galactic",  minHeight: 1000,    color: "#9370DB" },
+  { id: "nebula",    minHeight: 5000,    color: "#FF1493" },
+  { id: "void",      minHeight: 10000,   color: "#0A0A0A" },
+  { id: "karman",    minHeight: 100000,  color: "#00E5FF" },
+  { id: "omega",     minHeight: 400000,  color: "#FF4500" },
 ] as const;
 
 /** Get the tier for a given height (highest tier whose minHeight <= height) */
@@ -40,7 +52,7 @@ export function getTierForHeight(height: number): TierDef {
   return tier;
 }
 
-/** Get the next tier above the current height, or null if already Legend */
+/** Get the next tier above the current height, or null if already Omega */
 export function getNextTier(
   height: number,
 ): { readonly tier: TierDef; readonly remaining: number } | null {

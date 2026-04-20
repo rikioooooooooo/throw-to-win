@@ -95,7 +95,16 @@
     "diamond": "Diamond",
     "master": "Master",
     "legend": "Legend",
-    "new": "NEW!"
+    "new": "NEW!",
+    "mythic": "Мифик",
+    "stellar": "Стеллар",
+    "celestial": "Селестиал",
+    "cosmic": "Космик",
+    "galactic": "Галактик",
+    "nebula": "Небула",
+    "void": "Войд",
+    "karman": "Карман",
+    "omega": "Омега"
   },
   "ranking": {
     "heading": "Рейтинг",

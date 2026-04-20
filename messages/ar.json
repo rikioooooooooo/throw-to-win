@@ -95,7 +95,16 @@
     "diamond": "Diamond",
     "master": "Master",
     "legend": "Legend",
-    "new": "NEW!"
+    "new": "NEW!",
+    "mythic": "ميثيك",
+    "stellar": "ستيلر",
+    "celestial": "سيليستيال",
+    "cosmic": "كوزميك",
+    "galactic": "غالاكتيك",
+    "nebula": "نيبولا",
+    "void": "فويد",
+    "karman": "كارمان",
+    "omega": "أوميغا"
   },
   "ranking": {
     "heading": "التصنيف",
