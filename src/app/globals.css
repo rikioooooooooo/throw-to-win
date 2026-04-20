@@ -430,6 +430,17 @@ input:focus-visible {
   50% { opacity: 0.7; transform: scale(1.1); }
 }
 
+/* WR / Chuuni tier celebration flash */
+@keyframes celebration-flash {
+  0% { background: rgba(255, 45, 45, 0.3); }
+  15% { background: rgba(255, 215, 0, 0.3); }
+  30% { background: rgba(0, 250, 154, 0.3); }
+  45% { background: rgba(59, 130, 246, 0.3); }
+  60% { background: rgba(155, 89, 182, 0.2); }
+  75% { background: rgba(255, 20, 147, 0.15); }
+  100% { background: transparent; }
+}
+
 /* PB explosion — screen flash */
 @keyframes pb-flash {
   0% { opacity: 0; }

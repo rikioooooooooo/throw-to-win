@@ -7,6 +7,7 @@ import type { VideoProcessingStatus } from "@/lib/types";
 type LoadingScreenProps = {
   status: VideoProcessingStatus;
   progress?: number;
+  height?: number;
 };
 
 function useAnimatedDots(intervalMs = 500): string {
@@ -156,10 +157,61 @@ const completionBurstStyle = `
 }
 `;
 
-export function LoadingScreen({ status, progress }: LoadingScreenProps) {
+const TRIVIA = [
+  "世界の平均スクリーンタイムは1日6時間42分",
+  "スマホを1日に触る回数は平均2,617回",
+  "人類は1日に5時間以上スマホを見ている",
+  "スマホ依存症の正式名称は「ノモフォビア」",
+  "青色光はメラトニン分泌を53%抑制する",
+  "歩きスマホの視野は通常の1/20になる",
+  "スマホの画面には便座の18倍の細菌がいる",
+  "通知音を聞くだけでストレスホルモンが上昇する",
+  "SNSの「いいね」はドーパミンを放出させる",
+  "平均的な人は10分に1回スマホを確認する",
+  "スマホを手放すと心拍数と血圧が上昇する研究結果がある",
+  "「ファビング」=会話中にスマホを見る行為の造語",
+  "テック企業のCEOの多くが子供のスマホ使用を制限している",
+  "スマホの存在だけで認知能力が低下する（テキサス大学研究）",
+  "寝る前のスマホ使用は入眠を平均30分遅らせる",
+  "1日のアンロック回数は平均150回",
+  "スマホ断ちした人の87%が「生活が改善した」と回答",
+  "人間の集中持続時間は金魚より短い（8秒 vs 9秒）",
+  "SNS使用時間が長いほど孤独感が増すという研究がある",
+  "スマホ依存は脳の灰白質を減少させる可能性がある",
+  "「デジタルデトックス」は2013年のオックスフォード辞書の候補語",
+  "スマホを裏返して置くだけで集中力が上がる",
+  "通知をオフにすると生産性が最大40%向上する",
+  "自然の中で過ごすとスマホへの欲求が減る研究結果",
+  "子供の55%が「親がスマホを見すぎ」と感じている",
+  "スマホの光は3m先からでも睡眠に影響する",
+  "平均的なスマホユーザーは年間1,000時間以上を画面に費やす",
+  "「スマホ首」は頭の重さ（5kg）の5倍の負荷がかかる",
+  "スマホがない時代、人は1日平均8.5時間寝ていた",
+  "食事中のスマホ使用で食事の満足度が15%低下する",
+  "スマホの振動を感じる幻覚「ファントムバイブ」は68%が経験",
+  "15分のスマホ休憩で創造性が向上するという研究",
+  "グレースケール表示にするとスマホ使用時間が平均38分減少",
+  "マルチタスクは実は脳の切り替えコストで効率が40%低下する",
+  "週末のデジタルデトックスで幸福度が25%上昇した実験結果",
+  "目と画面の推奨距離は40-75cm（多くの人は15-20cmで使用）",
+  "スマホ依存度が高い人ほど「退屈」を感じやすい傾向がある",
+  "朝起きて最初にスマホを見る人は全体の80%",
+  "就寝前1時間のスマホ断ちでREM睡眠が14%増加",
+  "このゲームを遊んでいる間、スマホを「使って」はいない",
+];
+
+export function LoadingScreen({ status, progress, height }: LoadingScreenProps) {
   const t = useTranslations("processing");
   const dots = useAnimatedDots();
   const refs = useSyntheticProgress(progress ?? 0);
+
+  const [trivia, setTrivia] = useState(() => TRIVIA[Math.floor(Math.random() * TRIVIA.length)]);
+  useEffect(() => {
+    const id = setInterval(() => {
+      setTrivia(TRIVIA[Math.floor(Math.random() * TRIVIA.length)]);
+    }, 5000);
+    return () => clearInterval(id);
+  }, []);
 
   const hasProgress =
     typeof progress === "number" && progress >= 0 && progress <= 100;
@@ -298,6 +350,19 @@ export function LoadingScreen({ status, progress }: LoadingScreenProps) {
             style={{ width: "0%", boxShadow: "0 0 12px rgba(0,250,154,0.5), 0 0 24px rgba(0,250,154,0.2)" }}
           />
         </div>
+
+        {typeof height === "number" && height > 0 && (
+          <div className="mt-6 animate-fade-in-up" style={{ animation: "fade-in 0.5s ease-out 0.3s both" }}>
+            <span className="height-number text-[48px] text-accent leading-none" style={{ textShadow: "0 0 30px rgba(0, 250, 154, 0.3)" }}>
+              {height.toFixed(2)}
+            </span>
+            <span className="text-[16px] text-muted/60 ml-1">m</span>
+          </div>
+        )}
+
+        <p className="text-muted/30 text-[11px] tracking-[0.03em] text-center mt-4 max-w-[280px] leading-relaxed">
+          {trivia}
+        </p>
       </div>
     </div>
   );

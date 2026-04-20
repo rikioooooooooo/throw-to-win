@@ -95,9 +95,17 @@ export function ResultScreen({
         : "var(--color-foreground)";
 
   return (
-    <main className="fixed inset-0 z-10 flex flex-col items-center bg-background overflow-y-auto safe-top safe-bottom">
+    <main className="fixed inset-0 z-10 flex flex-col bg-background safe-top safe-bottom">
       {/* Background effects — tier-colored for special, subtle for normal */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {(achievement.isWorldRecord || achievement.isChuuniTier) && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              animation: "celebration-flash 2s ease-out both",
+            }}
+          />
+        )}
         {(resultData.isPersonalBest || tierInfo?.isBreakthrough) ? (
           <>
             {/* Tier-colored ambient glow — large, dramatic */}
@@ -128,18 +136,18 @@ export function ResultScreen({
         )}
       </div>
 
-      <div className="flex-1 flex flex-col items-center px-6 py-8 w-full max-w-md relative z-10">
+      <div className="flex-1 flex flex-col items-center px-6 py-6 w-full max-w-md relative z-10 overflow-y-auto mx-auto">
 
         {/* ---- Height hero ---- */}
-        <div className="text-center mt-4 mb-1 animate-fade-in-up relative">
+        <div className="text-center mt-2 mb-1 animate-fade-in-up relative">
           {/* Achievement celebration badge — priority: chuuniTier > WR > PB */}
           {achievement.badge === "chuuniTier" && tierInfo && (
-            <div className="flex flex-col items-center mb-3">
+            <div className="flex flex-col items-center mb-2">
               <TierIcon tierId={tierInfo.current.id} size={72} />
             </div>
           )}
           {achievement.badge === "worldRecord" && (
-            <div className="flex flex-col items-center mb-3">
+            <div className="flex flex-col items-center mb-2">
               <img
                 src="/assets/final/achievement/wr-update.png"
                 alt=""
@@ -154,7 +162,7 @@ export function ResultScreen({
             </div>
           )}
           {achievement.badge === "personalBest" && (
-            <div className="flex flex-col items-center mb-3">
+            <div className="flex flex-col items-center mb-2">
               <img
                 src="/assets/final/achievement/pb-update.png"
                 alt=""
@@ -299,7 +307,7 @@ export function ResultScreen({
         {/* ---- Video ---- */}
         {videoUrl && (
           <div
-            className="w-full max-w-[260px] mb-5 relative overflow-hidden animate-fade-in-up delay-160"
+            className="w-full max-w-[240px] mb-4 relative overflow-hidden animate-fade-in-up delay-160"
             style={{ borderRadius: "14px", border: "1px solid var(--color-border-subtle)" }}
           >
             {resultData.ffmpegProcessed ? (

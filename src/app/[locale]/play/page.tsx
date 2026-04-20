@@ -882,7 +882,7 @@ export default function PlayPage() {
     return (
       <>
         {turnstileWidget}
-        <LoadingScreen status={processingStatus} progress={processingProgress} />
+        <LoadingScreen status={processingStatus} progress={processingProgress} height={unifiedHeightRef.current} />
       </>
     );
   }
