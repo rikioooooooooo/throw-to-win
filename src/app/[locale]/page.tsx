@@ -13,30 +13,6 @@ import { GyroBars } from "@/components/gyro-ball";
 import { ThreadSheet } from "@/components/thread-sheet";
 import { LandingThrowDetector } from "@/lib/landing-throw-detector";
 
-function ScrollTrigger({ onTrigger }: { readonly onTrigger: () => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const triggered = useRef(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !triggered.current) {
-          triggered.current = true;
-          onTrigger();
-        }
-      },
-      { threshold: 0.1 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [onTrigger]);
-  return (
-    <div ref={ref} style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <span className="text-foreground text-[14px]" style={{ opacity: 0.1 }}>・</span>
-    </div>
-  );
-}
 
 export default function LandingPage() {
   const t = useTranslations();
@@ -199,7 +175,7 @@ export default function LandingPage() {
       {/* Canvas OUTSIDE main — stays fixed to viewport, unaffected by main's 3D transform */}
       <GyroBars className="fixed inset-0 z-0 pointer-events-none" onTilt={handleTilt} />
 
-      <main ref={mainRef} className="relative flex-1 flex flex-col px-6 min-h-dvh" style={{ transformOrigin: "center center" }}>
+      <main ref={mainRef} className="relative flex-1 flex flex-col px-6 h-dvh overflow-hidden" style={{ transformOrigin: "center center" }}>
 
       {/* Top bar */}
       <header className="relative z-10 flex justify-between items-center pt-4">
@@ -346,8 +322,10 @@ export default function LandingPage() {
       {/* Bottom spacer for safe area */}
       <div className="safe-bottom" />
 
-      {/* Subtle hint that content exists below — scroll trigger to manifesto */}
-      <ScrollTrigger onTrigger={navigateToManifesto} />
+      {/* Subtle hint — 5-tap logo or throw to discover manifesto */}
+      <div className="flex justify-center py-2">
+        <span className="text-foreground text-[10px]" style={{ opacity: 0.08 }}>・</span>
+      </div>
 
       <ThreadSheet open={showThread} onClose={() => setShowThread(false)} />
 
