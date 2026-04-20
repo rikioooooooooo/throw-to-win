@@ -104,8 +104,6 @@ export default function DebugPage() {
     useState<AchievementState | null>(null);
   const [activeTierId, setActiveTierId] = useState<string>("");
   const [activeCountry, setActiveCountry] = useState<string>("");
-  const [flashKey, setFlashKey] = useState(0);
-
   const triggerCracker = (level: CrackerLevel) => {
     setCrackerActive(false);
     setActiveLevel("none");
@@ -127,7 +125,6 @@ export default function DebugPage() {
     setAchievementResult(result);
     setActiveTierId(scenario.tierId);
     setActiveCountry(scenario.country);
-    setFlashKey(k => k + 1);
     triggerCracker(result.crackerLevel);
   };
 
@@ -184,7 +181,24 @@ export default function DebugPage() {
       </section>
 
       {/* Badge + Result display */}
-      {achievementResult && (
+      {achievementResult && (() => {
+        const wr = achievementResult.isWorldRecord;
+        const w5 = achievementResult.worldTop5Rank;
+        const c5 = achievementResult.countryTop5Rank;
+        const debugGlow = wr
+          ? { badgeShadow: "drop-shadow(0 0 20px rgba(255,215,0,0.5)) drop-shadow(0 0 40px rgba(255,45,45,0.3))", textClass: "rank-glow-wr" }
+          : w5 === 2 ? { badgeShadow: "drop-shadow(0 0 16px rgba(255,215,0,0.4))", textClass: "rank-glow-gold" }
+          : w5 === 3 ? { badgeShadow: "drop-shadow(0 0 12px rgba(192,192,192,0.4))", textClass: "rank-glow-silver" }
+          : w5 === 4 ? { badgeShadow: "drop-shadow(0 0 10px rgba(205,127,50,0.3))", textClass: "rank-glow-bronze" }
+          : w5 === 5 ? { badgeShadow: "drop-shadow(0 0 8px rgba(0,250,154,0.3))", textClass: "rank-glow-accent" }
+          : c5 === 1 ? { badgeShadow: "drop-shadow(0 0 14px rgba(0,250,154,0.4))", textClass: "rank-glow-country1" }
+          : c5 === 2 ? { badgeShadow: "drop-shadow(0 0 10px rgba(0,250,154,0.3))", textClass: "rank-glow-accent" }
+          : c5 === 3 ? { badgeShadow: "drop-shadow(0 0 8px rgba(0,200,180,0.3))", textClass: "rank-glow-teal" }
+          : c5 === 4 ? { badgeShadow: "drop-shadow(0 0 6px rgba(0,250,154,0.2))", textClass: "" }
+          : c5 === 5 ? { badgeShadow: "", textClass: "" }
+          : { badgeShadow: "", textClass: "" };
+
+        return (
         <section className="game-card p-4">
           <h2 className="text-[14px] text-muted/60 tracking-widest uppercase mb-3">
             Badge Preview
@@ -192,7 +206,9 @@ export default function DebugPage() {
           <div className="flex flex-col items-center py-6">
             {achievementResult.badge === "chuuniTier" && (
               <div className="flex flex-col items-center">
-                <TierIcon tierId={activeTierId} size={140} />
+                <div style={{ filter: debugGlow.badgeShadow || undefined }}>
+                  <TierIcon tierId={activeTierId} size={140} />
+                </div>
               </div>
             )}
             {achievementResult.badge === "worldRecord" && (
@@ -200,7 +216,7 @@ export default function DebugPage() {
                 <img
                   src="/assets/final/achievement/wr-update.png"
                   alt=""
-                  style={{ width: "180px", height: "101px", objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }}
+                  style={{ width: "180px", height: "101px", objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both", filter: debugGlow.badgeShadow || undefined }}
                 />
               </div>
             )}
@@ -209,7 +225,7 @@ export default function DebugPage() {
                 <img
                   src="/assets/final/achievement/pb-update.png"
                   alt=""
-                  style={{ width: "180px", height: "101px", objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }}
+                  style={{ width: "180px", height: "101px", objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both", filter: debugGlow.badgeShadow || undefined }}
                 />
               </div>
             )}
@@ -235,7 +251,7 @@ export default function DebugPage() {
               }
               if (parts.length === 0) return null;
               return (
-                <p className="achievement-badge label-text text-[14px] tracking-[0.2em] mt-3 text-accent text-center whitespace-normal">
+                <p className={`achievement-badge label-text text-[14px] tracking-[0.2em] mt-3 text-accent text-center whitespace-normal ${debugGlow.textClass}`}>
                   {parts.join(" / ")}
                 </p>
               );
@@ -248,25 +264,8 @@ export default function DebugPage() {
             {JSON.stringify(achievementResult, null, 2)}
           </pre>
         </section>
-      )}
-
-      {/* Background flash overlay */}
-      {achievementResult && (
-        <div key={flashKey} className="fixed inset-0 pointer-events-none z-40">
-          {achievementResult.isWorldRecord && (
-            <div className="absolute inset-0" style={{ animation: "celebration-flash-wr 3s ease-out both" }} />
-          )}
-          {!achievementResult.isWorldRecord && achievementResult.worldTop5Rank !== null && (
-            <div className="absolute inset-0" style={{ animation: "celebration-flash-world5 2s ease-out both" }} />
-          )}
-          {!achievementResult.isWorldRecord && achievementResult.worldTop5Rank === null && achievementResult.countryTop5Rank !== null && (
-            <div className="absolute inset-0" style={{ animation: "celebration-flash-country5 1.5s ease-out both" }} />
-          )}
-          {achievementResult.isChuuniTier && (
-            <div className="absolute inset-0" style={{ animation: "celebration-flash-wr 3s ease-out 0.5s both" }} />
-          )}
-        </div>
-      )}
+        );
+      })()}
 
       <CrackerParticles level={activeLevel} active={crackerActive} />
     </main>

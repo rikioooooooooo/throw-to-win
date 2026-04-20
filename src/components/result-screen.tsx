@@ -94,23 +94,79 @@ export function ResultScreen({
         ? "var(--color-accent)"
         : "var(--color-foreground)";
 
+  // Compute rank-specific glow style for the height number and status text
+  const rankGlow = (() => {
+    const wr = achievement.isWorldRecord;
+    const w5 = achievement.worldTop5Rank;
+    const c5 = achievement.countryTop5Rank;
+
+    // World #1 (WR): rainbow shimmer
+    if (wr) return {
+      heightShadow: "0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,45,45,0.3), 0 0 120px rgba(59,130,246,0.2)",
+      textClass: "rank-glow-wr",
+      badgeShadow: "drop-shadow(0 0 20px rgba(255,215,0,0.5)) drop-shadow(0 0 40px rgba(255,45,45,0.3))",
+    };
+    // World #2: gold intense
+    if (w5 === 2) return {
+      heightShadow: "0 0 30px rgba(255,215,0,0.5), 0 0 60px rgba(255,215,0,0.2)",
+      textClass: "rank-glow-gold",
+      badgeShadow: "drop-shadow(0 0 16px rgba(255,215,0,0.4))",
+    };
+    // World #3: silver
+    if (w5 === 3) return {
+      heightShadow: "0 0 25px rgba(192,192,192,0.5), 0 0 50px rgba(192,192,192,0.2)",
+      textClass: "rank-glow-silver",
+      badgeShadow: "drop-shadow(0 0 12px rgba(192,192,192,0.4))",
+    };
+    // World #4: bronze
+    if (w5 === 4) return {
+      heightShadow: "0 0 20px rgba(205,127,50,0.4), 0 0 40px rgba(205,127,50,0.15)",
+      textClass: "rank-glow-bronze",
+      badgeShadow: "drop-shadow(0 0 10px rgba(205,127,50,0.3))",
+    };
+    // World #5: green subtle
+    if (w5 === 5) return {
+      heightShadow: "0 0 15px rgba(0,250,154,0.3)",
+      textClass: "rank-glow-accent",
+      badgeShadow: "drop-shadow(0 0 8px rgba(0,250,154,0.3))",
+    };
+    // Country #1: bright green pulse
+    if (c5 === 1) return {
+      heightShadow: "0 0 30px rgba(0,250,154,0.5), 0 0 60px rgba(0,250,154,0.2)",
+      textClass: "rank-glow-country1",
+      badgeShadow: "drop-shadow(0 0 14px rgba(0,250,154,0.4))",
+    };
+    // Country #2: green
+    if (c5 === 2) return {
+      heightShadow: "0 0 25px rgba(0,250,154,0.4), 0 0 45px rgba(0,250,154,0.15)",
+      textClass: "rank-glow-accent",
+      badgeShadow: "drop-shadow(0 0 10px rgba(0,250,154,0.3))",
+    };
+    // Country #3: teal
+    if (c5 === 3) return {
+      heightShadow: "0 0 20px rgba(0,200,180,0.35)",
+      textClass: "rank-glow-teal",
+      badgeShadow: "drop-shadow(0 0 8px rgba(0,200,180,0.3))",
+    };
+    // Country #4: subtle
+    if (c5 === 4) return {
+      heightShadow: "0 0 15px rgba(0,250,154,0.25)",
+      textClass: "",
+      badgeShadow: "drop-shadow(0 0 6px rgba(0,250,154,0.2))",
+    };
+    // Country #5: very subtle
+    if (c5 === 5) return {
+      heightShadow: "0 0 10px rgba(0,250,154,0.2)",
+      textClass: "",
+      badgeShadow: "",
+    };
+    return { heightShadow: "", textClass: "", badgeShadow: "" };
+  })();
+
   return (
     <main className="fixed inset-0 z-10 flex flex-col bg-background safe-top safe-bottom">
       {/* Background effects — tier-colored for special, subtle for normal */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Ranked flash — intensity by achievement */}
-        {achievement.isWorldRecord && (
-          <div className="absolute inset-0 pointer-events-none" style={{ animation: "celebration-flash-wr 3s ease-out both" }} />
-        )}
-        {!achievement.isWorldRecord && achievement.worldTop5Rank !== null && (
-          <div className="absolute inset-0 pointer-events-none" style={{ animation: "celebration-flash-world5 2s ease-out both" }} />
-        )}
-        {!achievement.isWorldRecord && achievement.worldTop5Rank === null && achievement.countryTop5Rank !== null && (
-          <div className="absolute inset-0 pointer-events-none" style={{ animation: "celebration-flash-country5 1.5s ease-out both" }} />
-        )}
-        {achievement.isChuuniTier && (
-          <div className="absolute inset-0 pointer-events-none" style={{ animation: "celebration-flash-wr 3s ease-out 0.5s both" }} />
-        )}
         {(resultData.isPersonalBest || tierInfo?.isBreakthrough) ? (
           <>
             {/* Tier-colored ambient glow — large, dramatic */}
@@ -148,7 +204,9 @@ export function ResultScreen({
           {/* Achievement celebration badge — priority: chuuniTier > WR > PB */}
           {achievement.badge === "chuuniTier" && tierInfo && (
             <div className="flex flex-col items-center mb-2">
-              <TierIcon tierId={tierInfo.current.id} size={72} />
+              <div style={{ filter: rankGlow.badgeShadow || undefined }}>
+                <TierIcon tierId={tierInfo.current.id} size={72} />
+              </div>
             </div>
           )}
           {achievement.badge === "worldRecord" && (
@@ -162,6 +220,7 @@ export function ResultScreen({
                   height: "72px",
                   objectFit: "contain",
                   animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
+                  filter: rankGlow.badgeShadow || undefined,
                 }}
               />
             </div>
@@ -177,6 +236,7 @@ export function ResultScreen({
                   height: "72px",
                   objectFit: "contain",
                   animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
+                  filter: rankGlow.badgeShadow || undefined,
                 }}
               />
             </div>
@@ -200,7 +260,7 @@ export function ResultScreen({
             }
             if (parts.length === 0) return null;
             return (
-              <p className="achievement-badge label-text text-[12px] tracking-[0.15em] text-accent mt-2 text-center whitespace-normal">
+              <p className={`achievement-badge label-text text-[12px] tracking-[0.15em] text-accent mt-2 text-center whitespace-normal ${rankGlow.textClass}`}>
                 {parts.join(" / ")}
               </p>
             );
@@ -244,9 +304,11 @@ export function ResultScreen({
               style={{
                 color: tierColor,
                 fontSize: "clamp(5.5rem, 30vw, 10rem)",
-                textShadow: resultData.isPersonalBest || tierInfo?.isBreakthrough
-                  ? "0 0 40px currentColor, 0 0 80px currentColor"
-                  : "0 0 30px currentColor",
+                textShadow: rankGlow.heightShadow || (
+                  resultData.isPersonalBest || tierInfo?.isBreakthrough
+                    ? "0 0 40px currentColor, 0 0 80px currentColor"
+                    : "0 0 30px currentColor"
+                ),
               }}
             />
             <span
