@@ -122,8 +122,9 @@ export function ResultScreen({
                 alt=""
                 aria-hidden="true"
                 style={{
-                  width: "72px",
+                  width: "128px",
                   height: "72px",
+                  objectFit: "contain",
                   animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
                 }}
               />
