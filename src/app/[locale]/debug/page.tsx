@@ -204,7 +204,7 @@ export default function DebugPage() {
                 </p>
               </div>
             )}
-            {achievementResult.type === "none" && (
+            {achievementResult.type === null && (
               <p className="text-muted/40 text-[13px]">No achievement</p>
             )}
           </div>
