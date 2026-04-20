@@ -100,77 +100,77 @@ export function ResultScreen({
     const w5 = achievement.worldTop5Rank;
     const c5 = achievement.countryTop5Rank;
 
-    // World #1 (WR): rainbow shimmer
+    // World #1 (WR): rainbow — max intensity
     if (wr) return {
-      heightShadow: "0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,45,45,0.3), 0 0 120px rgba(59,130,246,0.2)",
+      heightShadow: "0 0 60px rgba(255,215,0,0.8), 0 0 120px rgba(255,45,45,0.4), 0 0 180px rgba(59,130,246,0.3)",
       textClass: "rank-glow-wr",
-      badgeShadow: "drop-shadow(0 0 20px rgba(255,215,0,0.5)) drop-shadow(0 0 40px rgba(255,45,45,0.3))",
-      cardGlow: "0 0 20px rgba(255,215,0,0.3), 0 0 40px rgba(255,45,45,0.15)",
+      badgeGlow: "radial-gradient(circle, rgba(255,215,0,0.4) 0%, rgba(255,45,45,0.2) 40%, transparent 70%)",
+      cardGlow: "inset 0 0 60px rgba(255,215,0,0.15), inset 0 0 120px rgba(255,45,45,0.08)",
     };
-    // World #2: gold intense
+    // World #2: gold
     if (w5 === 2) return {
-      heightShadow: "0 0 30px rgba(255,215,0,0.5), 0 0 60px rgba(255,215,0,0.2)",
+      heightShadow: "0 0 50px rgba(255,215,0,0.7), 0 0 100px rgba(255,215,0,0.3)",
       textClass: "rank-glow-gold",
-      badgeShadow: "drop-shadow(0 0 16px rgba(255,215,0,0.4))",
-      cardGlow: "0 0 16px rgba(255,215,0,0.2)",
+      badgeGlow: "radial-gradient(circle, rgba(255,215,0,0.35) 0%, transparent 65%)",
+      cardGlow: "inset 0 0 50px rgba(255,215,0,0.12)",
     };
     // World #3: silver
     if (w5 === 3) return {
-      heightShadow: "0 0 25px rgba(192,192,192,0.5), 0 0 50px rgba(192,192,192,0.2)",
+      heightShadow: "0 0 40px rgba(192,192,192,0.7), 0 0 80px rgba(192,192,192,0.3)",
       textClass: "rank-glow-silver",
-      badgeShadow: "drop-shadow(0 0 12px rgba(192,192,192,0.4))",
-      cardGlow: "0 0 12px rgba(192,192,192,0.2)",
+      badgeGlow: "radial-gradient(circle, rgba(192,192,192,0.3) 0%, transparent 65%)",
+      cardGlow: "inset 0 0 40px rgba(192,192,192,0.1)",
     };
     // World #4: bronze
     if (w5 === 4) return {
-      heightShadow: "0 0 20px rgba(205,127,50,0.4), 0 0 40px rgba(205,127,50,0.15)",
+      heightShadow: "0 0 30px rgba(205,127,50,0.6), 0 0 60px rgba(205,127,50,0.25)",
       textClass: "rank-glow-bronze",
-      badgeShadow: "drop-shadow(0 0 10px rgba(205,127,50,0.3))",
-      cardGlow: "0 0 10px rgba(205,127,50,0.15)",
+      badgeGlow: "radial-gradient(circle, rgba(205,127,50,0.25) 0%, transparent 65%)",
+      cardGlow: "inset 0 0 30px rgba(205,127,50,0.08)",
     };
-    // World #5: green subtle
+    // World #5: green
     if (w5 === 5) return {
-      heightShadow: "0 0 15px rgba(0,250,154,0.3)",
+      heightShadow: "0 0 25px rgba(0,250,154,0.5), 0 0 50px rgba(0,250,154,0.2)",
       textClass: "rank-glow-accent",
-      badgeShadow: "drop-shadow(0 0 8px rgba(0,250,154,0.3))",
-      cardGlow: "0 0 8px rgba(0,250,154,0.1)",
+      badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.2) 0%, transparent 65%)",
+      cardGlow: "inset 0 0 25px rgba(0,250,154,0.06)",
     };
-    // Country #1: bright green pulse
+    // Country #1: bright green
     if (c5 === 1) return {
-      heightShadow: "0 0 30px rgba(0,250,154,0.5), 0 0 60px rgba(0,250,154,0.2)",
+      heightShadow: "0 0 45px rgba(0,250,154,0.7), 0 0 90px rgba(0,250,154,0.3)",
       textClass: "rank-glow-country1",
-      badgeShadow: "drop-shadow(0 0 14px rgba(0,250,154,0.4))",
-      cardGlow: "0 0 14px rgba(0,250,154,0.2)",
+      badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.3) 0%, transparent 65%)",
+      cardGlow: "inset 0 0 40px rgba(0,250,154,0.1)",
     };
-    // Country #2: green
+    // Country #2
     if (c5 === 2) return {
-      heightShadow: "0 0 25px rgba(0,250,154,0.4), 0 0 45px rgba(0,250,154,0.15)",
+      heightShadow: "0 0 35px rgba(0,250,154,0.6), 0 0 70px rgba(0,250,154,0.2)",
       textClass: "rank-glow-accent",
-      badgeShadow: "drop-shadow(0 0 10px rgba(0,250,154,0.3))",
-      cardGlow: "0 0 10px rgba(0,250,154,0.15)",
+      badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.25) 0%, transparent 65%)",
+      cardGlow: "inset 0 0 30px rgba(0,250,154,0.08)",
     };
-    // Country #3: teal
+    // Country #3
     if (c5 === 3) return {
-      heightShadow: "0 0 20px rgba(0,200,180,0.35)",
+      heightShadow: "0 0 25px rgba(0,200,180,0.5)",
       textClass: "rank-glow-teal",
-      badgeShadow: "drop-shadow(0 0 8px rgba(0,200,180,0.3))",
-      cardGlow: "0 0 8px rgba(0,200,180,0.12)",
+      badgeGlow: "radial-gradient(circle, rgba(0,200,180,0.2) 0%, transparent 65%)",
+      cardGlow: "inset 0 0 20px rgba(0,200,180,0.06)",
     };
-    // Country #4: subtle
+    // Country #4
     if (c5 === 4) return {
-      heightShadow: "0 0 15px rgba(0,250,154,0.25)",
+      heightShadow: "0 0 20px rgba(0,250,154,0.4)",
       textClass: "",
-      badgeShadow: "drop-shadow(0 0 6px rgba(0,250,154,0.2))",
+      badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.15) 0%, transparent 65%)",
       cardGlow: "",
     };
-    // Country #5: very subtle
+    // Country #5
     if (c5 === 5) return {
-      heightShadow: "0 0 10px rgba(0,250,154,0.2)",
+      heightShadow: "0 0 15px rgba(0,250,154,0.3)",
       textClass: "",
-      badgeShadow: "",
+      badgeGlow: "",
       cardGlow: "",
     };
-    return { heightShadow: "", textClass: "", badgeShadow: "", cardGlow: "" };
+    return { heightShadow: "", textClass: "", badgeGlow: "", cardGlow: "" };
   })();
 
   return (
@@ -213,40 +213,41 @@ export function ResultScreen({
         <div className="text-center mt-2 mb-1 animate-fade-in-up relative">
           {/* Achievement celebration badge — priority: chuuniTier > WR > PB */}
           {achievement.badge === "chuuniTier" && tierInfo && (
-            <div className="flex flex-col items-center mb-2">
-              <div style={{ filter: rankGlow.badgeShadow || undefined }}>
-                <TierIcon tierId={tierInfo.current.id} size={72} />
-              </div>
+            <div className="relative flex flex-col items-center mb-2">
+              {rankGlow.badgeGlow && <div className="absolute inset-0 rounded-full" style={{ background: rankGlow.badgeGlow, transform: "scale(2.5)" }} aria-hidden="true" />}
+              <div className="relative"><TierIcon tierId={tierInfo.current.id} size={72} /></div>
             </div>
           )}
           {achievement.badge === "worldRecord" && (
-            <div className="flex flex-col items-center mb-2">
+            <div className="relative flex flex-col items-center mb-2">
+              {rankGlow.badgeGlow && <div className="absolute inset-0 rounded-full" style={{ background: rankGlow.badgeGlow, transform: "scale(2.5)" }} aria-hidden="true" />}
               <img
                 src="/assets/final/achievement/wr-update.png"
                 alt=""
                 aria-hidden="true"
+                className="relative"
                 style={{
                   width: "128px",
                   height: "72px",
                   objectFit: "contain",
                   animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
-                  filter: rankGlow.badgeShadow || undefined,
                 }}
               />
             </div>
           )}
           {achievement.badge === "personalBest" && (
-            <div className="flex flex-col items-center mb-2">
+            <div className="relative flex flex-col items-center mb-2">
+              {rankGlow.badgeGlow && <div className="absolute inset-0 rounded-full" style={{ background: rankGlow.badgeGlow, transform: "scale(2.5)" }} aria-hidden="true" />}
               <img
                 src="/assets/final/achievement/pb-update.png"
                 alt=""
                 aria-hidden="true"
+                className="relative"
                 style={{
                   width: "128px",
                   height: "72px",
                   objectFit: "contain",
                   animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
-                  filter: rankGlow.badgeShadow || undefined,
                 }}
               />
             </div>

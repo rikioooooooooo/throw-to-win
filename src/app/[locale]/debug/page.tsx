@@ -131,17 +131,17 @@ export default function DebugPage() {
         const w5 = achievementResult.worldTop5Rank;
         const c5 = achievementResult.countryTop5Rank;
         const g = wr
-          ? { hs: "0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,45,45,0.3), 0 0 120px rgba(59,130,246,0.2)", bs: "drop-shadow(0 0 20px rgba(255,215,0,0.5)) drop-shadow(0 0 40px rgba(255,45,45,0.3))", tc: "rank-glow-wr", cg: "0 0 30px rgba(255,215,0,0.4), 0 0 60px rgba(255,45,45,0.2)" }
-          : w5 === 2 ? { hs: "0 0 30px rgba(255,215,0,0.5), 0 0 60px rgba(255,215,0,0.2)", bs: "drop-shadow(0 0 16px rgba(255,215,0,0.4))", tc: "rank-glow-gold", cg: "0 0 20px rgba(255,215,0,0.25)" }
-          : w5 === 3 ? { hs: "0 0 25px rgba(192,192,192,0.5), 0 0 50px rgba(192,192,192,0.2)", bs: "drop-shadow(0 0 12px rgba(192,192,192,0.4))", tc: "rank-glow-silver", cg: "0 0 16px rgba(192,192,192,0.2)" }
-          : w5 === 4 ? { hs: "0 0 20px rgba(205,127,50,0.4)", bs: "drop-shadow(0 0 10px rgba(205,127,50,0.3))", tc: "rank-glow-bronze", cg: "0 0 12px rgba(205,127,50,0.15)" }
-          : w5 === 5 ? { hs: "0 0 15px rgba(0,250,154,0.3)", bs: "drop-shadow(0 0 8px rgba(0,250,154,0.3))", tc: "rank-glow-accent", cg: "0 0 10px rgba(0,250,154,0.12)" }
-          : c5 === 1 ? { hs: "0 0 30px rgba(0,250,154,0.5), 0 0 60px rgba(0,250,154,0.2)", bs: "drop-shadow(0 0 14px rgba(0,250,154,0.4))", tc: "rank-glow-country1", cg: "0 0 18px rgba(0,250,154,0.25)" }
-          : c5 === 2 ? { hs: "0 0 25px rgba(0,250,154,0.4)", bs: "drop-shadow(0 0 10px rgba(0,250,154,0.3))", tc: "rank-glow-accent", cg: "0 0 12px rgba(0,250,154,0.15)" }
-          : c5 === 3 ? { hs: "0 0 20px rgba(0,200,180,0.35)", bs: "drop-shadow(0 0 8px rgba(0,200,180,0.3))", tc: "rank-glow-teal", cg: "0 0 10px rgba(0,200,180,0.12)" }
-          : c5 === 4 ? { hs: "0 0 15px rgba(0,250,154,0.25)", bs: "drop-shadow(0 0 6px rgba(0,250,154,0.2))", tc: "", cg: "" }
-          : c5 === 5 ? { hs: "0 0 10px rgba(0,250,154,0.2)", bs: "", tc: "", cg: "" }
-          : { hs: "", bs: "", tc: "", cg: "" };
+          ? { hs: "0 0 60px rgba(255,215,0,0.8), 0 0 120px rgba(255,45,45,0.4), 0 0 180px rgba(59,130,246,0.3)", bg: "radial-gradient(circle, rgba(255,215,0,0.4) 0%, rgba(255,45,45,0.2) 40%, transparent 70%)", tc: "rank-glow-wr", cg: "inset 0 0 60px rgba(255,215,0,0.15), inset 0 0 120px rgba(255,45,45,0.08)" }
+          : w5 === 2 ? { hs: "0 0 50px rgba(255,215,0,0.7), 0 0 100px rgba(255,215,0,0.3)", bg: "radial-gradient(circle, rgba(255,215,0,0.35) 0%, transparent 65%)", tc: "rank-glow-gold", cg: "inset 0 0 50px rgba(255,215,0,0.12)" }
+          : w5 === 3 ? { hs: "0 0 40px rgba(192,192,192,0.7), 0 0 80px rgba(192,192,192,0.3)", bg: "radial-gradient(circle, rgba(192,192,192,0.3) 0%, transparent 65%)", tc: "rank-glow-silver", cg: "inset 0 0 40px rgba(192,192,192,0.1)" }
+          : w5 === 4 ? { hs: "0 0 30px rgba(205,127,50,0.6)", bg: "radial-gradient(circle, rgba(205,127,50,0.25) 0%, transparent 65%)", tc: "rank-glow-bronze", cg: "inset 0 0 30px rgba(205,127,50,0.08)" }
+          : w5 === 5 ? { hs: "0 0 25px rgba(0,250,154,0.5)", bg: "radial-gradient(circle, rgba(0,250,154,0.2) 0%, transparent 65%)", tc: "rank-glow-accent", cg: "inset 0 0 25px rgba(0,250,154,0.06)" }
+          : c5 === 1 ? { hs: "0 0 45px rgba(0,250,154,0.7), 0 0 90px rgba(0,250,154,0.3)", bg: "radial-gradient(circle, rgba(0,250,154,0.3) 0%, transparent 65%)", tc: "rank-glow-country1", cg: "inset 0 0 40px rgba(0,250,154,0.1)" }
+          : c5 === 2 ? { hs: "0 0 35px rgba(0,250,154,0.6)", bg: "radial-gradient(circle, rgba(0,250,154,0.25) 0%, transparent 65%)", tc: "rank-glow-accent", cg: "inset 0 0 30px rgba(0,250,154,0.08)" }
+          : c5 === 3 ? { hs: "0 0 25px rgba(0,200,180,0.5)", bg: "radial-gradient(circle, rgba(0,200,180,0.2) 0%, transparent 65%)", tc: "rank-glow-teal", cg: "inset 0 0 20px rgba(0,200,180,0.06)" }
+          : c5 === 4 ? { hs: "0 0 20px rgba(0,250,154,0.4)", bg: "radial-gradient(circle, rgba(0,250,154,0.15) 0%, transparent 65%)", tc: "", cg: "" }
+          : c5 === 5 ? { hs: "0 0 15px rgba(0,250,154,0.3)", bg: "", tc: "", cg: "" }
+          : { hs: "", bg: "", tc: "", cg: "" };
 
         const statusParts: string[] = [];
         if (achievementResult.isWorldRecord) statusParts.push("WORLD RECORD");
@@ -155,17 +155,18 @@ export default function DebugPage() {
         if (achievementResult.isPersonalBest && !achievementResult.isWorldRecord && !achievementResult.isChuuniTier) statusParts.push("PERSONAL BEST");
 
         return (
-        <div className="fixed inset-0 z-30 bg-background flex flex-col items-center justify-center" style={{ boxShadow: g.cg ? `inset ${g.cg}` : undefined }} onClick={() => setAchievementResult(null)}>
-          {/* Badge */}
-          <div className="mb-4">
+        <div className="fixed inset-0 z-30 bg-background flex flex-col items-center justify-center" style={{ boxShadow: g.cg || undefined }} onClick={() => setAchievementResult(null)}>
+          {/* Badge with radial glow */}
+          <div className="relative mb-4">
+            {g.bg && <div className="absolute inset-0 rounded-full" style={{ background: g.bg, transform: "scale(3)" }} aria-hidden="true" />}
             {achievementResult.badge === "chuuniTier" && (
-              <div style={{ filter: g.bs || undefined }}><TierIcon tierId={activeTierId} size={100} /></div>
+              <div className="relative"><TierIcon tierId={activeTierId} size={100} /></div>
             )}
             {achievementResult.badge === "worldRecord" && (
-              <img src="/assets/final/achievement/wr-update.png" alt="" style={{ width: 160, height: 90, objectFit: "contain", filter: g.bs || undefined, animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }} />
+              <img className="relative" src="/assets/final/achievement/wr-update.png" alt="" style={{ width: 160, height: 90, objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }} />
             )}
             {achievementResult.badge === "personalBest" && (
-              <img src="/assets/final/achievement/pb-update.png" alt="" style={{ width: 160, height: 90, objectFit: "contain", filter: g.bs || undefined, animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }} />
+              <img className="relative" src="/assets/final/achievement/pb-update.png" alt="" style={{ width: 160, height: 90, objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }} />
             )}
           </div>
           {/* Height */}
