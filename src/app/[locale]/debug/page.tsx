@@ -158,7 +158,7 @@ export default function DebugPage() {
         <div className="fixed inset-0 z-30 bg-background flex flex-col items-center justify-center" style={{ boxShadow: g.cg || undefined }} onClick={() => setAchievementResult(null)}>
           {/* Badge with radial glow */}
           <div className="relative mb-4">
-            {g.bg && <div className="absolute inset-0 rounded-full" style={{ background: g.bg, transform: "scale(3)" }} aria-hidden="true" />}
+            {g.bg && <div className="absolute rounded-full pointer-events-none" style={{ width: 250, height: 250, top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: g.bg }} aria-hidden="true" />}
             {achievementResult.badge === "chuuniTier" && (
               <div className="relative"><TierIcon tierId={activeTierId} size={100} /></div>
             )}

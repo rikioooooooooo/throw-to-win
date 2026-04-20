@@ -214,13 +214,13 @@ export function ResultScreen({
           {/* Achievement celebration badge — priority: chuuniTier > WR > PB */}
           {achievement.badge === "chuuniTier" && tierInfo && (
             <div className="relative flex flex-col items-center mb-2">
-              {rankGlow.badgeGlow && <div className="absolute inset-0 rounded-full" style={{ background: rankGlow.badgeGlow, transform: "scale(2.5)" }} aria-hidden="true" />}
+              {rankGlow.badgeGlow && <div className="absolute rounded-full pointer-events-none" style={{ width: 200, height: 200, top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: rankGlow.badgeGlow }} aria-hidden="true" />}
               <div className="relative"><TierIcon tierId={tierInfo.current.id} size={72} /></div>
             </div>
           )}
           {achievement.badge === "worldRecord" && (
             <div className="relative flex flex-col items-center mb-2">
-              {rankGlow.badgeGlow && <div className="absolute inset-0 rounded-full" style={{ background: rankGlow.badgeGlow, transform: "scale(2.5)" }} aria-hidden="true" />}
+              {rankGlow.badgeGlow && <div className="absolute rounded-full pointer-events-none" style={{ width: 200, height: 200, top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: rankGlow.badgeGlow }} aria-hidden="true" />}
               <img
                 src="/assets/final/achievement/wr-update.png"
                 alt=""
@@ -237,7 +237,7 @@ export function ResultScreen({
           )}
           {achievement.badge === "personalBest" && (
             <div className="relative flex flex-col items-center mb-2">
-              {rankGlow.badgeGlow && <div className="absolute inset-0 rounded-full" style={{ background: rankGlow.badgeGlow, transform: "scale(2.5)" }} aria-hidden="true" />}
+              {rankGlow.badgeGlow && <div className="absolute rounded-full pointer-events-none" style={{ width: 200, height: 200, top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: rankGlow.badgeGlow }} aria-hidden="true" />}
               <img
                 src="/assets/final/achievement/pb-update.png"
                 alt=""

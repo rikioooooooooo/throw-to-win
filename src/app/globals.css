@@ -430,55 +430,65 @@ input:focus-visible {
   50% { opacity: 0.7; transform: scale(1.1); }
 }
 
-/* Rank glow animations — applied to status text */
+/* Rank glow animations — neon pachinko style */
 .rank-glow-wr {
-  animation: rank-shimmer-rainbow 2s ease-in-out infinite;
+  animation: rank-neon-rainbow 0.8s ease-in-out infinite;
 }
-@keyframes rank-shimmer-rainbow {
-  0%, 100% { text-shadow: 0 0 8px rgba(255,215,0,0.6), 0 0 20px rgba(255,45,45,0.3); }
-  25% { text-shadow: 0 0 8px rgba(0,250,154,0.6), 0 0 20px rgba(59,130,246,0.3); }
-  50% { text-shadow: 0 0 8px rgba(155,89,182,0.6), 0 0 20px rgba(255,20,147,0.3); }
-  75% { text-shadow: 0 0 8px rgba(59,130,246,0.6), 0 0 20px rgba(255,215,0,0.3); }
+@keyframes rank-neon-rainbow {
+  0% { text-shadow: 0 0 10px #FFD700, 0 0 30px #FFD700, 0 0 50px #FF4500; color: #FFD700; }
+  20% { text-shadow: 0 0 10px #FF2D2D, 0 0 30px #FF2D2D, 0 0 50px #FF69B4; color: #FF6B6B; }
+  40% { text-shadow: 0 0 10px #00FA9A, 0 0 30px #00FA9A, 0 0 50px #00E5FF; color: #00FA9A; }
+  60% { text-shadow: 0 0 10px #3B82F6, 0 0 30px #3B82F6, 0 0 50px #9B59B6; color: #60A5FA; }
+  80% { text-shadow: 0 0 10px #FF1493, 0 0 30px #FF1493, 0 0 50px #FFD700; color: #FF69B4; }
+  100% { text-shadow: 0 0 10px #FFD700, 0 0 30px #FFD700, 0 0 50px #FF4500; color: #FFD700; }
 }
 
 .rank-glow-gold {
-  animation: rank-shimmer-gold 1.5s ease-in-out infinite;
+  animation: rank-neon-gold 0.6s ease-in-out infinite;
 }
-@keyframes rank-shimmer-gold {
-  0%, 100% { text-shadow: 0 0 6px rgba(255,215,0,0.5); }
-  50% { text-shadow: 0 0 12px rgba(255,215,0,0.8), 0 0 24px rgba(255,215,0,0.3); }
+@keyframes rank-neon-gold {
+  0%, 100% { text-shadow: 0 0 8px #FFD700, 0 0 20px rgba(255,215,0,0.5); }
+  50% { text-shadow: 0 0 15px #FFD700, 0 0 35px #FFD700, 0 0 55px rgba(255,215,0,0.4); }
 }
 
 .rank-glow-silver {
-  animation: rank-shimmer-silver 1.5s ease-in-out infinite;
+  animation: rank-neon-silver 0.7s ease-in-out infinite;
 }
-@keyframes rank-shimmer-silver {
-  0%, 100% { text-shadow: 0 0 5px rgba(192,192,192,0.4); }
-  50% { text-shadow: 0 0 10px rgba(192,192,192,0.7), 0 0 20px rgba(192,192,192,0.2); }
+@keyframes rank-neon-silver {
+  0%, 100% { text-shadow: 0 0 6px #C0C0C0, 0 0 16px rgba(192,192,192,0.4); }
+  50% { text-shadow: 0 0 12px #C0C0C0, 0 0 30px #C0C0C0, 0 0 45px rgba(192,192,192,0.3); }
 }
 
 .rank-glow-bronze {
-  text-shadow: 0 0 6px rgba(205,127,50,0.4);
+  animation: rank-neon-bronze 0.8s ease-in-out infinite;
+}
+@keyframes rank-neon-bronze {
+  0%, 100% { text-shadow: 0 0 5px #CD7F32, 0 0 12px rgba(205,127,50,0.4); }
+  50% { text-shadow: 0 0 10px #CD7F32, 0 0 25px #CD7F32, 0 0 40px rgba(205,127,50,0.3); }
 }
 
 .rank-glow-accent {
-  animation: rank-shimmer-accent 2s ease-in-out infinite;
+  animation: rank-neon-accent 0.7s ease-in-out infinite;
 }
-@keyframes rank-shimmer-accent {
-  0%, 100% { text-shadow: 0 0 5px rgba(0,250,154,0.3); }
-  50% { text-shadow: 0 0 10px rgba(0,250,154,0.6), 0 0 20px rgba(0,250,154,0.2); }
+@keyframes rank-neon-accent {
+  0%, 100% { text-shadow: 0 0 5px #00FA9A, 0 0 14px rgba(0,250,154,0.4); }
+  50% { text-shadow: 0 0 12px #00FA9A, 0 0 28px #00FA9A, 0 0 45px rgba(0,250,154,0.3); }
 }
 
 .rank-glow-country1 {
-  animation: rank-shimmer-country1 1.2s ease-in-out infinite;
+  animation: rank-neon-country1 0.5s ease-in-out infinite;
 }
-@keyframes rank-shimmer-country1 {
-  0%, 100% { text-shadow: 0 0 6px rgba(0,250,154,0.4); }
-  50% { text-shadow: 0 0 14px rgba(0,250,154,0.7), 0 0 28px rgba(0,250,154,0.3); }
+@keyframes rank-neon-country1 {
+  0%, 100% { text-shadow: 0 0 8px #00FA9A, 0 0 20px rgba(0,250,154,0.5); }
+  50% { text-shadow: 0 0 16px #00FA9A, 0 0 35px #00FA9A, 0 0 55px rgba(0,250,154,0.4); }
 }
 
 .rank-glow-teal {
-  text-shadow: 0 0 6px rgba(0,200,180,0.4);
+  animation: rank-neon-teal 0.8s ease-in-out infinite;
+}
+@keyframes rank-neon-teal {
+  0%, 100% { text-shadow: 0 0 4px #00C8B4, 0 0 10px rgba(0,200,180,0.3); }
+  50% { text-shadow: 0 0 8px #00C8B4, 0 0 20px #00C8B4, 0 0 35px rgba(0,200,180,0.25); }
 }
 
 /* PB explosion — screen flash */
