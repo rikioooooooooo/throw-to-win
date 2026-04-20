@@ -101,17 +101,17 @@ export function ResultScreen({
     const c5 = achievement.countryTop5Rank;
 
     // All glow is now driven by CSS classes so everything pulses in sync
-    if (wr) return { heightClass: "rank-height-wr", textClass: "rank-glow-wr", badgeGlow: "radial-gradient(circle, rgba(255,215,0,0.4) 0%, rgba(255,45,45,0.2) 40%, transparent 70%)", cardClass: "rank-card-wr" };
-    if (w5 === 2) return { heightClass: "rank-height-gold", textClass: "rank-glow-gold", badgeGlow: "radial-gradient(circle, rgba(255,215,0,0.35) 0%, transparent 65%)", cardClass: "rank-card-gold" };
-    if (w5 === 3) return { heightClass: "rank-height-silver", textClass: "rank-glow-silver", badgeGlow: "radial-gradient(circle, rgba(192,192,192,0.3) 0%, transparent 65%)", cardClass: "rank-card-silver" };
-    if (w5 === 4) return { heightClass: "rank-height-bronze", textClass: "rank-glow-bronze", badgeGlow: "radial-gradient(circle, rgba(205,127,50,0.25) 0%, transparent 65%)", cardClass: "rank-card-bronze" };
-    if (w5 === 5) return { heightClass: "rank-height-accent", textClass: "rank-glow-accent", badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.2) 0%, transparent 65%)", cardClass: "rank-card-accent" };
-    if (c5 === 1) return { heightClass: "rank-height-c1", textClass: "rank-glow-country1", badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.3) 0%, transparent 65%)", cardClass: "rank-card-c1" };
-    if (c5 === 2) return { heightClass: "rank-height-accent", textClass: "rank-glow-accent", badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.25) 0%, transparent 65%)", cardClass: "rank-card-accent" };
-    if (c5 === 3) return { heightClass: "rank-height-teal", textClass: "rank-glow-teal", badgeGlow: "radial-gradient(circle, rgba(0,200,180,0.2) 0%, transparent 65%)", cardClass: "rank-card-teal" };
-    if (c5 === 4) return { heightClass: "", textClass: "", badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.15) 0%, transparent 65%)", cardClass: "" };
-    if (c5 === 5) return { heightClass: "", textClass: "", badgeGlow: "", cardClass: "" };
-    return { heightClass: "", textClass: "", badgeGlow: "", cardClass: "" };
+    if (wr) return { heightClass: "rank-height-wr", textClass: "rank-glow-wr", badgeClass: "rank-badge-wr", cardClass: "rank-card-wr" };
+    if (w5 === 2) return { heightClass: "rank-height-gold", textClass: "rank-glow-gold", badgeClass: "rank-badge-gold", cardClass: "rank-card-gold" };
+    if (w5 === 3) return { heightClass: "rank-height-silver", textClass: "rank-glow-silver", badgeClass: "rank-badge-silver", cardClass: "rank-card-silver" };
+    if (w5 === 4) return { heightClass: "rank-height-bronze", textClass: "rank-glow-bronze", badgeClass: "rank-badge-bronze", cardClass: "rank-card-bronze" };
+    if (w5 === 5) return { heightClass: "rank-height-accent", textClass: "rank-glow-accent", badgeClass: "rank-badge-accent", cardClass: "rank-card-accent" };
+    if (c5 === 1) return { heightClass: "rank-height-c1", textClass: "rank-glow-country1", badgeClass: "rank-badge-c1", cardClass: "rank-card-c1" };
+    if (c5 === 2) return { heightClass: "rank-height-accent", textClass: "rank-glow-accent", badgeClass: "rank-badge-accent", cardClass: "rank-card-accent" };
+    if (c5 === 3) return { heightClass: "rank-height-teal", textClass: "rank-glow-teal", badgeClass: "rank-badge-teal", cardClass: "rank-card-teal" };
+    if (c5 === 4) return { heightClass: "", textClass: "", badgeClass: "", cardClass: "" };
+    if (c5 === 5) return { heightClass: "", textClass: "", badgeClass: "", cardClass: "" };
+    return { heightClass: "", textClass: "", badgeClass: "", cardClass: "" };
   })();
 
   return (
@@ -155,13 +155,13 @@ export function ResultScreen({
           {/* Achievement celebration badge — priority: chuuniTier > WR > PB */}
           {achievement.badge === "chuuniTier" && tierInfo && (
             <div className="relative flex flex-col items-center mb-2">
-              {rankGlow.badgeGlow && <div className="absolute rounded-full pointer-events-none" style={{ width: 200, height: 200, top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: rankGlow.badgeGlow }} aria-hidden="true" />}
+              {rankGlow.badgeClass && <div className={`absolute rounded-full pointer-events-none ${rankGlow.badgeClass}`} style={{ width: 200, height: 200, top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: "radial-gradient(circle, var(--rank-bg-color, rgba(0,250,154,0.3)) 0%, transparent 70%)" }} aria-hidden="true" />}
               <div className="relative"><TierIcon tierId={tierInfo.current.id} size={72} /></div>
             </div>
           )}
           {achievement.badge === "worldRecord" && (
             <div className="relative flex flex-col items-center mb-2">
-              {rankGlow.badgeGlow && <div className="absolute rounded-full pointer-events-none" style={{ width: 200, height: 200, top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: rankGlow.badgeGlow }} aria-hidden="true" />}
+              {rankGlow.badgeClass && <div className={`absolute rounded-full pointer-events-none ${rankGlow.badgeClass}`} style={{ width: 200, height: 200, top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: "radial-gradient(circle, var(--rank-bg-color, rgba(0,250,154,0.3)) 0%, transparent 70%)" }} aria-hidden="true" />}
               <img
                 src="/assets/final/achievement/wr-update.png"
                 alt=""
@@ -178,7 +178,7 @@ export function ResultScreen({
           )}
           {achievement.badge === "personalBest" && (
             <div className="relative flex flex-col items-center mb-2">
-              {rankGlow.badgeGlow && <div className="absolute rounded-full pointer-events-none" style={{ width: 200, height: 200, top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: rankGlow.badgeGlow }} aria-hidden="true" />}
+              {rankGlow.badgeClass && <div className={`absolute rounded-full pointer-events-none ${rankGlow.badgeClass}`} style={{ width: 200, height: 200, top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: "radial-gradient(circle, var(--rank-bg-color, rgba(0,250,154,0.3)) 0%, transparent 70%)" }} aria-hidden="true" />}
               <img
                 src="/assets/final/achievement/pb-update.png"
                 alt=""
