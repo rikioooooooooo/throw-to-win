@@ -82,7 +82,10 @@
     "scoreNotSaved": "スコア未保存",
     "nearMissTier": "あと {remaining}m で {tier}",
     "nearMissPB": "あと {remaining}m で自己ベスト更新",
-    "todaysBest": "今日のベスト"
+    "todaysBest": "今日のベスト",
+    "worldRecord": "WORLD RECORD",
+    "countryTop5": "国内 TOP5",
+    "chuuniTierReached": "{tier} 到達"
   },
   "tier": {
     "rookie": "ルーキー",

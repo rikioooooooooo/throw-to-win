@@ -82,7 +82,10 @@
     "scoreNotSaved": "成績未儲存",
     "nearMissTier": "距 {tier} 還差 {remaining}m",
     "nearMissPB": "距個人最佳還差 {remaining}m",
-    "todaysBest": "今日最佳"
+    "todaysBest": "今日最佳",
+    "worldRecord": "WORLD RECORD",
+    "countryTop5": "全國 TOP5",
+    "chuuniTierReached": "{tier} 解鎖"
   },
   "tier": {
     "rookie": "Rookie",

@@ -82,7 +82,10 @@
     "scoreNotSaved": "Результат не сохранен",
     "nearMissTier": "Ещё {remaining}м до {tier}",
     "nearMissPB": "Ещё {remaining}м до личного рекорда",
-    "todaysBest": "Лучший сегодня"
+    "todaysBest": "Лучший сегодня",
+    "worldRecord": "WORLD RECORD",
+    "countryTop5": "TOP5 страны",
+    "chuuniTierReached": "{tier} открыт"
   },
   "tier": {
     "rookie": "Rookie",

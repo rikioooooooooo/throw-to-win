@@ -82,7 +82,10 @@
     "scoreNotSaved": "Puntuacion no guardada",
     "nearMissTier": "A {remaining}m de {tier}",
     "nearMissPB": "A {remaining}m de tu mejor marca",
-    "todaysBest": "Mejor de hoy"
+    "todaysBest": "Mejor de hoy",
+    "worldRecord": "WORLD RECORD",
+    "countryTop5": "TOP5 Nacional",
+    "chuuniTierReached": "{tier} desbloqueado"
   },
   "tier": {
     "rookie": "Rookie",

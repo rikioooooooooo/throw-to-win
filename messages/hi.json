@@ -82,7 +82,10 @@
     "scoreNotSaved": "स्कोर सेव नहीं हुआ",
     "nearMissTier": "{tier} तक बस {remaining}m बाकी",
     "nearMissPB": "अपना रिकॉर्ड तोड़ने में बस {remaining}m बाकी",
-    "todaysBest": "आज का बेस्ट"
+    "todaysBest": "आज का बेस्ट",
+    "worldRecord": "WORLD RECORD",
+    "countryTop5": "राष्ट्रीय TOP5",
+    "chuuniTierReached": "{tier} अनलॉक"
   },
   "tier": {
     "rookie": "Rookie",

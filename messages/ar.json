@@ -82,7 +82,10 @@
     "scoreNotSaved": "لم يتم حفظ النتيجة",
     "nearMissTier": "باقي {remaining}م لـ {tier}",
     "nearMissPB": "باقي {remaining}م لتحطيم رقمك القياسي",
-    "todaysBest": "الأفضل اليوم"
+    "todaysBest": "الأفضل اليوم",
+    "worldRecord": "WORLD RECORD",
+    "countryTop5": "أفضل 5 وطنياً",
+    "chuuniTierReached": "{tier} مفتوح"
   },
   "tier": {
     "rookie": "Rookie",

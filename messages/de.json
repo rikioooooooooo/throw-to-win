@@ -82,7 +82,10 @@
     "scoreNotSaved": "Ergebnis nicht gespeichert",
     "nearMissTier": "Noch {remaining}m bis {tier}",
     "nearMissPB": "Noch {remaining}m bis zu deinem Rekord",
-    "todaysBest": "Bester heute"
+    "todaysBest": "Bester heute",
+    "worldRecord": "WORLD RECORD",
+    "countryTop5": "TOP5 National",
+    "chuuniTierReached": "{tier} freigeschaltet"
   },
   "tier": {
     "rookie": "Rookie",
