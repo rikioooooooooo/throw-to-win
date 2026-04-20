@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CrackerParticles } from "@/components/cracker-particles";
+import { TierIcon } from "@/components/tier-icon";
 import { determineAchievements, type CrackerLevel, type AchievementState } from "@/lib/achievements";
 
 type Scenario = {
@@ -74,6 +75,7 @@ export default function DebugPage() {
   const [crackerActive, setCrackerActive] = useState(false);
   const [achievementResult, setAchievementResult] =
     useState<AchievementState | null>(null);
+  const [activeTierId, setActiveTierId] = useState<string>("");
 
   const triggerCracker = (level: CrackerLevel) => {
     setCrackerActive(false);
@@ -95,6 +97,7 @@ export default function DebugPage() {
       previousBest: scenario.previousBest,
     });
     setAchievementResult(result);
+    setActiveTierId(scenario.tierId);
     triggerCracker(result.crackerLevel);
   };
 
@@ -150,13 +153,65 @@ export default function DebugPage() {
         </div>
       </section>
 
-      {/* Result display */}
+      {/* Badge + Result display */}
       {achievementResult && (
         <section className="game-card p-4">
           <h2 className="text-[14px] text-muted/60 tracking-widest uppercase mb-3">
-            Result
+            Badge Preview
           </h2>
-          <pre className="text-[12px] text-foreground/80 whitespace-pre-wrap">
+          <div className="flex flex-col items-center py-6">
+            {achievementResult.type === "chuuniTier" && (
+              <div className="flex flex-col items-center">
+                <TierIcon tierId={activeTierId} size={140} />
+                <p className="achievement-badge label-text text-[14px] tracking-[0.2em] mt-3 text-accent">
+                  {activeTierId.toUpperCase()} UNLOCKED
+                </p>
+              </div>
+            )}
+            {achievementResult.type === "worldRecord" && (
+              <div className="flex flex-col items-center">
+                <img
+                  src="/assets/final/achievement/wr-update.png"
+                  alt=""
+                  style={{ width: "180px", height: "101px", objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }}
+                />
+                <p className="achievement-badge label-text text-[14px] tracking-[0.2em] mt-3 text-[#FFD700]">
+                  WORLD RECORD
+                </p>
+              </div>
+            )}
+            {achievementResult.type === "countryTop5" && (
+              <div className="flex flex-col items-center">
+                <img
+                  src="/assets/final/achievement/pb-update.png"
+                  alt=""
+                  style={{ width: "180px", height: "101px", objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }}
+                />
+                <p className="achievement-badge label-text text-[14px] tracking-[0.2em] mt-3 text-accent">
+                  COUNTRY TOP 5
+                </p>
+              </div>
+            )}
+            {achievementResult.type === "personalBest" && (
+              <div className="flex flex-col items-center">
+                <img
+                  src="/assets/final/achievement/pb-update.png"
+                  alt=""
+                  style={{ width: "180px", height: "101px", objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }}
+                />
+                <p className="achievement-badge label-text text-[14px] tracking-[0.2em] mt-3 text-accent">
+                  PERSONAL BEST
+                </p>
+              </div>
+            )}
+            {achievementResult.type === "none" && (
+              <p className="text-muted/40 text-[13px]">No achievement</p>
+            )}
+          </div>
+          <h2 className="text-[14px] text-muted/60 tracking-widest uppercase mb-3 mt-4">
+            Raw Result
+          </h2>
+          <pre className="text-[11px] text-foreground/60 whitespace-pre-wrap">
             {JSON.stringify(achievementResult, null, 2)}
           </pre>
         </section>
