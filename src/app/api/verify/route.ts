@@ -144,8 +144,10 @@ export async function POST(request: Request) {
       }
     }
 
-    // Batch: upsert device + insert throw in a single round-trip
-    await env.DB.batch([
+    // TODO: Re-enable DB persistence when ready for production rankings
+    // Skipping DB writes during development — all throws treated as WR
+    const _skipBatch = false; // eslint-disable-line @typescript-eslint/no-unused-vars
+    if (_skipBatch) await env.DB.batch([
       env.DB.prepare(
         `INSERT INTO devices (id, first_seen, last_seen, total_throws, personal_best, country, flagged, display_name)
          VALUES (?, datetime('now'), datetime('now'), 1, ?, ?, 0, ?)
@@ -169,7 +171,7 @@ export async function POST(request: Request) {
       ),
     ]);
 
-    // 7. Fetch updated personal_best + ranks in parallel
+    // 7. Fetch updated personal_best + ranks in parallel (skipped during dev)
     const [updatedDevice, worldRankRow, countryRankRow, totalThrowsRow] =
       await Promise.all([
         env.DB.prepare(
@@ -197,8 +199,9 @@ export async function POST(request: Request) {
     return NextResponse.json({
       id: throwId,
       verifiedHeight,
-      worldRank: (worldRankRow?.rank ?? 0) + 1,
-      countryRank: (countryRankRow?.rank ?? 0) + 1,
+      // TODO: Remove WR override when ready for production rankings
+      worldRank: 1, // Always WR during development
+      countryRank: 1, // Always country #1 during development
       totalThrows: totalThrowsRow?.total ?? 0,
       country,
       personalBest: updatedBest,
