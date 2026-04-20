@@ -84,7 +84,6 @@
     "nearMissPB": "距个人最佳还差 {remaining}m",
     "todaysBest": "今日最佳",
     "worldRecord": "WORLD RECORD",
-    "countryTop5": "全国 TOP5",
     "chuuniTierReached": "{tier} 解锁"
   },
   "tier": {

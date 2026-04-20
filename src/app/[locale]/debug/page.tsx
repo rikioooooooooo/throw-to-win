@@ -9,57 +9,84 @@ type Scenario = {
   readonly label: string;
   readonly worldRank: number | null;
   readonly countryRank: number | null;
+  readonly country: string;
   readonly isPersonalBest: boolean;
   readonly tierId: string;
   readonly isBreakthrough: boolean;
-  readonly previousBest: number;
 };
 
 const SCENARIOS: readonly Scenario[] = [
   {
-    label: "World Record (#1)",
+    label: "WR + Country #1 + Chuuni + PB",
     worldRank: 1,
     countryRank: 1,
-    isPersonalBest: true,
-    tierId: "legend",
-    isBreakthrough: true,
-    previousBest: 8.0,
-  },
-  {
-    label: "Country Top 5 (#3)",
-    worldRank: 42,
-    countryRank: 3,
-    isPersonalBest: true,
-    tierId: "diamond",
-    isBreakthrough: false,
-    previousBest: 4.5,
-  },
-  {
-    label: "Chuuni Tier (Mythic)",
-    worldRank: 10,
-    countryRank: 8,
+    country: "JP",
     isPersonalBest: true,
     tierId: "mythic",
     isBreakthrough: true,
-    previousBest: 25.0,
   },
   {
-    label: "Personal Best",
+    label: "World #3 + Country #2 + PB",
+    worldRank: 3,
+    countryRank: 2,
+    country: "US",
+    isPersonalBest: true,
+    tierId: "diamond",
+    isBreakthrough: false,
+  },
+  {
+    label: "Country #4 + Chuuni + PB",
+    worldRank: 42,
+    countryRank: 4,
+    country: "KR",
+    isPersonalBest: true,
+    tierId: "stellar",
+    isBreakthrough: true,
+  },
+  {
+    label: "World #5 only (no PB)",
+    worldRank: 5,
+    countryRank: 8,
+    country: "FR",
+    isPersonalBest: false,
+    tierId: "platinum",
+    isBreakthrough: false,
+  },
+  {
+    label: "Chuuni tier only (no top5)",
+    worldRank: 50,
+    countryRank: 20,
+    country: "DE",
+    isPersonalBest: true,
+    tierId: "celestial",
+    isBreakthrough: true,
+  },
+  {
+    label: "Personal Best only",
     worldRank: 500,
     countryRank: 120,
+    country: "JP",
     isPersonalBest: true,
     tierId: "gold",
     isBreakthrough: false,
-    previousBest: 1.5,
+  },
+  {
+    label: "Country unknown (XX)",
+    worldRank: 4,
+    countryRank: 1,
+    country: "XX",
+    isPersonalBest: true,
+    tierId: "diamond",
+    isBreakthrough: false,
   },
   {
     label: "Normal throw (no achievement)",
     worldRank: 800,
     countryRank: 200,
+    country: "JP",
     isPersonalBest: false,
     tierId: "silver",
     isBreakthrough: false,
-    previousBest: 2.0,
   },
 ];
 
@@ -76,6 +103,7 @@ export default function DebugPage() {
   const [achievementResult, setAchievementResult] =
     useState<AchievementState | null>(null);
   const [activeTierId, setActiveTierId] = useState<string>("");
+  const [activeCountry, setActiveCountry] = useState<string>("");
 
   const triggerCracker = (level: CrackerLevel) => {
     setCrackerActive(false);
@@ -94,10 +122,10 @@ export default function DebugPage() {
       isPersonalBest: scenario.isPersonalBest,
       tierId: scenario.tierId,
       isBreakthrough: scenario.isBreakthrough,
-      previousBest: scenario.previousBest,
     });
     setAchievementResult(result);
     setActiveTierId(scenario.tierId);
+    setActiveCountry(scenario.country);
     triggerCracker(result.crackerLevel);
   };
 
@@ -160,53 +188,56 @@ export default function DebugPage() {
             Badge Preview
           </h2>
           <div className="flex flex-col items-center py-6">
-            {achievementResult.type === "chuuniTier" && (
+            {achievementResult.badge === "chuuniTier" && (
               <div className="flex flex-col items-center">
                 <TierIcon tierId={activeTierId} size={140} />
-                <p className="achievement-badge label-text text-[14px] tracking-[0.2em] mt-3 text-accent">
-                  {activeTierId.toUpperCase()} UNLOCKED
-                </p>
               </div>
             )}
-            {achievementResult.type === "worldRecord" && (
+            {achievementResult.badge === "worldRecord" && (
               <div className="flex flex-col items-center">
                 <img
                   src="/assets/final/achievement/wr-update.png"
                   alt=""
                   style={{ width: "180px", height: "101px", objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }}
                 />
-                <p className="achievement-badge label-text text-[14px] tracking-[0.2em] mt-3 text-[#FFD700]">
-                  WORLD RECORD
-                </p>
               </div>
             )}
-            {achievementResult.type === "countryTop5" && (
+            {achievementResult.badge === "personalBest" && (
               <div className="flex flex-col items-center">
                 <img
                   src="/assets/final/achievement/pb-update.png"
                   alt=""
                   style={{ width: "180px", height: "101px", objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }}
                 />
-                <p className="achievement-badge label-text text-[14px] tracking-[0.2em] mt-3 text-accent">
-                  COUNTRY TOP 5
-                </p>
               </div>
             )}
-            {achievementResult.type === "personalBest" && (
-              <div className="flex flex-col items-center">
-                <img
-                  src="/assets/final/achievement/pb-update.png"
-                  alt=""
-                  style={{ width: "180px", height: "101px", objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }}
-                />
-                <p className="achievement-badge label-text text-[14px] tracking-[0.2em] mt-3 text-accent">
-                  PERSONAL BEST
-                </p>
-              </div>
-            )}
-            {achievementResult.type === null && (
+            {achievementResult.badge === null && (
               <p className="text-muted/40 text-[13px]">No achievement</p>
             )}
+            {(() => {
+              const parts: string[] = [];
+              if (achievementResult.isWorldRecord) parts.push("WORLD RECORD");
+              if (achievementResult.worldTop5Rank !== null) parts.push(`\u{1F30D} #${achievementResult.worldTop5Rank}`);
+              if (achievementResult.countryTop5Rank !== null) {
+                const cc = activeCountry.toUpperCase();
+                const flag = cc.length === 2 && cc !== "XX"
+                  ? String.fromCodePoint(cc.charCodeAt(0) + 0x1f1a5, cc.charCodeAt(1) + 0x1f1a5)
+                  : "\u{1F3F3}\u{FE0F}";
+                parts.push(`${flag} #${achievementResult.countryTop5Rank}`);
+              }
+              if (achievementResult.isChuuniTier && achievementResult.chuuniTierId) {
+                parts.push(`${achievementResult.chuuniTierId.toUpperCase()} UNLOCKED`);
+              }
+              if (achievementResult.isPersonalBest && !achievementResult.isWorldRecord && !achievementResult.isChuuniTier) {
+                parts.push("PERSONAL BEST");
+              }
+              if (parts.length === 0) return null;
+              return (
+                <p className="achievement-badge label-text text-[14px] tracking-[0.2em] mt-3 text-accent text-center whitespace-normal">
+                  {parts.join(" / ")}
+                </p>
+              );
+            })()}
           </div>
           <h2 className="text-[14px] text-muted/60 tracking-widest uppercase mb-3 mt-4">
             Raw Result

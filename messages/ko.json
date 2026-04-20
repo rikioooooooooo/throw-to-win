@@ -84,7 +84,6 @@
     "nearMissPB": "자기 최고까지 {remaining}m 남음",
     "todaysBest": "오늘의 베스트",
     "worldRecord": "WORLD RECORD",
-    "countryTop5": "국내 TOP5",
     "chuuniTierReached": "{tier} 달성"
   },
   "tier": {

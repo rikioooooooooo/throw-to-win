@@ -78,7 +78,6 @@ export function ResultScreen({
     isPersonalBest: resultData.isPersonalBest,
     tierId: tierInfo?.current.id ?? "rookie",
     isBreakthrough: tierInfo?.isBreakthrough ?? false,
-    previousBest: resultData.previousBest,
   });
 
   const [crackerActive, setCrackerActive] = useState(false);
@@ -134,18 +133,12 @@ export function ResultScreen({
         {/* ---- Height hero ---- */}
         <div className="text-center mt-4 mb-1 animate-fade-in-up relative">
           {/* Achievement celebration badge — priority: chuuniTier > WR > PB */}
-          {achievement.type === "chuuniTier" && tierInfo && (
+          {achievement.badge === "chuuniTier" && tierInfo && (
             <div className="flex flex-col items-center mb-3">
               <TierIcon tierId={tierInfo.current.id} size={72} />
-              <p
-                className="achievement-badge label-text text-[12px] tracking-[0.25em] mt-2"
-                style={{ color: tierInfo.current.color }}
-              >
-                {t("result.chuuniTierReached", { tier: t(`tier.${tierInfo.current.id}`) })}
-              </p>
             </div>
           )}
-          {achievement.type === "worldRecord" && (
+          {achievement.badge === "worldRecord" && (
             <div className="flex flex-col items-center mb-3">
               <img
                 src="/assets/final/achievement/wr-update.png"
@@ -158,14 +151,9 @@ export function ResultScreen({
                   animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
                 }}
               />
-              <p
-                className="achievement-badge label-text text-[12px] tracking-[0.25em] text-[#FFD700] mt-2"
-              >
-                {t("result.worldRecord")}
-              </p>
             </div>
           )}
-          {achievement.type === "countryTop5" && (
+          {achievement.badge === "personalBest" && (
             <div className="flex flex-col items-center mb-3">
               <img
                 src="/assets/final/achievement/pb-update.png"
@@ -178,33 +166,32 @@ export function ResultScreen({
                   animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
                 }}
               />
-              <p
-                className="achievement-badge label-text text-[12px] tracking-[0.25em] text-accent mt-2"
-              >
-                {t("result.countryTop5")}
-              </p>
             </div>
           )}
-          {achievement.type === "personalBest" && (
-            <div className="flex flex-col items-center mb-3">
-              <img
-                src="/assets/final/achievement/pb-update.png"
-                alt=""
-                aria-hidden="true"
-                style={{
-                  width: "128px",
-                  height: "72px",
-                  objectFit: "contain",
-                  animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
-                }}
-              />
-              <p
-                className="achievement-badge label-text text-[12px] tracking-[0.25em] text-accent mt-2"
-              >
-                {t("result.newRecord")}
+          {(() => {
+            const parts: string[] = [];
+            if (achievement.isWorldRecord) parts.push(t("result.worldRecord"));
+            if (achievement.worldTop5Rank !== null) parts.push(`\u{1F30D} #${achievement.worldTop5Rank}`);
+            if (achievement.countryTop5Rank !== null) {
+              const cc = (rankingData?.country ?? "").toUpperCase();
+              const flag = cc.length === 2 && cc !== "XX"
+                ? String.fromCodePoint(cc.charCodeAt(0) + 0x1f1a5, cc.charCodeAt(1) + 0x1f1a5)
+                : "\u{1F3F3}\u{FE0F}";
+              parts.push(`${flag} #${achievement.countryTop5Rank}`);
+            }
+            if (achievement.isChuuniTier && achievement.chuuniTierId) {
+              parts.push(t("result.chuuniTierReached", { tier: t(`tier.${achievement.chuuniTierId}`) }));
+            }
+            if (achievement.isPersonalBest && !achievement.isWorldRecord && !achievement.isChuuniTier) {
+              parts.push(t("result.newRecord"));
+            }
+            if (parts.length === 0) return null;
+            return (
+              <p className="achievement-badge label-text text-[12px] tracking-[0.15em] text-accent mt-2 text-center whitespace-normal">
+                {parts.join(" / ")}
               </p>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Celebration burst rings */}
           {(resultData.isPersonalBest || tierInfo?.isBreakthrough) && (

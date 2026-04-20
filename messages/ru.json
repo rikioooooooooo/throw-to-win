@@ -84,7 +84,6 @@
     "nearMissPB": "Ещё {remaining}м до личного рекорда",
     "todaysBest": "Лучший сегодня",
     "worldRecord": "WORLD RECORD",
-    "countryTop5": "TOP5 страны",
     "chuuniTierReached": "{tier} открыт"
   },
   "tier": {
