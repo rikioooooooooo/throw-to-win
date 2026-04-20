@@ -125,99 +125,63 @@ export default function DebugPage() {
         </div>
       </section>
 
-      {/* Badge + Result display */}
+      {/* Full-screen result preview overlay */}
       {achievementResult && (() => {
         const wr = achievementResult.isWorldRecord;
         const w5 = achievementResult.worldTop5Rank;
         const c5 = achievementResult.countryTop5Rank;
-        const debugGlow = wr
-          ? { heightShadow: "0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,45,45,0.3), 0 0 120px rgba(59,130,246,0.2)", badgeShadow: "drop-shadow(0 0 20px rgba(255,215,0,0.5)) drop-shadow(0 0 40px rgba(255,45,45,0.3))", textClass: "rank-glow-wr", cardGlow: "0 0 20px rgba(255,215,0,0.3), 0 0 40px rgba(255,45,45,0.15)" }
-          : w5 === 2 ? { heightShadow: "0 0 30px rgba(255,215,0,0.5), 0 0 60px rgba(255,215,0,0.2)", badgeShadow: "drop-shadow(0 0 16px rgba(255,215,0,0.4))", textClass: "rank-glow-gold", cardGlow: "0 0 16px rgba(255,215,0,0.2)" }
-          : w5 === 3 ? { heightShadow: "0 0 25px rgba(192,192,192,0.5), 0 0 50px rgba(192,192,192,0.2)", badgeShadow: "drop-shadow(0 0 12px rgba(192,192,192,0.4))", textClass: "rank-glow-silver", cardGlow: "0 0 12px rgba(192,192,192,0.2)" }
-          : w5 === 4 ? { heightShadow: "0 0 20px rgba(205,127,50,0.4), 0 0 40px rgba(205,127,50,0.15)", badgeShadow: "drop-shadow(0 0 10px rgba(205,127,50,0.3))", textClass: "rank-glow-bronze", cardGlow: "0 0 10px rgba(205,127,50,0.15)" }
-          : w5 === 5 ? { heightShadow: "0 0 15px rgba(0,250,154,0.3)", badgeShadow: "drop-shadow(0 0 8px rgba(0,250,154,0.3))", textClass: "rank-glow-accent", cardGlow: "0 0 8px rgba(0,250,154,0.1)" }
-          : c5 === 1 ? { heightShadow: "0 0 30px rgba(0,250,154,0.5), 0 0 60px rgba(0,250,154,0.2)", badgeShadow: "drop-shadow(0 0 14px rgba(0,250,154,0.4))", textClass: "rank-glow-country1", cardGlow: "0 0 14px rgba(0,250,154,0.2)" }
-          : c5 === 2 ? { heightShadow: "0 0 25px rgba(0,250,154,0.4), 0 0 45px rgba(0,250,154,0.15)", badgeShadow: "drop-shadow(0 0 10px rgba(0,250,154,0.3))", textClass: "rank-glow-accent", cardGlow: "0 0 10px rgba(0,250,154,0.15)" }
-          : c5 === 3 ? { heightShadow: "0 0 20px rgba(0,200,180,0.35)", badgeShadow: "drop-shadow(0 0 8px rgba(0,200,180,0.3))", textClass: "rank-glow-teal", cardGlow: "0 0 8px rgba(0,200,180,0.12)" }
-          : c5 === 4 ? { heightShadow: "0 0 15px rgba(0,250,154,0.25)", badgeShadow: "drop-shadow(0 0 6px rgba(0,250,154,0.2))", textClass: "", cardGlow: "" }
-          : c5 === 5 ? { heightShadow: "0 0 10px rgba(0,250,154,0.2)", badgeShadow: "", textClass: "", cardGlow: "" }
-          : { heightShadow: "", badgeShadow: "", textClass: "", cardGlow: "" };
+        const g = wr
+          ? { hs: "0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,45,45,0.3), 0 0 120px rgba(59,130,246,0.2)", bs: "drop-shadow(0 0 20px rgba(255,215,0,0.5)) drop-shadow(0 0 40px rgba(255,45,45,0.3))", tc: "rank-glow-wr", cg: "0 0 30px rgba(255,215,0,0.4), 0 0 60px rgba(255,45,45,0.2)" }
+          : w5 === 2 ? { hs: "0 0 30px rgba(255,215,0,0.5), 0 0 60px rgba(255,215,0,0.2)", bs: "drop-shadow(0 0 16px rgba(255,215,0,0.4))", tc: "rank-glow-gold", cg: "0 0 20px rgba(255,215,0,0.25)" }
+          : w5 === 3 ? { hs: "0 0 25px rgba(192,192,192,0.5), 0 0 50px rgba(192,192,192,0.2)", bs: "drop-shadow(0 0 12px rgba(192,192,192,0.4))", tc: "rank-glow-silver", cg: "0 0 16px rgba(192,192,192,0.2)" }
+          : w5 === 4 ? { hs: "0 0 20px rgba(205,127,50,0.4)", bs: "drop-shadow(0 0 10px rgba(205,127,50,0.3))", tc: "rank-glow-bronze", cg: "0 0 12px rgba(205,127,50,0.15)" }
+          : w5 === 5 ? { hs: "0 0 15px rgba(0,250,154,0.3)", bs: "drop-shadow(0 0 8px rgba(0,250,154,0.3))", tc: "rank-glow-accent", cg: "0 0 10px rgba(0,250,154,0.12)" }
+          : c5 === 1 ? { hs: "0 0 30px rgba(0,250,154,0.5), 0 0 60px rgba(0,250,154,0.2)", bs: "drop-shadow(0 0 14px rgba(0,250,154,0.4))", tc: "rank-glow-country1", cg: "0 0 18px rgba(0,250,154,0.25)" }
+          : c5 === 2 ? { hs: "0 0 25px rgba(0,250,154,0.4)", bs: "drop-shadow(0 0 10px rgba(0,250,154,0.3))", tc: "rank-glow-accent", cg: "0 0 12px rgba(0,250,154,0.15)" }
+          : c5 === 3 ? { hs: "0 0 20px rgba(0,200,180,0.35)", bs: "drop-shadow(0 0 8px rgba(0,200,180,0.3))", tc: "rank-glow-teal", cg: "0 0 10px rgba(0,200,180,0.12)" }
+          : c5 === 4 ? { hs: "0 0 15px rgba(0,250,154,0.25)", bs: "drop-shadow(0 0 6px rgba(0,250,154,0.2))", tc: "", cg: "" }
+          : c5 === 5 ? { hs: "0 0 10px rgba(0,250,154,0.2)", bs: "", tc: "", cg: "" }
+          : { hs: "", bs: "", tc: "", cg: "" };
+
+        const statusParts: string[] = [];
+        if (achievementResult.isWorldRecord) statusParts.push("WORLD RECORD");
+        if (achievementResult.worldTop5Rank !== null) statusParts.push(`\u{1F30D} #${achievementResult.worldTop5Rank}`);
+        if (achievementResult.countryTop5Rank !== null) {
+          const cc = activeCountry.toUpperCase();
+          const flag = cc.length === 2 && cc !== "XX" ? String.fromCodePoint(cc.charCodeAt(0) + 0x1f1a5, cc.charCodeAt(1) + 0x1f1a5) : "\u{1F3F3}\u{FE0F}";
+          statusParts.push(`${flag} #${achievementResult.countryTop5Rank}`);
+        }
+        if (achievementResult.isChuuniTier && achievementResult.chuuniTierId) statusParts.push(`${achievementResult.chuuniTierId.toUpperCase()} UNLOCKED`);
+        if (achievementResult.isPersonalBest && !achievementResult.isWorldRecord && !achievementResult.isChuuniTier) statusParts.push("PERSONAL BEST");
 
         return (
-        <section className="game-card p-4" style={{ boxShadow: debugGlow.cardGlow || undefined }}>
-          <h2 className="text-[14px] text-muted/60 tracking-widest uppercase mb-3">
-            Badge Preview
-          </h2>
-          <div className="flex flex-col items-center py-6">
-            {/* Height number preview with rank glow */}
-            <span
-              className="height-number text-[48px] text-accent leading-none mb-4"
-              style={{ textShadow: debugGlow.heightShadow || "0 0 30px currentColor" }}
-            >
-              3.42
-            </span>
-            <span className="text-[14px] text-muted/60 mb-4">m</span>
-
+        <div className="fixed inset-0 z-30 bg-background flex flex-col items-center justify-center" style={{ boxShadow: g.cg ? `inset ${g.cg}` : undefined }} onClick={() => setAchievementResult(null)}>
+          {/* Badge */}
+          <div className="mb-4">
             {achievementResult.badge === "chuuniTier" && (
-              <div className="flex flex-col items-center">
-                <div style={{ filter: debugGlow.badgeShadow || undefined }}>
-                  <TierIcon tierId={activeTierId} size={140} />
-                </div>
-              </div>
+              <div style={{ filter: g.bs || undefined }}><TierIcon tierId={activeTierId} size={100} /></div>
             )}
             {achievementResult.badge === "worldRecord" && (
-              <div className="flex flex-col items-center">
-                <img
-                  src="/assets/final/achievement/wr-update.png"
-                  alt=""
-                  style={{ width: "180px", height: "101px", objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both", filter: debugGlow.badgeShadow || undefined }}
-                />
-              </div>
+              <img src="/assets/final/achievement/wr-update.png" alt="" style={{ width: 160, height: 90, objectFit: "contain", filter: g.bs || undefined, animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }} />
             )}
             {achievementResult.badge === "personalBest" && (
-              <div className="flex flex-col items-center">
-                <img
-                  src="/assets/final/achievement/pb-update.png"
-                  alt=""
-                  style={{ width: "180px", height: "101px", objectFit: "contain", animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both", filter: debugGlow.badgeShadow || undefined }}
-                />
-              </div>
+              <img src="/assets/final/achievement/pb-update.png" alt="" style={{ width: 160, height: 90, objectFit: "contain", filter: g.bs || undefined, animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both" }} />
             )}
-            {achievementResult.badge === null && (
-              <p className="text-muted/40 text-[13px]">No achievement</p>
-            )}
-            {(() => {
-              const parts: string[] = [];
-              if (achievementResult.isWorldRecord) parts.push("WORLD RECORD");
-              if (achievementResult.worldTop5Rank !== null) parts.push(`\u{1F30D} #${achievementResult.worldTop5Rank}`);
-              if (achievementResult.countryTop5Rank !== null) {
-                const cc = activeCountry.toUpperCase();
-                const flag = cc.length === 2 && cc !== "XX"
-                  ? String.fromCodePoint(cc.charCodeAt(0) + 0x1f1a5, cc.charCodeAt(1) + 0x1f1a5)
-                  : "\u{1F3F3}\u{FE0F}";
-                parts.push(`${flag} #${achievementResult.countryTop5Rank}`);
-              }
-              if (achievementResult.isChuuniTier && achievementResult.chuuniTierId) {
-                parts.push(`${achievementResult.chuuniTierId.toUpperCase()} UNLOCKED`);
-              }
-              if (achievementResult.isPersonalBest && !achievementResult.isWorldRecord && !achievementResult.isChuuniTier) {
-                parts.push("PERSONAL BEST");
-              }
-              if (parts.length === 0) return null;
-              return (
-                <p className={`achievement-badge label-text text-[14px] tracking-[0.2em] mt-3 text-accent text-center whitespace-normal ${debugGlow.textClass}`}>
-                  {parts.join(" / ")}
-                </p>
-              );
-            })()}
           </div>
-          <h2 className="text-[14px] text-muted/60 tracking-widest uppercase mb-3 mt-4">
-            Raw Result
-          </h2>
-          <pre className="text-[11px] text-foreground/60 whitespace-pre-wrap">
-            {JSON.stringify(achievementResult, null, 2)}
-          </pre>
-        </section>
+          {/* Height */}
+          <div className="flex items-baseline justify-center mb-2">
+            <span className="height-number leading-none" style={{ fontSize: "clamp(4rem, 25vw, 7rem)", color: "var(--color-accent)", textShadow: g.hs || "0 0 30px currentColor" }}>3.42</span>
+            <span className="text-[20px] text-muted/60 ml-1">m</span>
+          </div>
+          {/* Status text */}
+          {statusParts.length > 0 && (
+            <p className={`achievement-badge label-text text-[14px] tracking-[0.15em] text-accent text-center whitespace-normal mt-2 ${g.tc}`}>
+              {statusParts.join(" / ")}
+            </p>
+          )}
+          {/* Tap to close hint */}
+          <p className="text-muted/20 text-[11px] mt-8">tap to close</p>
+        </div>
         );
       })()}
 
