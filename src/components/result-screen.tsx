@@ -148,7 +148,7 @@ export function ResultScreen({
           {achievement.type === "worldRecord" && (
             <div className="flex flex-col items-center mb-3">
               <img
-                src="/assets/final/achievement/pb-update.png"
+                src="/assets/final/achievement/wr-update.png"
                 alt=""
                 aria-hidden="true"
                 style={{

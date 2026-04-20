@@ -1,61 +1,35 @@
-/**
- * Generate a World Record badge PNG using Gemini image generation.
- *
- * Usage:
- *   GOOGLE_API_KEY=... npx tsx scripts/generate-wr-badge.ts
- *
- * Output: public/assets/final/achievement/wr-badge.png
- */
+import { generateImage } from "./gemini-client";
+import sharp from "sharp";
+import * as fs from "node:fs";
 
-import { GoogleGenAI } from "@google/genai";
-import { writeFileSync, mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+const REFERENCE_PATH = "public/assets/final/achievement/pb-update.png";
+const OUTPUT_PATH = "public/assets/final/achievement/wr-update.png";
 
-const OUTPUT_PATH = resolve(
-  import.meta.dirname ?? ".",
-  "../public/assets/final/achievement/wr-badge.png",
-);
+const PROMPT = `STYLE: Match the reference image exactly in art direction — same sticker-style illustration with bold black cartoon outlines, flat solid color fill, Y2K skater/pop aesthetic. Transparent background.
 
-async function main() {
-  const apiKey = process.env.GOOGLE_API_KEY;
-  if (!apiKey) {
-    console.error("GOOGLE_API_KEY is required");
-    process.exit(1);
-  }
+DO NOT: Use thin-line icons, photorealistic rendering, 3D CGI, anime/manga style, watercolor, sketch. Do NOT include phones, devices, human figures, characters, faces, bodies, animals. Do NOT include text in the image.
 
-  const ai = new GoogleGenAI({ apiKey });
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash-exp",
-    contents: [
-      {
-        role: "user",
-        parts: [
-          {
-            text: `Generate a pixel-art badge icon for "WORLD RECORD" achievement in a phone-throwing game.
-Style: retro gaming, 128x72 pixels, transparent background, gold/orange metallic crown on top, "WR" text in bold pixel font, subtle glow effect.
-Output as a single PNG image.`,
-          },
-        ],
-      },
-    ],
-    config: {
-      responseModalities: ["IMAGE", "TEXT"],
-    },
-  });
+SUBJECT: A bold celebration badge for achieving WORLD RECORD (#1 globally). Central motif: a stylized crown or globe symbol conveying supremacy and world-scale achievement. Radiating elements: rainbow gradient rays bursting outward, gold accent stars, sparkle dots.
 
-  const parts = response.candidates?.[0]?.content?.parts ?? [];
-  const part = parts.find((p) => p.inlineData?.data);
-  if (!part?.inlineData?.data) {
-    console.error("No image data in response");
-    process.exit(1);
-  }
+PRIMARY COLORS: Rainbow gradient (red → orange → yellow → green → blue → indigo → violet) combined with bold gold (#FFD700) for crown/star accents. Black outlines preserve the sticker aesthetic. White highlights add shine.
 
-  mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
-  writeFileSync(OUTPUT_PATH, Buffer.from(part.inlineData.data, "base64"));
-  console.log(`Saved to ${OUTPUT_PATH}`);
+COMPOSITION: Horizontal 16:9 layout with central main element, decorative elements extending to left and right. Balanced, readable at small sizes.`;
+
+async function main(): Promise<void> {
+  console.log("Generating WR badge with Gemini 3.1 Flash Image...");
+
+  const pngBuffer = await generateImage(PROMPT, REFERENCE_PATH, { resolution: "1K" });
+
+  const resized = await sharp(pngBuffer)
+    .resize(1920, 1080, { fit: "cover", position: "center" })
+    .png({ quality: 90 })
+    .toBuffer();
+
+  fs.writeFileSync(OUTPUT_PATH, resized);
+  console.log(`Saved to ${OUTPUT_PATH} (${(resized.length / 1024).toFixed(0)} KB)`);
 }
 
 main().catch((err) => {
-  console.error(err);
+  console.error("Generation failed:", err);
   process.exit(1);
 });
