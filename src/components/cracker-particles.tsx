@@ -15,7 +15,7 @@ const LEVEL_CONFIG: Record<
   }
 > = {
   legendary: {
-    count: 120,
+    count: 60,
     spread: 1.0,
     gravity: 0.0008,
     colors: [
