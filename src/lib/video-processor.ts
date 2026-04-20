@@ -106,14 +106,19 @@ export async function processVideo(
 // Internal processing functions
 // ============================================================
 
-/** Common encode args for consistent output across all segments */
-const ENCODE_ARGS = [
+/** Video encode args (shared across all parts) */
+const VIDEO_ENCODE_ARGS = [
   "-c:v", "libx264",
   "-preset", "ultrafast",
   "-crf", "23",
   "-pix_fmt", "yuv420p",
   "-r", "60", // consistent fps across all parts (critical for concat)
-  "-an", // drop audio (slow-mo audio sounds unnatural)
+] as const;
+
+/** Audio encode args for all parts (AAC, 128 kbps) */
+const AUDIO_ENCODE_ARGS = [
+  "-c:a", "aac",
+  "-b:a", "128k",
 ] as const;
 
 /**
@@ -159,7 +164,8 @@ async function processWithSlowMo(
       await ffmpeg.exec([
         "-i", inputName,
         "-t", slowStart.toFixed(3),
-        ...ENCODE_ARGS,
+        ...VIDEO_ENCODE_ARGS,
+        ...AUDIO_ENCODE_ARGS,
         "-y", "part1.mp4",
       ]);
     }
@@ -175,7 +181,10 @@ async function processWithSlowMo(
       "-t", slowDuration.toFixed(3),
       "-i", inputName,
       "-vf", "setpts=5*(PTS-STARTPTS)",
-      ...ENCODE_ARGS,
+      // Audio: 5x slow via atempo cascade (range [0.5, 2.0] per instance; 0.5×0.5×0.8 = 0.20)
+      "-af", "atempo=0.5,atempo=0.5,atempo=0.8",
+      ...VIDEO_ENCODE_ARGS,
+      ...AUDIO_ENCODE_ARGS,
       "-y", "part2.mp4",
     ]);
 
@@ -187,7 +196,9 @@ async function processWithSlowMo(
       "-ss", slowEnd.toFixed(3),
       "-i", inputName,
       "-vf", "setpts=PTS-STARTPTS",
-      ...ENCODE_ARGS,
+      "-af", "asetpts=PTS-STARTPTS",
+      ...VIDEO_ENCODE_ARGS,
+      ...AUDIO_ENCODE_ARGS,
       "-y", "part3.mp4",
     ]);
 
@@ -267,7 +278,8 @@ async function simpleReencode(
 
     await ffmpeg.exec([
       "-i", inputName,
-      ...ENCODE_ARGS,
+      ...VIDEO_ENCODE_ARGS,
+      ...AUDIO_ENCODE_ARGS,
       "-movflags", "+faststart",
       "-y", "output.mp4",
     ]);
