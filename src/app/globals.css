@@ -498,6 +498,90 @@ input:focus-visible {
   50% { color: #66E8D8; text-shadow: 0 0 8px #00C8B4, 0 0 24px #00C8B4, 0 0 40px #008B76; }
 }
 
+/* Height number neon (synced with text neon) */
+.rank-height-wr { animation: rank-h-wr 0.7s linear infinite; }
+@keyframes rank-h-wr {
+  0% { text-shadow: 0 0 30px #FF0000, 0 0 80px #FF0000; }
+  17% { text-shadow: 0 0 30px #FFFF00, 0 0 80px #FFFF00; }
+  33% { text-shadow: 0 0 30px #00FF00, 0 0 80px #00FF00; }
+  50% { text-shadow: 0 0 30px #00FFFF, 0 0 80px #00FFFF; }
+  67% { text-shadow: 0 0 30px #4444FF, 0 0 80px #4444FF; }
+  83% { text-shadow: 0 0 30px #FF00FF, 0 0 80px #FF00FF; }
+  100% { text-shadow: 0 0 30px #FF0000, 0 0 80px #FF0000; }
+}
+.rank-height-gold { animation: rank-h-gold 0.5s linear infinite; }
+@keyframes rank-h-gold {
+  0%, 100% { text-shadow: 0 0 20px #FFD700, 0 0 50px rgba(255,215,0,0.4); }
+  50% { text-shadow: 0 0 40px #FFD700, 0 0 80px #FFD700; }
+}
+.rank-height-silver { animation: rank-h-silver 0.6s linear infinite; }
+@keyframes rank-h-silver {
+  0%, 100% { text-shadow: 0 0 16px #C0C0C0, 0 0 40px rgba(192,192,192,0.3); }
+  50% { text-shadow: 0 0 35px #E0E0E0, 0 0 70px #C0C0C0; }
+}
+.rank-height-bronze { animation: rank-h-bronze 0.7s linear infinite; }
+@keyframes rank-h-bronze {
+  0%, 100% { text-shadow: 0 0 12px #CD7F32, 0 0 30px rgba(205,127,50,0.3); }
+  50% { text-shadow: 0 0 28px #CD7F32, 0 0 55px #CD7F32; }
+}
+.rank-height-accent { animation: rank-h-accent 0.6s linear infinite; }
+@keyframes rank-h-accent {
+  0%, 100% { text-shadow: 0 0 14px #00FA9A, 0 0 35px rgba(0,250,154,0.3); }
+  50% { text-shadow: 0 0 30px #00FA9A, 0 0 60px #00FA9A; }
+}
+.rank-height-c1 { animation: rank-h-c1 0.4s linear infinite; }
+@keyframes rank-h-c1 {
+  0%, 100% { text-shadow: 0 0 18px #00FA9A, 0 0 45px rgba(0,250,154,0.4); }
+  50% { text-shadow: 0 0 40px #00FA9A, 0 0 80px #00FA9A; }
+}
+.rank-height-teal { animation: rank-h-teal 0.7s linear infinite; }
+@keyframes rank-h-teal {
+  0%, 100% { text-shadow: 0 0 10px #00C8B4, 0 0 25px rgba(0,200,180,0.3); }
+  50% { text-shadow: 0 0 22px #00C8B4, 0 0 45px #00C8B4; }
+}
+
+/* Card border neon (inset box-shadow) */
+.rank-card-wr { animation: rank-c-wr 0.7s linear infinite; }
+@keyframes rank-c-wr {
+  0% { box-shadow: inset 0 0 30px rgba(255,0,0,0.15), inset 0 0 60px rgba(255,0,0,0.05); }
+  17% { box-shadow: inset 0 0 30px rgba(255,255,0,0.15), inset 0 0 60px rgba(255,255,0,0.05); }
+  33% { box-shadow: inset 0 0 30px rgba(0,255,0,0.15), inset 0 0 60px rgba(0,255,0,0.05); }
+  50% { box-shadow: inset 0 0 30px rgba(0,255,255,0.15), inset 0 0 60px rgba(0,255,255,0.05); }
+  67% { box-shadow: inset 0 0 30px rgba(68,68,255,0.15), inset 0 0 60px rgba(68,68,255,0.05); }
+  83% { box-shadow: inset 0 0 30px rgba(255,0,255,0.15), inset 0 0 60px rgba(255,0,255,0.05); }
+  100% { box-shadow: inset 0 0 30px rgba(255,0,0,0.15), inset 0 0 60px rgba(255,0,0,0.05); }
+}
+.rank-card-gold { animation: rank-c-gold 0.5s linear infinite; }
+@keyframes rank-c-gold {
+  0%, 100% { box-shadow: inset 0 0 20px rgba(255,215,0,0.08); }
+  50% { box-shadow: inset 0 0 40px rgba(255,215,0,0.2), inset 0 0 80px rgba(255,215,0,0.06); }
+}
+.rank-card-silver { animation: rank-c-silver 0.6s linear infinite; }
+@keyframes rank-c-silver {
+  0%, 100% { box-shadow: inset 0 0 16px rgba(192,192,192,0.06); }
+  50% { box-shadow: inset 0 0 35px rgba(192,192,192,0.15), inset 0 0 60px rgba(192,192,192,0.04); }
+}
+.rank-card-bronze { animation: rank-c-bronze 0.7s linear infinite; }
+@keyframes rank-c-bronze {
+  0%, 100% { box-shadow: inset 0 0 12px rgba(205,127,50,0.05); }
+  50% { box-shadow: inset 0 0 28px rgba(205,127,50,0.12); }
+}
+.rank-card-accent { animation: rank-c-accent 0.6s linear infinite; }
+@keyframes rank-c-accent {
+  0%, 100% { box-shadow: inset 0 0 12px rgba(0,250,154,0.04); }
+  50% { box-shadow: inset 0 0 28px rgba(0,250,154,0.1); }
+}
+.rank-card-c1 { animation: rank-c-c1 0.4s linear infinite; }
+@keyframes rank-c-c1 {
+  0%, 100% { box-shadow: inset 0 0 18px rgba(0,250,154,0.06); }
+  50% { box-shadow: inset 0 0 40px rgba(0,250,154,0.16), inset 0 0 70px rgba(0,250,154,0.05); }
+}
+.rank-card-teal { animation: rank-c-teal 0.7s linear infinite; }
+@keyframes rank-c-teal {
+  0%, 100% { box-shadow: inset 0 0 10px rgba(0,200,180,0.04); }
+  50% { box-shadow: inset 0 0 22px rgba(0,200,180,0.1); }
+}
+
 /* PB explosion — screen flash */
 @keyframes pb-flash {
   0% { opacity: 0; }

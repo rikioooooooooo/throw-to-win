@@ -131,17 +131,17 @@ export default function DebugPage() {
         const w5 = achievementResult.worldTop5Rank;
         const c5 = achievementResult.countryTop5Rank;
         const g = wr
-          ? { hs: "0 0 60px rgba(255,215,0,0.8), 0 0 120px rgba(255,45,45,0.4), 0 0 180px rgba(59,130,246,0.3)", bg: "radial-gradient(circle, rgba(255,215,0,0.4) 0%, rgba(255,45,45,0.2) 40%, transparent 70%)", tc: "rank-glow-wr", cg: "inset 0 0 60px rgba(255,215,0,0.15), inset 0 0 120px rgba(255,45,45,0.08)" }
-          : w5 === 2 ? { hs: "0 0 50px rgba(255,215,0,0.7), 0 0 100px rgba(255,215,0,0.3)", bg: "radial-gradient(circle, rgba(255,215,0,0.35) 0%, transparent 65%)", tc: "rank-glow-gold", cg: "inset 0 0 50px rgba(255,215,0,0.12)" }
-          : w5 === 3 ? { hs: "0 0 40px rgba(192,192,192,0.7), 0 0 80px rgba(192,192,192,0.3)", bg: "radial-gradient(circle, rgba(192,192,192,0.3) 0%, transparent 65%)", tc: "rank-glow-silver", cg: "inset 0 0 40px rgba(192,192,192,0.1)" }
-          : w5 === 4 ? { hs: "0 0 30px rgba(205,127,50,0.6)", bg: "radial-gradient(circle, rgba(205,127,50,0.25) 0%, transparent 65%)", tc: "rank-glow-bronze", cg: "inset 0 0 30px rgba(205,127,50,0.08)" }
-          : w5 === 5 ? { hs: "0 0 25px rgba(0,250,154,0.5)", bg: "radial-gradient(circle, rgba(0,250,154,0.2) 0%, transparent 65%)", tc: "rank-glow-accent", cg: "inset 0 0 25px rgba(0,250,154,0.06)" }
-          : c5 === 1 ? { hs: "0 0 45px rgba(0,250,154,0.7), 0 0 90px rgba(0,250,154,0.3)", bg: "radial-gradient(circle, rgba(0,250,154,0.3) 0%, transparent 65%)", tc: "rank-glow-country1", cg: "inset 0 0 40px rgba(0,250,154,0.1)" }
-          : c5 === 2 ? { hs: "0 0 35px rgba(0,250,154,0.6)", bg: "radial-gradient(circle, rgba(0,250,154,0.25) 0%, transparent 65%)", tc: "rank-glow-accent", cg: "inset 0 0 30px rgba(0,250,154,0.08)" }
-          : c5 === 3 ? { hs: "0 0 25px rgba(0,200,180,0.5)", bg: "radial-gradient(circle, rgba(0,200,180,0.2) 0%, transparent 65%)", tc: "rank-glow-teal", cg: "inset 0 0 20px rgba(0,200,180,0.06)" }
-          : c5 === 4 ? { hs: "0 0 20px rgba(0,250,154,0.4)", bg: "radial-gradient(circle, rgba(0,250,154,0.15) 0%, transparent 65%)", tc: "", cg: "" }
-          : c5 === 5 ? { hs: "0 0 15px rgba(0,250,154,0.3)", bg: "", tc: "", cg: "" }
-          : { hs: "", bg: "", tc: "", cg: "" };
+          ? { hc: "rank-height-wr", bg: "radial-gradient(circle, rgba(255,215,0,0.4) 0%, rgba(255,45,45,0.2) 40%, transparent 70%)", tc: "rank-glow-wr", cc: "rank-card-wr" }
+          : w5 === 2 ? { hc: "rank-height-gold", bg: "radial-gradient(circle, rgba(255,215,0,0.35) 0%, transparent 65%)", tc: "rank-glow-gold", cc: "rank-card-gold" }
+          : w5 === 3 ? { hc: "rank-height-silver", bg: "radial-gradient(circle, rgba(192,192,192,0.3) 0%, transparent 65%)", tc: "rank-glow-silver", cc: "rank-card-silver" }
+          : w5 === 4 ? { hc: "rank-height-bronze", bg: "radial-gradient(circle, rgba(205,127,50,0.25) 0%, transparent 65%)", tc: "rank-glow-bronze", cc: "rank-card-bronze" }
+          : w5 === 5 ? { hc: "rank-height-accent", bg: "radial-gradient(circle, rgba(0,250,154,0.2) 0%, transparent 65%)", tc: "rank-glow-accent", cc: "rank-card-accent" }
+          : c5 === 1 ? { hc: "rank-height-c1", bg: "radial-gradient(circle, rgba(0,250,154,0.3) 0%, transparent 65%)", tc: "rank-glow-country1", cc: "rank-card-c1" }
+          : c5 === 2 ? { hc: "rank-height-accent", bg: "radial-gradient(circle, rgba(0,250,154,0.25) 0%, transparent 65%)", tc: "rank-glow-accent", cc: "rank-card-accent" }
+          : c5 === 3 ? { hc: "rank-height-teal", bg: "radial-gradient(circle, rgba(0,200,180,0.2) 0%, transparent 65%)", tc: "rank-glow-teal", cc: "rank-card-teal" }
+          : c5 === 4 ? { hc: "", bg: "radial-gradient(circle, rgba(0,250,154,0.15) 0%, transparent 65%)", tc: "", cc: "" }
+          : c5 === 5 ? { hc: "", bg: "", tc: "", cc: "" }
+          : { hc: "", bg: "", tc: "", cc: "" };
 
         const statusParts: string[] = [];
         if (achievementResult.isWorldRecord) statusParts.push("WORLD RECORD");
@@ -155,7 +155,7 @@ export default function DebugPage() {
         if (achievementResult.isPersonalBest && !achievementResult.isWorldRecord && !achievementResult.isChuuniTier) statusParts.push("PERSONAL BEST");
 
         return (
-        <div className="fixed inset-0 z-30 bg-background flex flex-col items-center justify-center" style={{ boxShadow: g.cg || undefined }} onClick={() => setAchievementResult(null)}>
+        <div className={`fixed inset-0 z-30 bg-background flex flex-col items-center justify-center ${g.cc}`} onClick={() => setAchievementResult(null)}>
           {/* Badge with radial glow */}
           <div className="relative mb-4">
             {g.bg && <div className="absolute rounded-full pointer-events-none" style={{ width: 250, height: 250, top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: g.bg }} aria-hidden="true" />}
@@ -171,7 +171,7 @@ export default function DebugPage() {
           </div>
           {/* Height */}
           <div className="flex items-baseline justify-center mb-2">
-            <span className="height-number leading-none" style={{ fontSize: "clamp(4rem, 25vw, 7rem)", color: "var(--color-accent)", textShadow: g.hs || "0 0 30px currentColor" }}>3.42</span>
+            <span className={`height-number leading-none ${g.hc}`} style={{ fontSize: "clamp(4rem, 25vw, 7rem)", color: "var(--color-accent)" }}>3.42</span>
             <span className="text-[20px] text-muted/60 ml-1">m</span>
           </div>
           {/* Status text */}

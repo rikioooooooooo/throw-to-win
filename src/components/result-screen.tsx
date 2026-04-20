@@ -100,77 +100,18 @@ export function ResultScreen({
     const w5 = achievement.worldTop5Rank;
     const c5 = achievement.countryTop5Rank;
 
-    // World #1 (WR): rainbow — max intensity
-    if (wr) return {
-      heightShadow: "0 0 60px rgba(255,215,0,0.8), 0 0 120px rgba(255,45,45,0.4), 0 0 180px rgba(59,130,246,0.3)",
-      textClass: "rank-glow-wr",
-      badgeGlow: "radial-gradient(circle, rgba(255,215,0,0.4) 0%, rgba(255,45,45,0.2) 40%, transparent 70%)",
-      cardGlow: "inset 0 0 60px rgba(255,215,0,0.15), inset 0 0 120px rgba(255,45,45,0.08)",
-    };
-    // World #2: gold
-    if (w5 === 2) return {
-      heightShadow: "0 0 50px rgba(255,215,0,0.7), 0 0 100px rgba(255,215,0,0.3)",
-      textClass: "rank-glow-gold",
-      badgeGlow: "radial-gradient(circle, rgba(255,215,0,0.35) 0%, transparent 65%)",
-      cardGlow: "inset 0 0 50px rgba(255,215,0,0.12)",
-    };
-    // World #3: silver
-    if (w5 === 3) return {
-      heightShadow: "0 0 40px rgba(192,192,192,0.7), 0 0 80px rgba(192,192,192,0.3)",
-      textClass: "rank-glow-silver",
-      badgeGlow: "radial-gradient(circle, rgba(192,192,192,0.3) 0%, transparent 65%)",
-      cardGlow: "inset 0 0 40px rgba(192,192,192,0.1)",
-    };
-    // World #4: bronze
-    if (w5 === 4) return {
-      heightShadow: "0 0 30px rgba(205,127,50,0.6), 0 0 60px rgba(205,127,50,0.25)",
-      textClass: "rank-glow-bronze",
-      badgeGlow: "radial-gradient(circle, rgba(205,127,50,0.25) 0%, transparent 65%)",
-      cardGlow: "inset 0 0 30px rgba(205,127,50,0.08)",
-    };
-    // World #5: green
-    if (w5 === 5) return {
-      heightShadow: "0 0 25px rgba(0,250,154,0.5), 0 0 50px rgba(0,250,154,0.2)",
-      textClass: "rank-glow-accent",
-      badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.2) 0%, transparent 65%)",
-      cardGlow: "inset 0 0 25px rgba(0,250,154,0.06)",
-    };
-    // Country #1: bright green
-    if (c5 === 1) return {
-      heightShadow: "0 0 45px rgba(0,250,154,0.7), 0 0 90px rgba(0,250,154,0.3)",
-      textClass: "rank-glow-country1",
-      badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.3) 0%, transparent 65%)",
-      cardGlow: "inset 0 0 40px rgba(0,250,154,0.1)",
-    };
-    // Country #2
-    if (c5 === 2) return {
-      heightShadow: "0 0 35px rgba(0,250,154,0.6), 0 0 70px rgba(0,250,154,0.2)",
-      textClass: "rank-glow-accent",
-      badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.25) 0%, transparent 65%)",
-      cardGlow: "inset 0 0 30px rgba(0,250,154,0.08)",
-    };
-    // Country #3
-    if (c5 === 3) return {
-      heightShadow: "0 0 25px rgba(0,200,180,0.5)",
-      textClass: "rank-glow-teal",
-      badgeGlow: "radial-gradient(circle, rgba(0,200,180,0.2) 0%, transparent 65%)",
-      cardGlow: "inset 0 0 20px rgba(0,200,180,0.06)",
-    };
-    // Country #4
-    if (c5 === 4) return {
-      heightShadow: "0 0 20px rgba(0,250,154,0.4)",
-      textClass: "",
-      badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.15) 0%, transparent 65%)",
-      cardGlow: "",
-    };
-    // Country #5
-    if (c5 === 5) return {
-      heightShadow: "0 0 15px rgba(0,250,154,0.3)",
-      textClass: "",
-      badgeGlow: "",
-      cardGlow: "",
-    };
-    return { heightShadow: "", textClass: "", badgeGlow: "", cardGlow: "" };
+    // All glow is now driven by CSS classes so everything pulses in sync
+    if (wr) return { heightClass: "rank-height-wr", textClass: "rank-glow-wr", badgeGlow: "radial-gradient(circle, rgba(255,215,0,0.4) 0%, rgba(255,45,45,0.2) 40%, transparent 70%)", cardClass: "rank-card-wr" };
+    if (w5 === 2) return { heightClass: "rank-height-gold", textClass: "rank-glow-gold", badgeGlow: "radial-gradient(circle, rgba(255,215,0,0.35) 0%, transparent 65%)", cardClass: "rank-card-gold" };
+    if (w5 === 3) return { heightClass: "rank-height-silver", textClass: "rank-glow-silver", badgeGlow: "radial-gradient(circle, rgba(192,192,192,0.3) 0%, transparent 65%)", cardClass: "rank-card-silver" };
+    if (w5 === 4) return { heightClass: "rank-height-bronze", textClass: "rank-glow-bronze", badgeGlow: "radial-gradient(circle, rgba(205,127,50,0.25) 0%, transparent 65%)", cardClass: "rank-card-bronze" };
+    if (w5 === 5) return { heightClass: "rank-height-accent", textClass: "rank-glow-accent", badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.2) 0%, transparent 65%)", cardClass: "rank-card-accent" };
+    if (c5 === 1) return { heightClass: "rank-height-c1", textClass: "rank-glow-country1", badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.3) 0%, transparent 65%)", cardClass: "rank-card-c1" };
+    if (c5 === 2) return { heightClass: "rank-height-accent", textClass: "rank-glow-accent", badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.25) 0%, transparent 65%)", cardClass: "rank-card-accent" };
+    if (c5 === 3) return { heightClass: "rank-height-teal", textClass: "rank-glow-teal", badgeGlow: "radial-gradient(circle, rgba(0,200,180,0.2) 0%, transparent 65%)", cardClass: "rank-card-teal" };
+    if (c5 === 4) return { heightClass: "", textClass: "", badgeGlow: "radial-gradient(circle, rgba(0,250,154,0.15) 0%, transparent 65%)", cardClass: "" };
+    if (c5 === 5) return { heightClass: "", textClass: "", badgeGlow: "", cardClass: "" };
+    return { heightClass: "", textClass: "", badgeGlow: "", cardClass: "" };
   })();
 
   return (
@@ -207,7 +148,7 @@ export function ResultScreen({
         )}
       </div>
 
-      <div className="flex-1 flex flex-col items-center px-6 py-6 w-full max-w-md relative z-10 overflow-y-auto mx-auto" style={{ boxShadow: rankGlow.cardGlow || undefined }}>
+      <div className={`flex-1 flex flex-col items-center px-6 py-6 w-full max-w-md relative z-10 overflow-y-auto mx-auto ${rankGlow.cardClass}`}>
 
         {/* ---- Height hero ---- */}
         <div className="text-center mt-2 mb-1 animate-fade-in-up relative">
@@ -311,15 +252,11 @@ export function ResultScreen({
             <CountUpHeight
               target={resultData.height}
               samples={resultData.samples.length > 0 ? resultData.samples : undefined}
-              className="height-number leading-none"
+              className={`height-number leading-none ${rankGlow.heightClass}`}
               style={{
                 color: tierColor,
                 fontSize: "clamp(5.5rem, 30vw, 10rem)",
-                textShadow: rankGlow.heightShadow || (
-                  resultData.isPersonalBest || tierInfo?.isBreakthrough
-                    ? "0 0 40px currentColor, 0 0 80px currentColor"
-                    : "0 0 30px currentColor"
-                ),
+                ...(!rankGlow.heightClass ? { textShadow: resultData.isPersonalBest || tierInfo?.isBreakthrough ? "0 0 40px currentColor, 0 0 80px currentColor" : "0 0 30px currentColor" } : {}),
               }}
             />
             <span
