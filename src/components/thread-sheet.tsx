@@ -153,12 +153,9 @@ export function ThreadSheet({ open, onClose }: ThreadSheetProps) {
   const trimmedLength = input.trim().length;
 
   return (
-    <div
-      className="fixed inset-0 z-50"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
+    <div className="fixed inset-0 z-50">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60" style={{ animation: "fade-in 0.2s ease-out both" }} />
+      <div className="absolute inset-0 bg-black/60" style={{ animation: "fade-in 0.2s ease-out both" }} onClick={onClose} />
 
       {/* Sheet */}
       <div
@@ -170,6 +167,7 @@ export function ThreadSheet({ open, onClose }: ThreadSheetProps) {
           animation: "slide-up-sheet 0.3s cubic-bezier(0.16, 1, 0.3, 1) both",
           touchAction: "none",
         }}
+        onClick={(e) => e.stopPropagation()}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
