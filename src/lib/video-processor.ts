@@ -141,9 +141,9 @@ async function processWithSlowMo(
     onStatus("processing", 5);
     await ffmpeg.writeFile(inputName, await fetchFile(videoBlob));
 
-    // Slow-mo window: 0.5s before peak to 0.5s after peak
-    const slowStart = Math.max(0, peakTimeOffset - 0.5);
-    const slowEnd = peakTimeOffset + 0.5;
+    // Slow-mo window: 0.3s before peak to 0.3s after peak
+    const slowStart = Math.max(0, peakTimeOffset - 0.3);
+    const slowEnd = peakTimeOffset + 0.3;
     const slowDuration = slowEnd - slowStart;
 
     // Guard: near-zero slow-mo segment would produce empty/corrupt ffmpeg output

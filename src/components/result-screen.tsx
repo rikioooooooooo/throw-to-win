@@ -316,8 +316,8 @@ export function ResultScreen({
             ) : (
               <SlowMoPlayer
                 src={videoUrl}
-                slowStart={Math.max(0, resultData.peakOffset - 0.5)}
-                slowEnd={resultData.peakOffset + 0.5}
+                slowStart={Math.max(0, resultData.peakOffset - 0.3)}
+                slowEnd={resultData.peakOffset + 0.3}
                 className="w-full aspect-[9/16] object-cover"
               />
             )}
