@@ -632,6 +632,12 @@ input:focus-visible {
   100% { transform: scale(1); opacity: 1; }
 }
 
+/* Manifesto "投げろ。" pulse */
+@keyframes manifesto-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
 /* Logo hero entrance */
 @keyframes logo-hero-enter {
   0% { opacity: 0; transform: scale(0.7) translateY(30px); }

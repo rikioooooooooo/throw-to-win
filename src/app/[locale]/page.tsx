@@ -11,6 +11,8 @@ import { ConsentModal } from "@/components/consent-modal";
 import { useRankings } from "@/hooks/use-rankings";
 import { GyroBars } from "@/components/gyro-ball";
 import { ThreadSheet } from "@/components/thread-sheet";
+import { LandingThrowDetector } from "@/lib/landing-throw-detector";
+import { Manifesto } from "@/components/manifesto";
 
 export default function LandingPage() {
   const t = useTranslations();
@@ -136,12 +138,45 @@ export default function LandingPage() {
     }
   }, []);
 
+  // ---- Manifesto: hidden scroll target ----
+  const manifestoRef = useRef<HTMLDivElement>(null);
+  const scrollToManifesto = useCallback(() => {
+    manifestoRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  // Logo 5-tap → scroll to manifesto
+  const logoTapCount = useRef(0);
+  const logoTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleLogoTap = useCallback(() => {
+    logoTapCount.current += 1;
+    if (logoTapTimer.current) clearTimeout(logoTapTimer.current);
+    if (logoTapCount.current >= 5) {
+      logoTapCount.current = 0;
+      scrollToManifesto();
+      return;
+    }
+    logoTapTimer.current = setTimeout(() => {
+      logoTapCount.current = 0;
+    }, 1200);
+  }, [scrollToManifesto]);
+
+  // Throw detector — scroll to manifesto on throw-and-catch
+  useEffect(() => {
+    const detector = new LandingThrowDetector({
+      onThrow: () => {
+        scrollToManifesto();
+      },
+    });
+    detector.start();
+    return () => detector.stop();
+  }, [scrollToManifesto]);
+
   return (
     <>
       {/* Canvas OUTSIDE main — stays fixed to viewport, unaffected by main's 3D transform */}
       <GyroBars className="fixed inset-0 z-0 pointer-events-none" onTilt={handleTilt} />
 
-      <main ref={mainRef} className="relative flex-1 flex flex-col px-6 h-dvh overflow-hidden" style={{ transformOrigin: "center center" }}>
+      <main ref={mainRef} className="relative flex-1 flex flex-col px-6 min-h-dvh" style={{ transformOrigin: "center center" }}>
 
       {/* Top bar */}
       <header className="relative z-10 flex justify-between items-center pt-4">
@@ -173,11 +208,13 @@ export default function LandingPage() {
           <img
             src="/assets/logo-landing.png"
             alt="Throw To Win"
+            onClick={handleLogoTap}
             style={{
               width: "clamp(260px, 70vw, 420px)",
               height: "auto",
               position: "relative",
               zIndex: 1,
+              cursor: "default",
               animation: "logo-hero-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both",
             }}
           />
@@ -285,6 +322,14 @@ export default function LandingPage() {
 
       {/* Bottom spacer for safe area */}
       <div className="safe-bottom" />
+
+      {/* Subtle hint that content exists below */}
+      <div className="flex justify-center py-8">
+        <span className="text-foreground text-[14px]" style={{ opacity: 0.1 }}>・</span>
+      </div>
+
+      {/* Hidden manifesto — revealed by 5-tap on logo or throwing the phone */}
+      <Manifesto ref={manifestoRef} />
 
       <ThreadSheet open={showThread} onClose={() => setShowThread(false)} />
 
