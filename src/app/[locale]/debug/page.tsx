@@ -17,21 +17,21 @@ type Scenario = {
 
 const SCENARIOS: readonly Scenario[] = [
   // === World rankings ===
-  { label: "🌍 World #1 (WR)", worldRank: 1, countryRank: 1, country: "JP", isPersonalBest: true, tierId: "legend", isBreakthrough: false },
-  { label: "🌍 World #2", worldRank: 2, countryRank: 1, country: "US", isPersonalBest: true, tierId: "master", isBreakthrough: false },
-  { label: "🌍 World #3", worldRank: 3, countryRank: 2, country: "KR", isPersonalBest: true, tierId: "diamond", isBreakthrough: false },
-  { label: "🌍 World #4", worldRank: 4, countryRank: 3, country: "FR", isPersonalBest: true, tierId: "emerald", isBreakthrough: false },
-  { label: "🌍 World #5", worldRank: 5, countryRank: 4, country: "DE", isPersonalBest: false, tierId: "platinum", isBreakthrough: false },
+  { label: "🌍 World #1 (WR)", worldRank: 1, countryRank: 1, country: "JP", isPersonalBest: true, tierId: "legend", isBreakthrough: true },
+  { label: "🌍 World #2", worldRank: 2, countryRank: 1, country: "US", isPersonalBest: true, tierId: "master", isBreakthrough: true },
+  { label: "🌍 World #3", worldRank: 3, countryRank: 2, country: "KR", isPersonalBest: true, tierId: "diamond", isBreakthrough: true },
+  { label: "🌍 World #4", worldRank: 4, countryRank: 3, country: "FR", isPersonalBest: true, tierId: "emerald", isBreakthrough: true },
+  { label: "🌍 World #5", worldRank: 5, countryRank: 4, country: "DE", isPersonalBest: true, tierId: "platinum", isBreakthrough: true },
   // === Country rankings ===
-  { label: "🏴 Country #1", worldRank: 20, countryRank: 1, country: "JP", isPersonalBest: true, tierId: "diamond", isBreakthrough: false },
-  { label: "🏴 Country #2", worldRank: 35, countryRank: 2, country: "US", isPersonalBest: true, tierId: "emerald", isBreakthrough: false },
-  { label: "🏴 Country #3", worldRank: 50, countryRank: 3, country: "KR", isPersonalBest: true, tierId: "gold", isBreakthrough: false },
-  { label: "🏴 Country #4", worldRank: 70, countryRank: 4, country: "TW", isPersonalBest: false, tierId: "silver", isBreakthrough: false },
-  { label: "🏴 Country #5", worldRank: 90, countryRank: 5, country: "GB", isPersonalBest: false, tierId: "bronze", isBreakthrough: false },
+  { label: "🏴 Country #1", worldRank: 20, countryRank: 1, country: "JP", isPersonalBest: true, tierId: "diamond", isBreakthrough: true },
+  { label: "🏴 Country #2", worldRank: 35, countryRank: 2, country: "US", isPersonalBest: true, tierId: "emerald", isBreakthrough: true },
+  { label: "🏴 Country #3", worldRank: 50, countryRank: 3, country: "KR", isPersonalBest: true, tierId: "gold", isBreakthrough: true },
+  { label: "🏴 Country #4", worldRank: 70, countryRank: 4, country: "TW", isPersonalBest: true, tierId: "silver", isBreakthrough: true },
+  { label: "🏴 Country #5", worldRank: 90, countryRank: 5, country: "GB", isPersonalBest: true, tierId: "bronze", isBreakthrough: true },
   // === Special ===
   { label: "⚡ Chuuni (Mythic) + WR", worldRank: 1, countryRank: 1, country: "JP", isPersonalBest: true, tierId: "mythic", isBreakthrough: true },
   { label: "⚡ Chuuni (Celestial) only", worldRank: 50, countryRank: 20, country: "DE", isPersonalBest: true, tierId: "celestial", isBreakthrough: true },
-  { label: "⭐ PB only", worldRank: 500, countryRank: 120, country: "JP", isPersonalBest: true, tierId: "gold", isBreakthrough: false },
+  { label: "⭐ PB only", worldRank: 500, countryRank: 120, country: "JP", isPersonalBest: true, tierId: "gold", isBreakthrough: true },
   { label: "— Normal (no achievement)", worldRank: 800, countryRank: 200, country: "JP", isPersonalBest: false, tierId: "silver", isBreakthrough: false },
 ];
 
@@ -131,24 +131,33 @@ export default function DebugPage() {
         const w5 = achievementResult.worldTop5Rank;
         const c5 = achievementResult.countryTop5Rank;
         const debugGlow = wr
-          ? { badgeShadow: "drop-shadow(0 0 20px rgba(255,215,0,0.5)) drop-shadow(0 0 40px rgba(255,45,45,0.3))", textClass: "rank-glow-wr" }
-          : w5 === 2 ? { badgeShadow: "drop-shadow(0 0 16px rgba(255,215,0,0.4))", textClass: "rank-glow-gold" }
-          : w5 === 3 ? { badgeShadow: "drop-shadow(0 0 12px rgba(192,192,192,0.4))", textClass: "rank-glow-silver" }
-          : w5 === 4 ? { badgeShadow: "drop-shadow(0 0 10px rgba(205,127,50,0.3))", textClass: "rank-glow-bronze" }
-          : w5 === 5 ? { badgeShadow: "drop-shadow(0 0 8px rgba(0,250,154,0.3))", textClass: "rank-glow-accent" }
-          : c5 === 1 ? { badgeShadow: "drop-shadow(0 0 14px rgba(0,250,154,0.4))", textClass: "rank-glow-country1" }
-          : c5 === 2 ? { badgeShadow: "drop-shadow(0 0 10px rgba(0,250,154,0.3))", textClass: "rank-glow-accent" }
-          : c5 === 3 ? { badgeShadow: "drop-shadow(0 0 8px rgba(0,200,180,0.3))", textClass: "rank-glow-teal" }
-          : c5 === 4 ? { badgeShadow: "drop-shadow(0 0 6px rgba(0,250,154,0.2))", textClass: "" }
-          : c5 === 5 ? { badgeShadow: "", textClass: "" }
-          : { badgeShadow: "", textClass: "" };
+          ? { heightShadow: "0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,45,45,0.3), 0 0 120px rgba(59,130,246,0.2)", badgeShadow: "drop-shadow(0 0 20px rgba(255,215,0,0.5)) drop-shadow(0 0 40px rgba(255,45,45,0.3))", textClass: "rank-glow-wr", cardGlow: "0 0 20px rgba(255,215,0,0.3), 0 0 40px rgba(255,45,45,0.15)" }
+          : w5 === 2 ? { heightShadow: "0 0 30px rgba(255,215,0,0.5), 0 0 60px rgba(255,215,0,0.2)", badgeShadow: "drop-shadow(0 0 16px rgba(255,215,0,0.4))", textClass: "rank-glow-gold", cardGlow: "0 0 16px rgba(255,215,0,0.2)" }
+          : w5 === 3 ? { heightShadow: "0 0 25px rgba(192,192,192,0.5), 0 0 50px rgba(192,192,192,0.2)", badgeShadow: "drop-shadow(0 0 12px rgba(192,192,192,0.4))", textClass: "rank-glow-silver", cardGlow: "0 0 12px rgba(192,192,192,0.2)" }
+          : w5 === 4 ? { heightShadow: "0 0 20px rgba(205,127,50,0.4), 0 0 40px rgba(205,127,50,0.15)", badgeShadow: "drop-shadow(0 0 10px rgba(205,127,50,0.3))", textClass: "rank-glow-bronze", cardGlow: "0 0 10px rgba(205,127,50,0.15)" }
+          : w5 === 5 ? { heightShadow: "0 0 15px rgba(0,250,154,0.3)", badgeShadow: "drop-shadow(0 0 8px rgba(0,250,154,0.3))", textClass: "rank-glow-accent", cardGlow: "0 0 8px rgba(0,250,154,0.1)" }
+          : c5 === 1 ? { heightShadow: "0 0 30px rgba(0,250,154,0.5), 0 0 60px rgba(0,250,154,0.2)", badgeShadow: "drop-shadow(0 0 14px rgba(0,250,154,0.4))", textClass: "rank-glow-country1", cardGlow: "0 0 14px rgba(0,250,154,0.2)" }
+          : c5 === 2 ? { heightShadow: "0 0 25px rgba(0,250,154,0.4), 0 0 45px rgba(0,250,154,0.15)", badgeShadow: "drop-shadow(0 0 10px rgba(0,250,154,0.3))", textClass: "rank-glow-accent", cardGlow: "0 0 10px rgba(0,250,154,0.15)" }
+          : c5 === 3 ? { heightShadow: "0 0 20px rgba(0,200,180,0.35)", badgeShadow: "drop-shadow(0 0 8px rgba(0,200,180,0.3))", textClass: "rank-glow-teal", cardGlow: "0 0 8px rgba(0,200,180,0.12)" }
+          : c5 === 4 ? { heightShadow: "0 0 15px rgba(0,250,154,0.25)", badgeShadow: "drop-shadow(0 0 6px rgba(0,250,154,0.2))", textClass: "", cardGlow: "" }
+          : c5 === 5 ? { heightShadow: "0 0 10px rgba(0,250,154,0.2)", badgeShadow: "", textClass: "", cardGlow: "" }
+          : { heightShadow: "", badgeShadow: "", textClass: "", cardGlow: "" };
 
         return (
-        <section className="game-card p-4">
+        <section className="game-card p-4" style={{ boxShadow: debugGlow.cardGlow || undefined }}>
           <h2 className="text-[14px] text-muted/60 tracking-widest uppercase mb-3">
             Badge Preview
           </h2>
           <div className="flex flex-col items-center py-6">
+            {/* Height number preview with rank glow */}
+            <span
+              className="height-number text-[48px] text-accent leading-none mb-4"
+              style={{ textShadow: debugGlow.heightShadow || "0 0 30px currentColor" }}
+            >
+              3.42
+            </span>
+            <span className="text-[14px] text-muted/60 mb-4">m</span>
+
             {achievementResult.badge === "chuuniTier" && (
               <div className="flex flex-col items-center">
                 <div style={{ filter: debugGlow.badgeShadow || undefined }}>

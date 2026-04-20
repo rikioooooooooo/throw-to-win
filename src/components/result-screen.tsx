@@ -105,62 +105,72 @@ export function ResultScreen({
       heightShadow: "0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,45,45,0.3), 0 0 120px rgba(59,130,246,0.2)",
       textClass: "rank-glow-wr",
       badgeShadow: "drop-shadow(0 0 20px rgba(255,215,0,0.5)) drop-shadow(0 0 40px rgba(255,45,45,0.3))",
+      cardGlow: "0 0 20px rgba(255,215,0,0.3), 0 0 40px rgba(255,45,45,0.15)",
     };
     // World #2: gold intense
     if (w5 === 2) return {
       heightShadow: "0 0 30px rgba(255,215,0,0.5), 0 0 60px rgba(255,215,0,0.2)",
       textClass: "rank-glow-gold",
       badgeShadow: "drop-shadow(0 0 16px rgba(255,215,0,0.4))",
+      cardGlow: "0 0 16px rgba(255,215,0,0.2)",
     };
     // World #3: silver
     if (w5 === 3) return {
       heightShadow: "0 0 25px rgba(192,192,192,0.5), 0 0 50px rgba(192,192,192,0.2)",
       textClass: "rank-glow-silver",
       badgeShadow: "drop-shadow(0 0 12px rgba(192,192,192,0.4))",
+      cardGlow: "0 0 12px rgba(192,192,192,0.2)",
     };
     // World #4: bronze
     if (w5 === 4) return {
       heightShadow: "0 0 20px rgba(205,127,50,0.4), 0 0 40px rgba(205,127,50,0.15)",
       textClass: "rank-glow-bronze",
       badgeShadow: "drop-shadow(0 0 10px rgba(205,127,50,0.3))",
+      cardGlow: "0 0 10px rgba(205,127,50,0.15)",
     };
     // World #5: green subtle
     if (w5 === 5) return {
       heightShadow: "0 0 15px rgba(0,250,154,0.3)",
       textClass: "rank-glow-accent",
       badgeShadow: "drop-shadow(0 0 8px rgba(0,250,154,0.3))",
+      cardGlow: "0 0 8px rgba(0,250,154,0.1)",
     };
     // Country #1: bright green pulse
     if (c5 === 1) return {
       heightShadow: "0 0 30px rgba(0,250,154,0.5), 0 0 60px rgba(0,250,154,0.2)",
       textClass: "rank-glow-country1",
       badgeShadow: "drop-shadow(0 0 14px rgba(0,250,154,0.4))",
+      cardGlow: "0 0 14px rgba(0,250,154,0.2)",
     };
     // Country #2: green
     if (c5 === 2) return {
       heightShadow: "0 0 25px rgba(0,250,154,0.4), 0 0 45px rgba(0,250,154,0.15)",
       textClass: "rank-glow-accent",
       badgeShadow: "drop-shadow(0 0 10px rgba(0,250,154,0.3))",
+      cardGlow: "0 0 10px rgba(0,250,154,0.15)",
     };
     // Country #3: teal
     if (c5 === 3) return {
       heightShadow: "0 0 20px rgba(0,200,180,0.35)",
       textClass: "rank-glow-teal",
       badgeShadow: "drop-shadow(0 0 8px rgba(0,200,180,0.3))",
+      cardGlow: "0 0 8px rgba(0,200,180,0.12)",
     };
     // Country #4: subtle
     if (c5 === 4) return {
       heightShadow: "0 0 15px rgba(0,250,154,0.25)",
       textClass: "",
       badgeShadow: "drop-shadow(0 0 6px rgba(0,250,154,0.2))",
+      cardGlow: "",
     };
     // Country #5: very subtle
     if (c5 === 5) return {
       heightShadow: "0 0 10px rgba(0,250,154,0.2)",
       textClass: "",
       badgeShadow: "",
+      cardGlow: "",
     };
-    return { heightShadow: "", textClass: "", badgeShadow: "" };
+    return { heightShadow: "", textClass: "", badgeShadow: "", cardGlow: "" };
   })();
 
   return (
@@ -197,7 +207,7 @@ export function ResultScreen({
         )}
       </div>
 
-      <div className="flex-1 flex flex-col items-center px-6 py-6 w-full max-w-md relative z-10 overflow-y-auto mx-auto">
+      <div className="flex-1 flex flex-col items-center px-6 py-6 w-full max-w-md relative z-10 overflow-y-auto mx-auto" style={{ boxShadow: rankGlow.cardGlow || undefined }}>
 
         {/* ---- Height hero ---- */}
         <div className="text-center mt-2 mb-1 animate-fade-in-up relative">
