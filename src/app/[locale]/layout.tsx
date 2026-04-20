@@ -9,13 +9,23 @@ import "../globals.css";
 
 export const metadata: Metadata = {
   title: "Throw To Win",
-  description: "Throw your phone. The highest wins.",
-  icons: { icon: "/favicon.svg" },
+  description: "スマホを上空に高く投げた人が勝つゲーム",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "Throw To Win",
-    description: "Throw your phone. The highest wins.",
+    description: "スマホを上空に高く投げた人が勝つゲーム",
     siteName: "Throw To Win",
     type: "website",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Throw To Win",
+    description: "スマホを上空に高く投げた人が勝つゲーム",
+    images: ["/og-image.png"],
   },
 };
 
