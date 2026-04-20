@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { loadData } from "@/lib/storage";
@@ -10,6 +10,8 @@ import { RankingList } from "@/components/ranking-list";
 import { useRankings } from "@/hooks/use-rankings";
 import { TierIcon } from "@/components/tier-icon";
 import { ThreadSheet } from "@/components/thread-sheet";
+import { CrackerParticles } from "@/components/cracker-particles";
+import { determineAchievements } from "@/lib/achievements";
 import type { HeightTier } from "@/components/height-display";
 import type { VerifyResponse } from "@/lib/challenge";
 
@@ -21,6 +23,7 @@ type ResultData = {
   readonly peakOffset: number;
   readonly ffmpegProcessed: boolean;
   readonly samples: readonly { readonly t: number; readonly h: number }[];
+  readonly previousBest: number;
 };
 
 type TierInfo = {
@@ -69,6 +72,22 @@ export function ResultScreen({
     return { todayBest: d.stats.todayBest, streakDays: d.stats.streakDays };
   });
 
+  const achievement = determineAchievements({
+    worldRank: rankingData?.worldRank ?? null,
+    countryRank: rankingData?.countryRank ?? null,
+    isPersonalBest: resultData.isPersonalBest,
+    tierId: tierInfo?.current.id ?? "rookie",
+    isBreakthrough: tierInfo?.isBreakthrough ?? false,
+    previousBest: resultData.previousBest,
+  });
+
+  const [crackerActive, setCrackerActive] = useState(false);
+  useEffect(() => {
+    if (achievement.crackerLevel === "none") return;
+    const timer = setTimeout(() => setCrackerActive(true), 400);
+    return () => clearTimeout(timer);
+  }, [achievement.crackerLevel]);
+
   const tierColor =
     tierInfo?.isBreakthrough
       ? tierInfo.current.color
@@ -114,8 +133,59 @@ export function ResultScreen({
 
         {/* ---- Height hero ---- */}
         <div className="text-center mt-4 mb-1 animate-fade-in-up relative">
-          {/* PB celebration asset */}
-          {resultData.isPersonalBest && (
+          {/* Achievement celebration badge — priority: chuuniTier > WR > PB */}
+          {achievement.type === "chuuniTier" && tierInfo && (
+            <div className="flex flex-col items-center mb-3">
+              <TierIcon tierId={tierInfo.current.id} size={72} />
+              <p
+                className="achievement-badge label-text text-[12px] tracking-[0.25em] mt-2"
+                style={{ color: tierInfo.current.color }}
+              >
+                {t("result.chuuniTierReached", { tier: t(`tier.${tierInfo.current.id}`) })}
+              </p>
+            </div>
+          )}
+          {achievement.type === "worldRecord" && (
+            <div className="flex flex-col items-center mb-3">
+              <img
+                src="/assets/final/achievement/pb-update.png"
+                alt=""
+                aria-hidden="true"
+                style={{
+                  width: "128px",
+                  height: "72px",
+                  objectFit: "contain",
+                  animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
+                }}
+              />
+              <p
+                className="achievement-badge label-text text-[12px] tracking-[0.25em] text-[#FFD700] mt-2"
+              >
+                {t("result.worldRecord")}
+              </p>
+            </div>
+          )}
+          {achievement.type === "countryTop5" && (
+            <div className="flex flex-col items-center mb-3">
+              <img
+                src="/assets/final/achievement/pb-update.png"
+                alt=""
+                aria-hidden="true"
+                style={{
+                  width: "128px",
+                  height: "72px",
+                  objectFit: "contain",
+                  animation: "achievement-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both",
+                }}
+              />
+              <p
+                className="achievement-badge label-text text-[12px] tracking-[0.25em] text-accent mt-2"
+              >
+                {t("result.countryTop5")}
+              </p>
+            </div>
+          )}
+          {achievement.type === "personalBest" && (
             <div className="flex flex-col items-center mb-3">
               <img
                 src="/assets/final/achievement/pb-update.png"
@@ -394,6 +464,7 @@ export function ResultScreen({
       </div>
 
       <ThreadSheet open={showThread} onClose={() => setShowThread(false)} />
+      <CrackerParticles level={achievement.crackerLevel} active={crackerActive} />
     </main>
   );
 }

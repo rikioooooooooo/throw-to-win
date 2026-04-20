@@ -561,6 +561,7 @@ export default function PlayPage() {
         peakOffset,
         ffmpegProcessed,
         samples: throwSamples,
+        previousBest: pbBeforeAdd,
       });
 
       // Signal 100% to loading screen, then wait for completion burst
