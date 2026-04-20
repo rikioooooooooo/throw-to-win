@@ -20,6 +20,7 @@ export type RankEntry = {
   readonly displayName?: string;
   readonly heightMeters: number;
   readonly country: string;
+  readonly isSelf?: boolean;
 };
 
 type RankingListProps = {
@@ -66,9 +67,14 @@ export function RankingList({
                   ? "1px solid var(--color-border-game)"
                   : undefined,
                 padding: isTop3 ? "14px 16px" : "10px 16px",
-                background: isTop3
-                  ? `linear-gradient(90deg, ${getRankColor(entry.rank)}08, transparent 60%)`
-                  : undefined,
+                borderLeft: entry.isSelf ? "3px solid var(--color-accent)" : undefined,
+                background: entry.isSelf
+                  ? (isTop3
+                    ? `linear-gradient(90deg, ${getRankColor(entry.rank)}08, transparent 60%), rgba(0, 250, 154, 0.08)`
+                    : "rgba(0, 250, 154, 0.08)")
+                  : (isTop3
+                    ? `linear-gradient(90deg, ${getRankColor(entry.rank)}08, transparent 60%)`
+                    : undefined),
                 animation: isTop3
                   ? `podium-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${entry.rank * 80}ms both`
                   : undefined,
@@ -85,7 +91,7 @@ export function RankingList({
                 {isTop3 ? getRankMedal(entry.rank) : entry.rank}
               </span>
               <TierIcon tierId={getTierForHeight(entry.heightMeters).id} size={isTop3 ? 24 : 20} className="flex-shrink-0 mx-1" />
-              <span className={`flex-1 truncate ${isTop3 ? "text-[13px] font-semibold" : "text-[12px]"}`} style={{
+              <span className={`flex-1 truncate ${isTop3 ? "text-[13px] font-semibold" : "text-[12px]"} ${entry.isSelf && !isTop3 ? "font-semibold" : ""}`} style={{
                 color: entry.displayName
                   ? isTop3 ? "var(--color-foreground)" : "rgba(237,237,237,0.7)"
                   : "var(--color-muted)",

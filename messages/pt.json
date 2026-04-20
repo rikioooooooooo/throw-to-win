@@ -132,7 +132,8 @@
     "countriesTitle": "Países que arremessaram",
     "countriesActive": "{count} paises",
     "throwsCount": "lancamentos",
-    "playersCount": "jogadores"
+    "playersCount": "jogadores",
+    "viewRanking": "Ver ranking"
   },
   "terms": {
     "heading": "Termos de uso",

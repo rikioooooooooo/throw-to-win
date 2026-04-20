@@ -28,6 +28,7 @@ export async function GET(request: Request) {
       0,
       parseInt(url.searchParams.get("offset") ?? "0", 10) || 0,
     );
+    const selfFingerprint = url.searchParams.get("self") ?? "";
 
     const { env } = await getCloudflareContext({ async: true });
 
@@ -96,6 +97,7 @@ export async function GET(request: Request) {
       totalThrows: row.total_throws,
       country: row.country,
       lastSeen: row.last_seen,
+      ...(selfFingerprint ? { isSelf: row.id === selfFingerprint } : {}),
     }));
 
     const yourCountry = request.headers.get("cf-ipcountry") ?? "XX";

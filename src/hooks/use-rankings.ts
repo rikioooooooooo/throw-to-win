@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { RankEntry } from "@/components/ranking-list";
+import { generateFingerprint } from "@/lib/fingerprint";
 
 type RankingsState = {
   readonly world: readonly RankEntry[];
@@ -36,8 +37,11 @@ export function useRankings(
 
     async function fetchRankings() {
       try {
+        const fingerprint = await generateFingerprint();
+        const selfParam = `&self=${encodeURIComponent(fingerprint)}`;
+
         const worldRes = await fetch(
-          `/api/ranking?scope=world&limit=${limit}&period=${period}`,
+          `/api/ranking?scope=world&limit=${limit}&period=${period}${selfParam}`,
           { signal },
         );
         if (!worldRes.ok) return;
@@ -51,7 +55,7 @@ export function useRankings(
         let countryRankings: RankEntry[] = [];
         if ((worldData.yourCountry ?? "") !== "" && worldData.yourCountry !== "XX") {
           const countryRes = await fetch(
-            `/api/ranking?scope=country&country=${worldData.yourCountry}&limit=${limit}&period=${period}`,
+            `/api/ranking?scope=country&country=${worldData.yourCountry}&limit=${limit}&period=${period}${selfParam}`,
             { signal },
           );
           if (countryRes.ok) {

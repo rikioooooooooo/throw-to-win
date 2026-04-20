@@ -132,7 +132,8 @@
     "countriesTitle": "投过手机的国家",
     "countriesActive": "{count} 个国家",
     "throwsCount": "次",
-    "playersCount": "人"
+    "playersCount": "人",
+    "viewRanking": "查看排名"
   },
   "terms": {
     "heading": "使用条款",

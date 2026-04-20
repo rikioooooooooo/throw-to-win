@@ -132,7 +132,8 @@
     "countriesTitle": "Страны, где бросали",
     "countriesActive": "{count} стран",
     "throwsCount": "бросков",
-    "playersCount": "игроков"
+    "playersCount": "игроков",
+    "viewRanking": "Посмотреть рейтинг"
   },
   "terms": {
     "heading": "Условия использования",

@@ -132,7 +132,8 @@
     "countriesTitle": "スマホを投げたことのある国",
     "countriesActive": "{count}ヶ国",
     "throwsCount": "回",
-    "playersCount": "人"
+    "playersCount": "人",
+    "viewRanking": "ランキングを見る"
   },
   "terms": {
     "heading": "利用規約",

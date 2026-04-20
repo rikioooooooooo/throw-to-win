@@ -132,7 +132,8 @@
     "countriesTitle": "دول رمت هواتفها",
     "countriesActive": "{count} دولة",
     "throwsCount": "رميات",
-    "playersCount": "لاعبين"
+    "playersCount": "لاعبين",
+    "viewRanking": "عرض الترتيب"
   },
   "terms": {
     "heading": "شروط الاستخدام",

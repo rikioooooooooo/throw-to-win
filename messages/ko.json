@@ -132,7 +132,8 @@
     "countriesTitle": "폰을 던진 나라",
     "countriesActive": "{count}개국",
     "throwsCount": "회",
-    "playersCount": "명"
+    "playersCount": "명",
+    "viewRanking": "랭킹 보기"
   },
   "terms": {
     "heading": "이용약관",

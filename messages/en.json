@@ -132,7 +132,8 @@
     "countriesTitle": "Countries that threw",
     "countriesActive": "{count} countries",
     "throwsCount": "throws",
-    "playersCount": "players"
+    "playersCount": "players",
+    "viewRanking": "View Rankings"
   },
   "terms": {
     "heading": "Terms of Use",

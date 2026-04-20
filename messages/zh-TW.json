@@ -132,7 +132,8 @@
     "countriesTitle": "投過手機的國家",
     "countriesActive": "{count} 個國家",
     "throwsCount": "次",
-    "playersCount": "人"
+    "playersCount": "人",
+    "viewRanking": "查看排名"
   },
   "terms": {
     "heading": "使用條款",

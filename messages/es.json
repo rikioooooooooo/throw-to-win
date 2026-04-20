@@ -132,7 +132,8 @@
     "countriesTitle": "Países que lanzaron",
     "countriesActive": "{count} paises",
     "throwsCount": "lanzamientos",
-    "playersCount": "jugadores"
+    "playersCount": "jugadores",
+    "viewRanking": "Ver ranking"
   },
   "terms": {
     "heading": "Términos de uso",

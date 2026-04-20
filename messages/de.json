@@ -132,7 +132,8 @@
     "countriesTitle": "Länder, die geworfen haben",
     "countriesActive": "{count} Lander",
     "throwsCount": "Wurfe",
-    "playersCount": "Spieler"
+    "playersCount": "Spieler",
+    "viewRanking": "Rangliste ansehen"
   },
   "terms": {
     "heading": "Nutzungsbedingungen",

@@ -222,6 +222,16 @@ export default function MyPage() {
           )}
         </div>
 
+        {/* View Ranking button */}
+        <div className="flex justify-center mb-8 animate-fade-in-up delay-80">
+          <button
+            onClick={() => router.push(`/${locale}/ranking`)}
+            className="game-border px-6 py-3 label-text text-[12px] tracking-[0.15em] text-foreground/70 hover:text-accent transition-colors active:scale-[0.97]"
+          >
+            {t("viewRanking")}
+          </button>
+        </div>
+
         {/* Name editing */}
         <div className="mb-8 animate-fade-in-up delay-160">
           <NameInput
