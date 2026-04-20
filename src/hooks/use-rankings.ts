@@ -9,6 +9,7 @@ type RankingsState = {
   readonly country: readonly RankEntry[];
   readonly yourCountry: string;
   readonly loading: boolean;
+  readonly selfRank: number | null;
 };
 
 /**
@@ -24,6 +25,7 @@ export function useRankings(
     country: [],
     yourCountry: "",
     loading: true,
+    selfRank: null,
   });
 
   useEffect(() => {
@@ -49,6 +51,7 @@ export function useRankings(
         const worldData = (await worldRes.json()) as {
           rankings: RankEntry[];
           yourCountry: string;
+          selfRank: number | null;
         };
         if (signal.aborted) return;
 
@@ -72,6 +75,7 @@ export function useRankings(
             country: countryRankings,
             yourCountry: worldData.yourCountry ?? "",
             loading: false,
+            selfRank: worldData.selfRank ?? null,
           });
         }
       } catch (err) {

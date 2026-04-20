@@ -102,12 +102,28 @@ export async function GET(request: Request) {
 
     const yourCountry = request.headers.get("cf-ipcountry") ?? "XX";
 
+    // Self rank: if self fingerprint provided, get user's rank
+    let selfRank: number | null = null;
+    if (selfFingerprint) {
+      const selfRankResult = await env.DB.prepare(
+        "SELECT COUNT(*) + 1 as rank FROM devices WHERE personal_best > (SELECT COALESCE(personal_best, 0) FROM devices WHERE id = ?) AND personal_best > 0"
+      ).bind(selfFingerprint).first<{ rank: number }>();
+      // Only return rank if the device exists and has thrown
+      const selfDevice = await env.DB.prepare(
+        "SELECT personal_best FROM devices WHERE id = ? AND personal_best > 0"
+      ).bind(selfFingerprint).first<{ personal_best: number }>();
+      if (selfDevice && selfRankResult) {
+        selfRank = selfRankResult.rank;
+      }
+    }
+
     return NextResponse.json({
       rankings,
       total: countResult?.total ?? 0,
       limit,
       offset,
       yourCountry,
+      selfRank,
     });
   } catch {
     return NextResponse.json(

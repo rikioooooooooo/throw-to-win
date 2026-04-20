@@ -8,6 +8,7 @@ import { formatHeight } from "@/lib/physics";
 import { getTierForHeight } from "@/lib/tiers";
 import { TierIcon } from "@/components/tier-icon";
 import { ConsentModal } from "@/components/consent-modal";
+import { useRankings } from "@/hooks/use-rankings";
 import { GyroBars } from "@/components/gyro-ball";
 import { ThreadSheet } from "@/components/thread-sheet";
 
@@ -66,6 +67,7 @@ export default function LandingPage() {
   }, []);
 
   const nameValid = nameInput.trim().length > 0;
+  const rankings = useRankings({ limit: 1, enabled: stats.personalBest > 0 });
 
   const handleStart = () => {
     if (!nameValid) return;
@@ -246,6 +248,9 @@ export default function LandingPage() {
                   </span>
                   <span className="text-[13px] text-muted/60">m</span>
                   <span className="text-[11px] text-accent tracking-[0.2em] uppercase font-bold ml-1">PB</span>
+                  {rankings.selfRank && (
+                    <span className="text-[11px] text-foreground/30 tracking-[0.1em] ml-2">#{rankings.selfRank}</span>
+                  )}
                 </div>
                 {(stats.streakDays > 1 || stats.todayBest > 0) && (
                   <div className="flex items-center gap-3 mt-1">

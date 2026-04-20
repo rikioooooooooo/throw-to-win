@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, useParams } from "next/navigation";
+import { useRankings } from "@/hooks/use-rankings";
 import { loadData, getSortedThrows, getDisplayName, saveDisplayName } from "@/lib/storage";
 import { formatHeight, formatAirtime } from "@/lib/physics";
 import { getTierForHeight, getNextTier } from "@/lib/tiers";
@@ -39,6 +40,7 @@ export default function MyPage() {
     return getSortedThrows(sortBy);
   }, [sortBy]);
   const [worldCountries, setWorldCountries] = useState<readonly WorldCountry[]>([]);
+  const rankings = useRankings({ limit: 1, enabled: stats.personalBest > 0 });
 
   const handleSaveName = useCallback(async (name: string) => {
     setSavingName(true);
@@ -138,6 +140,9 @@ export default function MyPage() {
               <p className="label-text text-[12px] tracking-[0.2em] font-bold" style={{ color: getTierForHeight(stats.personalBest).color }}>
                 {t("personalBest")}
               </p>
+              {rankings.selfRank && (
+                <span className="ml-auto text-[14px] text-accent/60 height-number font-semibold">#{rankings.selfRank}</span>
+              )}
             </div>
             <div className="flex items-end relative">
               <span className="height-number text-[56px] text-foreground leading-none" style={{
