@@ -75,12 +75,6 @@ export default async function LocaleLayout({ children, params }: Props) {
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground safe-top">
-        {/* Pre-React localStorage reset — in body for OpenNext/CF Workers compatibility */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var k="ttw_reset_v6";if(!localStorage.getItem(k)){localStorage.clear();localStorage.setItem(k,"1");location.reload();}})();`,
-          }}
-        />
         <NextIntlClientProvider messages={messages}>
           <DataReset />
           <ErrorBoundary>
