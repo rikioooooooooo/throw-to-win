@@ -30,11 +30,12 @@ export default function LandingPage() {
   // One-time data reset (remove after confirming)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const resetKey = "ttw_reset_v3";
+    const resetKey = "ttw_reset_v4";
     if (!localStorage.getItem(resetKey)) {
       localStorage.removeItem("ttw_data");
       localStorage.removeItem("ttw_consent");
       localStorage.removeItem("ttw_processed_msgs");
+      localStorage.removeItem("ttw_device_id");
       localStorage.setItem(resetKey, "1");
     }
   }, []);
