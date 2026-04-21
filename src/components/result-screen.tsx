@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { loadData } from "@/lib/storage";
@@ -83,16 +83,22 @@ export function ResultScreen({
   const [crackerActive, setCrackerActive] = useState(false);
   useEffect(() => {
     if (achievement.crackerLevel === "none") return;
-    const timer = setTimeout(() => {
+    const fireTimer = setTimeout(() => {
       setCrackerActive(true);
-      // Vibrate on achievement — pattern varies by intensity
       if (typeof navigator !== "undefined" && navigator.vibrate) {
-        if (achievement.crackerLevel === "legendary") navigator.vibrate([100, 50, 100, 50, 200]); // WR: strong pattern
-        else if (achievement.crackerLevel === "epic") navigator.vibrate([80, 40, 80]); // TOP5/chuuni: medium
-        else navigator.vibrate(50); // PB: short pulse
+        if (achievement.crackerLevel === "legendary") navigator.vibrate([100, 50, 100, 50, 200]);
+        else if (achievement.crackerLevel === "epic") navigator.vibrate([80, 40, 80]);
+        else navigator.vibrate(50);
       }
-    }, 400);
-    return () => clearTimeout(timer);
+    }, 200);
+    // Force-stop crackers after 3.5s to ensure video interactivity on iOS Safari
+    const stopTimer = setTimeout(() => {
+      setCrackerActive(false);
+    }, 3500);
+    return () => {
+      clearTimeout(fireTimer);
+      clearTimeout(stopTimer);
+    };
   }, [achievement.crackerLevel]);
 
   const tierColor =
@@ -220,9 +226,19 @@ export function ResultScreen({
             }
             if (parts.length === 0) return null;
             return (
-              <p className={`achievement-badge label-text text-[12px] tracking-[0.15em] text-accent mt-2 text-center whitespace-normal ${rankGlow.textClass}`}>
-                {parts.join(" / ")}
-              </p>
+              <div
+                className={`achievement-badge ${rankGlow.textClass}`}
+                style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "12px", marginTop: "6px", width: "100%" }}
+              >
+                {parts.map((part, i) => (
+                  <Fragment key={i}>
+                    {i > 0 && (
+                      <span className="label-text" style={{ fontSize: "11px", color: "rgba(0, 250, 154, 0.3)", fontWeight: 300 }} aria-hidden="true">/</span>
+                    )}
+                    <span className="label-text" style={{ fontSize: "12px", letterSpacing: "0.12em", color: "var(--color-accent)", whiteSpace: "nowrap" }}>{part}</span>
+                  </Fragment>
+                ))}
+              </div>
             );
           })()}
 
@@ -331,7 +347,7 @@ export function ResultScreen({
         {videoUrl && (
           <div
             className="w-full max-w-[280px] mb-4 relative animate-fade-in-up delay-160"
-            style={{ borderRadius: "14px", border: "1px solid var(--color-border-subtle)", overflow: "hidden", backgroundColor: "#000" }}
+            style={{ borderRadius: "14px", border: "1px solid var(--color-border-subtle)", overflow: "hidden", backgroundColor: "#000", zIndex: 60 }}
           >
             {resultData.ffmpegProcessed ? (
               <video
@@ -357,7 +373,7 @@ export function ResultScreen({
 
         {/* Video action buttons — secondary style */}
         {resultData.videoBlob && (
-          <div className="grid grid-cols-2 gap-2 mb-5 w-full max-w-[260px] animate-fade-in-up delay-240">
+          <div className="grid grid-cols-2 gap-2 mb-5 w-full max-w-[260px] animate-fade-in-up delay-240" style={{ position: "relative", zIndex: 60 }}>
             <button
               onClick={onSaveVideo}
               className="py-3 text-foreground/60 text-[12px] tracking-widest uppercase active:scale-[0.97] transition-all hover:text-foreground game-border"
@@ -378,6 +394,8 @@ export function ResultScreen({
           onClick={onTryAgain}
           className="w-full max-w-[260px] bg-accent text-black cta-text text-[15px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100 animate-fade-in-up delay-320 neon-glow"
           style={{
+            position: "relative",
+            zIndex: 60,
             borderRadius: "16px",
             height: "58px",
           }}
