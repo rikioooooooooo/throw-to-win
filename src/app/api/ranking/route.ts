@@ -102,18 +102,30 @@ export async function GET(request: Request) {
 
     const yourCountry = request.headers.get("cf-ipcountry") ?? "XX";
 
-    // Self rank: if self fingerprint provided, get user's rank
+    // Self rank: if self fingerprint provided, get user's rank (period-aware)
     let selfRank: number | null = null;
     if (selfFingerprint) {
-      const selfRankResult = await env.DB.prepare(
-        "SELECT COUNT(*) + 1 as rank FROM devices WHERE personal_best > (SELECT COALESCE(personal_best, 0) FROM devices WHERE id = ?) AND personal_best > 0"
-      ).bind(selfFingerprint).first<{ rank: number }>();
-      // Only return rank if the device exists and has thrown
-      const selfDevice = await env.DB.prepare(
-        "SELECT personal_best FROM devices WHERE id = ? AND personal_best > 0"
-      ).bind(selfFingerprint).first<{ personal_best: number }>();
-      if (selfDevice && selfRankResult) {
-        selfRank = selfRankResult.rank;
+      if (period === "alltime") {
+        const selfRankResult = await env.DB.prepare(
+          "SELECT COUNT(*) + 1 as rank FROM devices WHERE personal_best > (SELECT COALESCE(personal_best, 0) FROM devices WHERE id = ?) AND personal_best > 0"
+        ).bind(selfFingerprint).first<{ rank: number }>();
+        const selfDevice = await env.DB.prepare(
+          "SELECT personal_best FROM devices WHERE id = ? AND personal_best > 0"
+        ).bind(selfFingerprint).first<{ personal_best: number }>();
+        if (selfDevice && selfRankResult) {
+          selfRank = selfRankResult.rank;
+        }
+      } else {
+        // Monthly: rank based on this month's best throw per device
+        const selfMonthlyBest = await env.DB.prepare(
+          "SELECT MAX(height_meters) as best FROM throws WHERE device_id = ? AND created_at >= datetime('now', 'start of month')"
+        ).bind(selfFingerprint).first<{ best: number | null }>();
+        if (selfMonthlyBest?.best && selfMonthlyBest.best > 0) {
+          const selfRankResult = await env.DB.prepare(
+            "SELECT COUNT(*) as rank FROM (SELECT device_id, MAX(height_meters) as best FROM throws WHERE created_at >= datetime('now', 'start of month') GROUP BY device_id HAVING best > ?)"
+          ).bind(selfMonthlyBest.best).first<{ rank: number }>();
+          selfRank = (selfRankResult?.rank ?? 0) + 1;
+        }
       }
     }
 

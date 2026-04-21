@@ -169,6 +169,12 @@ export async function POST(request: Request) {
     ]);
 
     // 7. Fetch updated personal_best + ranks in parallel
+    // Use device's monthly best (not just current throw) for accurate rank
+    const deviceMonthlyBest = await env.DB.prepare(
+      "SELECT MAX(height_meters) as best FROM throws WHERE device_id = ? AND created_at >= datetime('now', 'start of month')"
+    ).bind(body.deviceFingerprint).first<{ best: number | null }>();
+    const rankHeight = Math.max(deviceMonthlyBest?.best ?? 0, verifiedHeight);
+
     const [updatedDevice, worldRankRow, countryRankRow, totalThrowsRow] =
       await Promise.all([
         env.DB.prepare(
@@ -179,12 +185,12 @@ export async function POST(request: Request) {
         env.DB.prepare(
           "SELECT COUNT(*) as rank FROM (SELECT device_id, MAX(height_meters) as best FROM throws WHERE created_at >= datetime('now', 'start of month') GROUP BY device_id HAVING best > ?)",
         )
-          .bind(verifiedHeight)
+          .bind(rankHeight)
           .first<{ rank: number }>(),
         env.DB.prepare(
           "SELECT COUNT(*) as rank FROM (SELECT t.device_id, MAX(t.height_meters) as best FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', 'start of month') AND d.country = ? GROUP BY t.device_id HAVING best > ?)",
         )
-          .bind(country, verifiedHeight)
+          .bind(country, rankHeight)
           .first<{ rank: number }>(),
         env.DB.prepare(
           "SELECT COUNT(*) as total FROM throws",
