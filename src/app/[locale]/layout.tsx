@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { Outfit } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { DataReset } from "@/components/data-reset";
 import "../globals.css";
 
 const outfit = Outfit({
@@ -72,15 +73,16 @@ export default async function LocaleLayout({ children, params }: Props) {
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        {/* Pre-React localStorage reset — runs before any component hydration */}
+      </head>
+      <body className="min-h-full flex flex-col bg-background text-foreground safe-top">
+        {/* Pre-React localStorage reset — in body for OpenNext/CF Workers compatibility */}
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){var k="ttw_reset_v6";if(!localStorage.getItem(k)){localStorage.clear();localStorage.setItem(k,"1");location.reload();}})();`,
           }}
         />
-      </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground safe-top">
         <NextIntlClientProvider messages={messages}>
+          <DataReset />
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
