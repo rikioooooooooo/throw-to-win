@@ -209,7 +209,7 @@ export function LoadingScreen({ status, progress, height }: LoadingScreenProps) 
   useEffect(() => {
     const id = setInterval(() => {
       setTrivia(TRIVIA[Math.floor(Math.random() * TRIVIA.length)]);
-    }, 1500);
+    }, 2000);
     return () => clearInterval(id);
   }, []);
 
@@ -360,7 +360,7 @@ export function LoadingScreen({ status, progress, height }: LoadingScreenProps) 
           </div>
         )}
 
-        <p className="text-muted/30 text-[11px] tracking-[0.03em] text-center mt-4 max-w-[280px] leading-relaxed">
+        <p className="text-foreground/50 text-[11px] tracking-[0.03em] text-center mt-4 max-w-[320px] whitespace-nowrap overflow-hidden text-ellipsis">
           {trivia}
         </p>
       </div>

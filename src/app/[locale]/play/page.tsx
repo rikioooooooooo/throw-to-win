@@ -450,14 +450,19 @@ export default function PlayPage() {
     // Request challenge nonce (non-blocking — if it fails, throw still works locally)
     const fp = fingerprintRef.current;
     const token = turnstileTokenRef.current;
+    console.log("[challenge] pre-check:", { hasFp: !!fp, hasToken: !!token });
     if (fp && token) {
       requestChallenge(fp, token)
         .then((data) => {
+          console.log("[challenge] success:", data.nonce);
           challengeDataRef.current = data;
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error("[challenge] failed:", err);
           challengeDataRef.current = null;
         });
+    } else {
+      console.warn("[challenge] skipped — fp or token missing");
     }
 
     try {
@@ -504,6 +509,7 @@ export default function PlayPage() {
       // Submit to server (non-blocking — local result already saved)
       const challenge = challengeDataRef.current;
       const fp = fingerprintRef.current;
+      console.log("[throw] submit check:", { hasChallenge: !!challenge, hasFp: !!fp, height: unifiedHeight });
       if (challenge && fp) {
         submitThrow(
           challenge,
@@ -513,12 +519,17 @@ export default function PlayPage() {
           loadData().displayName,
         )
           .then((verifyResult) => {
+            console.log("[throw] verify success:", verifyResult);
             setRankingData(verifyResult);
           })
-          .catch(() => {
+          .catch((err) => {
+            console.error("[throw] verify failed:", err);
             setSubmitError(true);
           });
         challengeDataRef.current = null;
+      } else {
+        console.warn("[throw] skipped submit — challenge or fp missing");
+        setSubmitError(true);
       }
 
       const peakOffset =

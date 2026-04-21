@@ -210,7 +210,8 @@ export async function POST(request: Request) {
     }, {
       headers: { "Cache-Control": "no-store, no-cache, must-revalidate", "CDN-Cache-Control": "no-store" },
     });
-  } catch {
+  } catch (err) {
+    console.error("[verify] Unhandled error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
