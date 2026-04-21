@@ -1,71 +1,46 @@
 // ============================================================
-// Landing page throw detector — lightweight version
+// Landing page shake detector
 //
-// Only detects: launch → freefall → landing
-// No calibration, no countdown, no height calculation.
-// Calls onThrow() when a throw-and-catch cycle completes.
+// Detects a vigorous shake gesture and calls onThrow().
+// Simpler and more reliable than full throw detection.
 // ============================================================
 
-const LAUNCH_THRESHOLD = 15.0;  // same as sensor.ts
-const FREEFALL_THRESHOLD = 8.0; // same as sensor.ts
-const LANDING_THRESHOLD = 12.0;
-const MIN_FREEFALL_MS = 60;     // same as sensor.ts
-const MAX_FREEFALL_MS = 4000;
+const SHAKE_THRESHOLD = 25; // m/s² — total acceleration magnitude to count as a shake
+const SHAKE_COUNT = 3;      // number of threshold crossings needed
+const SHAKE_WINDOW_MS = 800; // all crossings must happen within this window
 
-type Phase = "idle" | "launched" | "freefall";
-
-export type LandingThrowDetectorOptions = {
+type Options = {
   readonly onThrow: () => void;
 };
 
 export class LandingThrowDetector {
-  private phase: Phase = "idle";
-  private freefallStart = 0;
   private handler: ((e: DeviceMotionEvent) => void) | null = null;
-  private readonly onThrow: () => void;
+  private shakeTimestamps: number[] = [];
+  private fired = false;
 
-  constructor(opts: LandingThrowDetectorOptions) {
-    this.onThrow = opts.onThrow;
-  }
+  constructor(private readonly options: Options) {}
 
   start(): void {
     if (this.handler) return;
     this.handler = (e: DeviceMotionEvent) => {
+      if (this.fired) return;
       const a = e.accelerationIncludingGravity;
       if (!a || a.x == null || a.y == null || a.z == null) return;
       const mag = Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
       const now = performance.now();
 
-      switch (this.phase) {
-        case "idle":
-          if (mag > LAUNCH_THRESHOLD) {
-            this.phase = "launched";
-          }
-          break;
-        case "launched":
-          if (mag < FREEFALL_THRESHOLD) {
-            this.phase = "freefall";
-            this.freefallStart = now;
-          } else if (mag <= LAUNCH_THRESHOLD) {
-            // Launch spike ended without freefall — reset
-            this.phase = "idle";
-          }
-          break;
-        case "freefall": {
-          const elapsed = now - this.freefallStart;
-          if (elapsed > MAX_FREEFALL_MS) {
-            this.phase = "idle";
-            break;
-          }
-          if (mag > LANDING_THRESHOLD && elapsed > MIN_FREEFALL_MS) {
-            this.phase = "idle";
-            this.onThrow();
-          }
-          break;
+      if (mag > SHAKE_THRESHOLD) {
+        this.shakeTimestamps.push(now);
+        // Remove old timestamps outside the window
+        this.shakeTimestamps = this.shakeTimestamps.filter(t => now - t < SHAKE_WINDOW_MS);
+
+        if (this.shakeTimestamps.length >= SHAKE_COUNT) {
+          this.fired = true;
+          this.options.onThrow();
         }
       }
     };
-    window.addEventListener("devicemotion", this.handler);
+    window.addEventListener("devicemotion", this.handler, { passive: true });
   }
 
   stop(): void {
@@ -73,6 +48,7 @@ export class LandingThrowDetector {
       window.removeEventListener("devicemotion", this.handler);
       this.handler = null;
     }
-    this.phase = "idle";
+    this.shakeTimestamps = [];
+    this.fired = false;
   }
 }
