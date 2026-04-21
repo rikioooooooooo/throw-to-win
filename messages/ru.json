@@ -192,7 +192,7 @@
     "topPercent": "Топ {percent}%",
     "you": "ВЫ",
     "unreached": "НЕ ДОСТИГНУТО",
-    "notEnoughData": "Сбор данных..."
+    "reachedTop": "Вы достигли вершины"
   },
   "thread": {
     "voices": "Голоса игроков",

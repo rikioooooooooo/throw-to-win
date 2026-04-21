@@ -192,7 +192,7 @@
     "topPercent": "Top {percent}%",
     "you": "DU",
     "unreached": "NICHT ERREICHT",
-    "notEnoughData": "Daten werden gesammelt..."
+    "reachedTop": "Du hast den Gipfel erreicht"
   },
   "thread": {
     "voices": "Stimmen der Werfer",

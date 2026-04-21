@@ -192,7 +192,7 @@
     "topPercent": "上位 {percent}%",
     "you": "あなた",
     "unreached": "未到達",
-    "notEnoughData": "データ蓄積中"
+    "reachedTop": "あなたは頂点に立った"
   },
   "thread": {
     "voices": "投げ終わった人たちの声",

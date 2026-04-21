@@ -192,7 +192,7 @@
     "topPercent": "शीर्ष {percent}%",
     "you": "आप",
     "unreached": "नहीं पहुंचे",
-    "notEnoughData": "डेटा जुटाया जा रहा है..."
+    "reachedTop": "आप शिखर पर पहुँच गए"
   },
   "thread": {
     "voices": "खिलाड़ियों की आवाज़",

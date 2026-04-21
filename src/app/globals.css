@@ -669,6 +669,12 @@ input:focus-visible {
   100% { transform: translateY(0); }
 }
 
+/* Tier unknown row pulse */
+@keyframes tier-unknown-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.6; }
+}
+
 /* ============================================================
    Reduced Motion — respect user accessibility preference
    ============================================================ */

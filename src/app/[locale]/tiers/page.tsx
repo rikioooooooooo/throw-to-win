@@ -45,8 +45,18 @@ export default function TiersPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Compute tier stats from raw PB values
-  const tiersReversed = [...TIERS].reverse();
+  // --- Progressive unlock logic ---
+  const myTierIndex = personalBest > 0
+    ? TIERS.findIndex((t) => t.id === userTier.id)
+    : -1;
+  const maxUnlockedIndex = myTierIndex + 1; // reveals one above current
+  const unknownIndex = maxUnlockedIndex + 1;
+  const reachedTop = myTierIndex === TIERS.length - 1; // omega
+
+  // Build visible tiers: unlocked ones (highest first) + ??? row
+  const unlockedTiers = TIERS.slice(0, maxUnlockedIndex + 1);
+  const unlockedReversed = [...unlockedTiers].reverse();
+  const showUnknown = !reachedTop && unknownIndex < TIERS.length;
 
   function getTierAchievers(tierIndex: number): number {
     if (!stats) return 0;
@@ -96,13 +106,30 @@ export default function TiersPage() {
           <div className="w-11" />
         </header>
 
+        {reachedTop && (
+          <div
+            className="text-center mb-6 py-3"
+            style={{
+              opacity: 0,
+              animation: "fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0ms forwards",
+            }}
+          >
+            <span
+              className="label-text text-[12px] tracking-[0.3em] font-bold"
+              style={{ color: TIERS[TIERS.length - 1].color }}
+            >
+              {t("tiers.reachedTop")}
+            </span>
+          </div>
+        )}
+
         {loading ? (
           <p className="text-center text-muted text-[13px] py-12">{t("common.loading")}</p>
         ) : error ? (
           <p className="text-center text-muted text-[13px] py-12">{t("common.error")}</p>
         ) : (
           <div className="space-y-1.5 pb-8">
-            {tiersReversed.map((tier) => {
+            {unlockedReversed.map((tier, visualIndex) => {
               const originalIndex = TIERS.indexOf(tier);
               const nextTier = originalIndex < TIERS.length - 1 ? TIERS[originalIndex + 1] : null;
               const isUserTier = userTier.id === tier.id && personalBest > 0;
@@ -122,7 +149,7 @@ export default function TiersPage() {
                     border: isUserTier ? `1.5px solid ${tier.color}60` : "1px solid var(--color-border-game)",
                     borderRadius: "14px",
                     opacity: 0,
-                    animation: `fade-in-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) ${Math.min(tiersReversed.indexOf(tier) * 30, 500)}ms forwards`,
+                    animation: `fade-in-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) ${Math.min(visualIndex * 30, 500)}ms forwards`,
                   }}
                 >
                   {isUserTier && (
@@ -167,10 +194,6 @@ export default function TiersPage() {
                           <span className="text-[11px] text-foreground/70 height-number">
                             {t("tiers.topPercent", { percent: topPercent })}
                           </span>
-                        ) : stats && stats.pbValues.length < 10 ? (
-                          <span className="text-[10px] text-muted/50 label-text tracking-wide">
-                            {t("tiers.notEnoughData")}
-                          </span>
                         ) : null}
                         <span className="text-[10px] text-muted/40 height-number">
                           {achievers}
@@ -188,6 +211,56 @@ export default function TiersPage() {
                 </div>
               );
             })}
+
+            {/* ??? unknown tier row */}
+            {showUnknown && (
+              <div
+                className="flex items-center gap-3 p-3 relative overflow-hidden"
+                style={{
+                  backgroundColor: "var(--color-surface)",
+                  border: "1px solid var(--color-border-game)",
+                  borderRadius: "14px",
+                  opacity: 0,
+                  animation: `fade-in-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) ${Math.min(unlockedReversed.length * 30, 500)}ms forwards`,
+                }}
+              >
+                {/* Pulsing unknown icon placeholder */}
+                <div
+                  className="flex items-center justify-center shrink-0"
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: "50%",
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid var(--color-border-game)",
+                    animation: "tier-unknown-pulse 3s ease-in-out infinite",
+                  }}
+                >
+                  <span className="text-[18px] text-muted/40 font-bold select-none">?</span>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <span
+                    className="label-text text-[13px] font-bold tracking-wide"
+                    style={{
+                      color: "var(--color-muted)",
+                      animation: "tier-unknown-pulse 3s ease-in-out infinite",
+                    }}
+                  >
+                    ???
+                  </span>
+                </div>
+
+                <div className="flex flex-col items-end shrink-0">
+                  <span
+                    className="label-text text-[10px] tracking-[0.1em] text-muted/30"
+                    style={{ animation: "tier-unknown-pulse 3s ease-in-out infinite" }}
+                  >
+                    {t("tiers.unreached")}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -192,7 +192,7 @@
     "topPercent": "Top {percent}%",
     "you": "TU",
     "unreached": "NO ALCANZADO",
-    "notEnoughData": "Recopilando datos..."
+    "reachedTop": "Has alcanzado la cima"
   },
   "thread": {
     "voices": "Voces de lanzadores",

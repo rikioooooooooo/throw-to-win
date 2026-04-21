@@ -192,7 +192,7 @@
     "topPercent": "前 {percent}%",
     "you": "你",
     "unreached": "未达成",
-    "notEnoughData": "数据收集中"
+    "reachedTop": "你已登顶"
   },
   "thread": {
     "voices": "投过的人们的心声",

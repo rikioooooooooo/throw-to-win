@@ -192,7 +192,7 @@
     "topPercent": "أفضل {percent}%",
     "you": "أنت",
     "unreached": "لم يُصل إليه",
-    "notEnoughData": "جارٍ جمع البيانات..."
+    "reachedTop": "لقد وصلت إلى القمة"
   },
   "thread": {
     "voices": "أصوات اللاعبين",

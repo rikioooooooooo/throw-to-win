@@ -192,7 +192,7 @@
     "topPercent": "상위 {percent}%",
     "you": "나",
     "unreached": "미도달",
-    "notEnoughData": "데이터 수집 중"
+    "reachedTop": "당신은 정상에 올랐다"
   },
   "thread": {
     "voices": "던진 사람들의 이야기",
