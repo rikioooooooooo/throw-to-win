@@ -330,8 +330,8 @@ export function ResultScreen({
         {/* ---- Video ---- */}
         {videoUrl && (
           <div
-            className="w-full max-w-[240px] mb-4 relative overflow-hidden animate-fade-in-up delay-160"
-            style={{ borderRadius: "14px", border: "1px solid var(--color-border-subtle)" }}
+            className="w-full max-w-[280px] mb-4 relative animate-fade-in-up delay-160"
+            style={{ borderRadius: "14px", border: "1px solid var(--color-border-subtle)", overflow: "hidden", backgroundColor: "#000" }}
           >
             {resultData.ffmpegProcessed ? (
               <video
@@ -341,7 +341,7 @@ export function ResultScreen({
                 autoPlay
                 muted
                 loop
-                className="w-full aspect-[9/16] object-cover"
+                className="w-full aspect-[9/16] object-contain"
                 style={{ borderRadius: "14px" }}
               />
             ) : (
@@ -349,7 +349,7 @@ export function ResultScreen({
                 src={videoUrl}
                 slowStart={Math.max(0, resultData.peakOffset - 0.3)}
                 slowEnd={resultData.peakOffset + 0.3}
-                className="w-full aspect-[9/16] object-cover"
+                className="w-full aspect-[9/16] object-contain"
               />
             )}
           </div>
@@ -388,7 +388,7 @@ export function ResultScreen({
         {/* ---- Rank context — game card ---- */}
         {rankingData && (
           <div className="mt-5 w-full max-w-[260px] game-card p-4 animate-fade-in delay-480">
-            <div className="flex items-center justify-center gap-4 text-[14px]">
+            <div className={`grid ${rankingData.country && rankingData.country !== "XX" ? "grid-cols-[1fr_auto_1fr]" : "grid-cols-1"} items-center text-[14px]`}>
               <div className="flex flex-col items-center">
                 <span className="text-[10px] text-muted/60 tracking-[0.15em] uppercase mb-1">WORLD</span>
                 <span
@@ -400,7 +400,7 @@ export function ResultScreen({
               </div>
               {rankingData.country && rankingData.country !== "XX" && (
                 <>
-                  <div className="w-px h-8 bg-border-game" />
+                  <div className="w-px h-8 bg-border-game mx-4" />
                   <div className="flex flex-col items-center">
                     <span className="text-[10px] text-muted/60 tracking-[0.15em] uppercase mb-1">{rankingData.country}</span>
                     <span

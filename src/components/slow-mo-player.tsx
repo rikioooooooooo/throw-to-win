@@ -59,7 +59,7 @@ export function SlowMoPlayer({
       autoPlay
       muted
       loop
-      className={`bg-black object-cover ${className ?? ""}`}
+      className={`bg-black ${className ?? ""}`}
     />
   );
 }

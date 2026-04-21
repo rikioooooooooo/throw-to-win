@@ -9,14 +9,10 @@ import { useEffect } from "react";
  */
 export function DataReset() {
   useEffect(() => {
-    const resetKey = "ttw_reset_v4";
+    const resetKey = "ttw_reset_v5";
     if (!localStorage.getItem(resetKey)) {
-      localStorage.removeItem("ttw_data");
-      localStorage.removeItem("ttw_consent");
-      localStorage.removeItem("ttw_processed_msgs");
-      localStorage.removeItem("ttw_device_id");
+      localStorage.clear();
       localStorage.setItem(resetKey, "1");
-      // Reload so the page picks up clean state
       window.location.reload();
     }
   }, []);
