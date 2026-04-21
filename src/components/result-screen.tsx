@@ -476,10 +476,18 @@ export function ResultScreen({
           </div>
         )}
 
+        {/* Ranking button */}
+        <button
+          onClick={() => router.push(`/${locale}/ranking`)}
+          className="mt-4 w-full max-w-[260px] py-3.5 text-center text-accent/70 text-[12px] tracking-[0.12em] uppercase hover:text-accent active:scale-[0.97] transition-all animate-fade-in delay-560 game-border"
+        >
+          {t("mypage.viewRanking")}
+        </button>
+
         {/* Thread button */}
         <button
           onClick={() => setShowThread(true)}
-          className="mt-4 w-full max-w-[260px] py-3.5 text-center text-accent/50 text-[12px] tracking-[0.08em] hover:text-accent/70 active:scale-[0.97] transition-all animate-fade-in delay-560 game-border"
+          className="mt-2 w-full max-w-[260px] py-3.5 text-center text-accent/50 text-[12px] tracking-[0.08em] hover:text-accent/70 active:scale-[0.97] transition-all animate-fade-in delay-560 game-border"
         >
           {t("thread.voices")}
         </button>
