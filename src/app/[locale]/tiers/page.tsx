@@ -46,10 +46,18 @@ export default function TiersPage() {
   }, []);
 
   // --- Progressive unlock logic ---
+  // Legend (index 9) is always visible to all users.
+  // Chuunibyou tiers (mythic+, index 10-18) unlock progressively.
+  const LEGEND_INDEX = 9;
+
   const myTierIndex = personalBest > 0
     ? TIERS.findIndex((t) => t.id === userTier.id)
     : -1;
-  const maxUnlockedIndex = myTierIndex + 1; // reveals one above current
+
+  const maxUnlockedIndex = Math.min(
+    TIERS.length - 1,
+    Math.max(LEGEND_INDEX, myTierIndex + 1),
+  );
   const unknownIndex = maxUnlockedIndex + 1;
   const reachedTop = myTierIndex === TIERS.length - 1; // omega
 
