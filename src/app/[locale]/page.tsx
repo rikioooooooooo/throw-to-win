@@ -360,11 +360,17 @@ export default function LandingPage() {
             </p>
             <input
               type="text"
+              name="ttw-name-input"
               value={nameInput}
               onChange={e => setNameInput(e.target.value)}
               placeholder={t("landing.namePlaceholder")}
               maxLength={20}
               autoFocus
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              data-form-type="other"
               className="w-full px-5 py-4 bg-white/8 border-2 border-accent/30 rounded-2xl text-foreground text-center text-[20px] font-semibold placeholder:text-white/30 focus:outline-none focus:border-accent/60 focus:bg-white/10 transition-all mb-6"
             />
             <button
