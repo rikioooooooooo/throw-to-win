@@ -473,7 +473,13 @@ export function ResultScreen({
       </div>
 
       <ThreadSheet open={showThread} onClose={() => setShowThread(false)} />
-      <CrackerParticles level={crackerActive ? achievement.crackerLevel : "none"} active={crackerActive} />
+
+      {/* Cracker particles — wrapped in z-[5] stacking context so it renders
+          behind the z-[60] content container. The inner canvas is z-50 but
+          contained within the z-[5] wrapper, so it never blocks touch events. */}
+      <div style={{ position: "fixed", inset: 0, zIndex: 5, pointerEvents: "none" }}>
+        <CrackerParticles level={crackerActive ? achievement.crackerLevel : "none"} active={crackerActive} />
+      </div>
     </main>
   );
 }
