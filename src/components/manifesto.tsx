@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 
 type SectionData = {
   readonly type: "normal" | "climax" | "tagline";
@@ -129,6 +130,10 @@ function SectionRenderer({ section }: { section: SectionData }) {
 export function Manifesto() {
   const sections = buildSections();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const router = useRouter();
+  const params = useParams();
+  const locale = (params.locale as string) ?? "ja";
+  const isLastSection = currentIndex === sections.length - 1;
 
   // Override body height constraints so manifesto can scroll
   useEffect(() => {
@@ -193,8 +198,26 @@ export function Manifesto() {
           background: "#000000",
         }}
       >
-        <div style={{ pointerEvents: "auto" }}>
+        <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", alignItems: "center" }}>
           <SectionRenderer key={currentIndex} section={sections[currentIndex]} />
+          {isLastSection && (
+            <button
+              onClick={() => router.push(`/${locale}`)}
+              style={{
+                marginTop: "clamp(32px, 8vh, 60px)",
+                color: "rgba(237,237,237,0.3)",
+                fontSize: "13px",
+                letterSpacing: "0.1em",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                opacity: 1,
+                animation: "fade-in 1s ease-out 1.5s both",
+              }}
+            >
+              TOP →
+            </button>
+          )}
         </div>
       </div>
 

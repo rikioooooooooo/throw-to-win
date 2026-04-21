@@ -6,10 +6,10 @@
 // Calls onThrow() when a throw-and-catch cycle completes.
 // ============================================================
 
-const LAUNCH_THRESHOLD = 18.0;
-const FREEFALL_THRESHOLD = 5.0;
+const LAUNCH_THRESHOLD = 15.0;  // same as sensor.ts
+const FREEFALL_THRESHOLD = 8.0; // same as sensor.ts
 const LANDING_THRESHOLD = 12.0;
-const MIN_FREEFALL_MS = 80;
+const MIN_FREEFALL_MS = 60;     // same as sensor.ts
 const MAX_FREEFALL_MS = 4000;
 
 type Phase = "idle" | "launched" | "freefall";
