@@ -11,11 +11,9 @@ import { processVideo, preloadFFmpeg } from "@/lib/video-processor";
 import { formatHeight, GRAVITY } from "@/lib/physics";
 import { generateFingerprint } from "@/lib/fingerprint";
 import {
-  requestChallenge,
-  submitThrow,
-  type ChallengeResponse,
   type VerifyResponse,
 } from "@/lib/challenge";
+import { submitWithRetry } from "@/lib/submit-with-retry";
 import type { ThrowResult, VideoProcessingStatus } from "@/lib/types";
 import { getTierForHeight, checkTierBreakthrough, getNearMissMessage } from "@/lib/tiers";
 import { PermissionRequest } from "@/components/permission-request";
@@ -67,7 +65,6 @@ export default function PlayPage() {
 
   const fingerprintRef = useRef<string | null>(null);
   const turnstileTokenRef = useRef<string | null>(null);
-  const challengeDataRef = useRef<ChallengeResponse | null>(null);
 
   const {
     phase,
@@ -447,24 +444,6 @@ export default function PlayPage() {
     setOverlayRenderer(overlayRenderer);
     startRecording();
 
-    // Request challenge nonce (non-blocking — if it fails, throw still works locally)
-    const fp = fingerprintRef.current;
-    const token = turnstileTokenRef.current;
-    console.log("[challenge] pre-check:", { hasFp: !!fp, hasToken: !!token });
-    if (fp && token) {
-      requestChallenge(fp, token)
-        .then((data) => {
-          console.log("[challenge] success:", data.nonce);
-          challengeDataRef.current = data;
-        })
-        .catch((err) => {
-          console.error("[challenge] failed:", err);
-          challengeDataRef.current = null;
-        });
-    } else {
-      console.warn("[challenge] skipped — fp or token missing");
-    }
-
     try {
       if ("wakeLock" in navigator) {
         wakeLockRef.current = await navigator.wakeLock.request("screen");
@@ -506,29 +485,31 @@ export default function PlayPage() {
         throwResult.airtimeSeconds,
       );
 
-      // Submit to server (non-blocking — local result already saved)
-      const challenge = challengeDataRef.current;
+      // --- Sequential submit flow (no race) ---
       const fp = fingerprintRef.current;
-      console.log("[throw] submit check:", { hasChallenge: !!challenge, hasFp: !!fp, height: unifiedHeight });
-      if (challenge && fp) {
-        submitThrow(
-          challenge,
-          { heightMeters: unifiedHeight, airtimeSeconds: throwResult.airtimeSeconds },
-          sensorSamples,
+      if (fp) {
+        submitWithRetry({
           fp,
-          loadData().displayName,
-        )
-          .then((verifyResult) => {
-            console.log("[throw] verify success:", verifyResult);
+          heightMeters: unifiedHeight,
+          airtimeSeconds: throwResult.airtimeSeconds,
+          sensorSamples,
+          displayName: loadData().displayName,
+          onSuccess: (verifyResult) => {
+            console.log("[throw] submit success:", verifyResult);
             setRankingData(verifyResult);
-          })
-          .catch((err) => {
-            console.error("[throw] verify failed:", err);
+          },
+          onFailure: (err) => {
+            console.error("[throw] submit gave up after retries:", err);
             setSubmitError(true);
-          });
-        challengeDataRef.current = null;
+          },
+          getTurnstileToken: () => turnstileTokenRef.current,
+          onTurnstileReset: () => {
+            turnstileTokenRef.current = null;
+            setTurnstileResetKey((k) => k + 1);
+          },
+        });
       } else {
-        console.warn("[throw] skipped submit — challenge or fp missing");
+        console.error("[throw] submit skipped — fingerprint missing");
         setSubmitError(true);
       }
 
@@ -605,7 +586,6 @@ export default function PlayPage() {
     startingRef.current = false;
     v0PeakRef.current = 0;
     unifiedHeightRef.current = 0;
-    challengeDataRef.current = null;
     turnstileTokenRef.current = null;
     // Reset throw detection state (clears stale result that would re-trigger the landing useEffect)
     resetDetection();

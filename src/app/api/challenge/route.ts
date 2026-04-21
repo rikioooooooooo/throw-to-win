@@ -27,6 +27,7 @@ export async function POST(request: Request) {
       env.TURNSTILE_SECRET_KEY,
     );
     if (!turnstileValid) {
+      console.error("[challenge] Turnstile failed for device:", body.deviceFingerprint);
       return NextResponse.json(
         { error: "Turnstile verification failed" },
         { status: 403 },
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
       .first<{ cnt: number }>();
 
     if (activeCount && activeCount.cnt >= MAX_ACTIVE_CHALLENGES) {
+      console.error("[challenge] Rate limited:", activeCount.cnt, "for device:", body.deviceFingerprint);
       return NextResponse.json(
         { error: "Too many active challenges — try again later" },
         { status: 429 },
@@ -66,7 +68,8 @@ export async function POST(request: Request) {
     ]);
 
     return NextResponse.json({ nonce, timestamp, signature, expiresAt });
-  } catch {
+  } catch (err) {
+    console.error("[challenge] Unhandled error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

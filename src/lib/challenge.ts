@@ -28,6 +28,9 @@ export type ChallengeError =
   | "nonce_used"
   | "signature_invalid"
   | "cheat_detected"
+  | "fingerprint_mismatch"
+  | "timestamp_skew"
+  | "invalid_request"
   | "unknown";
 
 export class ChallengeFlowError extends Error {
@@ -42,9 +45,12 @@ export class ChallengeFlowError extends Error {
 function mapErrorCode(status: number, body: { error?: string }): ChallengeError {
   if (status === 403 && body.error?.includes("Turnstile")) return "turnstile_failed";
   if (status === 429) return "rate_limited";
+  if (status === 400 && body.error?.includes("Device fingerprint mismatch")) return "fingerprint_mismatch";
+  if (status === 400 && body.error?.includes("Timestamp too far")) return "timestamp_skew";
   if (status === 400 && body.error?.includes("expired")) return "nonce_expired";
   if (status === 400 && body.error?.includes("used")) return "nonce_used";
   if (status === 400 && body.error?.includes("signature")) return "signature_invalid";
+  if (status === 400) return "invalid_request";
   if (status === 422) return "cheat_detected";
   if (status >= 500) return "server_error";
   return "unknown";

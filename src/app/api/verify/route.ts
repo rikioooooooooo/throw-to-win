@@ -41,6 +41,15 @@ export async function POST(request: Request) {
       body.sensorData.length === 0 ||
       body.sensorData.length > 2000
     ) {
+      console.error("[verify] Invalid fields:", {
+        hasNonce: !!body.nonce,
+        timestampType: typeof body.timestamp,
+        hasSignature: !!body.signature,
+        hasFingerprint: !!body.deviceFingerprint,
+        height: body.heightMeters,
+        airtime: body.airtimeSeconds,
+        sensorCount: Array.isArray(body.sensorData) ? body.sensorData.length : "not-array",
+      });
       return NextResponse.json(
         { error: "Missing or invalid fields" },
         { status: 400 },
@@ -123,6 +132,10 @@ export async function POST(request: Request) {
 
     // Reject outright if anomaly score is too high
     if (antiCheatResult.anomalyScore >= 0.9) {
+      console.error("[verify] Anti-cheat rejected:", {
+        anomalyScore: antiCheatResult.anomalyScore,
+        failedChecks: antiCheatResult.checks.filter(c => !c.passed).map(c => ({ name: c.name, score: c.score, detail: c.detail })),
+      });
       return NextResponse.json(
         { error: "Throw rejected by anti-cheat validation" },
         { status: 422 },
@@ -144,72 +157,92 @@ export async function POST(request: Request) {
       }
     }
 
-    await env.DB.batch([
-      env.DB.prepare(
-        `INSERT INTO devices (id, first_seen, last_seen, total_throws, personal_best, country, flagged, display_name)
-         VALUES (?, datetime('now'), datetime('now'), 1, ?, ?, 0, ?)
-         ON CONFLICT(id) DO UPDATE SET
-           last_seen = datetime('now'),
-           total_throws = total_throws + 1,
-           personal_best = MAX(personal_best, excluded.personal_best),
-           country = excluded.country,
-           display_name = CASE WHEN excluded.display_name != '' THEN excluded.display_name ELSE devices.display_name END`,
-      ).bind(body.deviceFingerprint, verifiedHeight, country, sanitizedName),
-      env.DB.prepare(
-        "INSERT INTO throws (id, device_id, height_meters, airtime_seconds, country, challenge_nonce, anomaly_score) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      ).bind(
-        throwId,
-        body.deviceFingerprint,
-        verifiedHeight,
-        body.airtimeSeconds,
-        country,
-        body.nonce,
-        antiCheatResult.anomalyScore,
-      ),
-    ]);
+    try {
+      await env.DB.batch([
+        env.DB.prepare(
+          `INSERT INTO devices (id, first_seen, last_seen, total_throws, personal_best, country, flagged, display_name)
+           VALUES (?, datetime('now'), datetime('now'), 1, ?, ?, 0, ?)
+           ON CONFLICT(id) DO UPDATE SET
+             last_seen = datetime('now'),
+             total_throws = total_throws + 1,
+             personal_best = MAX(personal_best, excluded.personal_best),
+             country = excluded.country,
+             display_name = CASE WHEN excluded.display_name != '' THEN excluded.display_name ELSE devices.display_name END`,
+        ).bind(body.deviceFingerprint, verifiedHeight, country, sanitizedName),
+        env.DB.prepare(
+          "INSERT INTO throws (id, device_id, height_meters, airtime_seconds, country, challenge_nonce, anomaly_score) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        ).bind(
+          throwId,
+          body.deviceFingerprint,
+          verifiedHeight,
+          body.airtimeSeconds,
+          country,
+          body.nonce,
+          antiCheatResult.anomalyScore,
+        ),
+      ]);
+    } catch (dbErr) {
+      console.error("[verify] DB batch failed:", dbErr);
+      return NextResponse.json({ error: "Database write failed" }, { status: 500 });
+    }
 
     // 7. Fetch updated personal_best + ranks in parallel
     // Use device's monthly best (not just current throw) for accurate rank
-    const deviceMonthlyBest = await env.DB.prepare(
-      "SELECT MAX(height_meters) as best FROM throws WHERE device_id = ? AND created_at >= datetime('now', 'start of month')"
-    ).bind(body.deviceFingerprint).first<{ best: number | null }>();
-    const rankHeight = Math.max(deviceMonthlyBest?.best ?? 0, verifiedHeight);
+    try {
+      const deviceMonthlyBest = await env.DB.prepare(
+        "SELECT MAX(height_meters) as best FROM throws WHERE device_id = ? AND created_at >= datetime('now', 'start of month')"
+      ).bind(body.deviceFingerprint).first<{ best: number | null }>();
+      const rankHeight = Math.max(deviceMonthlyBest?.best ?? 0, verifiedHeight);
 
-    const [updatedDevice, worldRankRow, countryRankRow, totalThrowsRow] =
-      await Promise.all([
-        env.DB.prepare(
-          "SELECT personal_best FROM devices WHERE id = ?",
-        )
-          .bind(body.deviceFingerprint)
-          .first<{ personal_best: number }>(),
-        env.DB.prepare(
-          "SELECT COUNT(*) as rank FROM (SELECT device_id, MAX(height_meters) as best FROM throws WHERE created_at >= datetime('now', 'start of month') GROUP BY device_id HAVING best > ?)",
-        )
-          .bind(rankHeight)
-          .first<{ rank: number }>(),
-        env.DB.prepare(
-          "SELECT COUNT(*) as rank FROM (SELECT t.device_id, MAX(t.height_meters) as best FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', 'start of month') AND d.country = ? GROUP BY t.device_id HAVING best > ?)",
-        )
-          .bind(country, rankHeight)
-          .first<{ rank: number }>(),
-        env.DB.prepare(
-          "SELECT COUNT(*) as total FROM throws",
-        ).first<{ total: number }>(),
-      ]);
+      const [updatedDevice, worldRankRow, countryRankRow, totalThrowsRow] =
+        await Promise.all([
+          env.DB.prepare(
+            "SELECT personal_best FROM devices WHERE id = ?",
+          )
+            .bind(body.deviceFingerprint)
+            .first<{ personal_best: number }>(),
+          env.DB.prepare(
+            "SELECT COUNT(*) as rank FROM (SELECT device_id, MAX(height_meters) as best FROM throws WHERE created_at >= datetime('now', 'start of month') GROUP BY device_id HAVING best > ?)",
+          )
+            .bind(rankHeight)
+            .first<{ rank: number }>(),
+          env.DB.prepare(
+            "SELECT COUNT(*) as rank FROM (SELECT t.device_id, MAX(t.height_meters) as best FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', 'start of month') AND d.country = ? GROUP BY t.device_id HAVING best > ?)",
+          )
+            .bind(country, rankHeight)
+            .first<{ rank: number }>(),
+          env.DB.prepare(
+            "SELECT COUNT(*) as total FROM throws",
+          ).first<{ total: number }>(),
+        ]);
 
-    const updatedBest = updatedDevice?.personal_best ?? verifiedHeight;
+      const updatedBest = updatedDevice?.personal_best ?? verifiedHeight;
 
-    return NextResponse.json({
-      id: throwId,
-      verifiedHeight,
-      worldRank: (worldRankRow?.rank ?? 0) + 1,
-      countryRank: (countryRankRow?.rank ?? 0) + 1,
-      totalThrows: totalThrowsRow?.total ?? 0,
-      country,
-      personalBest: updatedBest,
-    }, {
-      headers: { "Cache-Control": "no-store, no-cache, must-revalidate", "CDN-Cache-Control": "no-store" },
-    });
+      return NextResponse.json({
+        id: throwId,
+        verifiedHeight,
+        worldRank: (worldRankRow?.rank ?? 0) + 1,
+        countryRank: (countryRankRow?.rank ?? 0) + 1,
+        totalThrows: totalThrowsRow?.total ?? 0,
+        country,
+        personalBest: updatedBest,
+      }, {
+        headers: { "Cache-Control": "no-store, no-cache, must-revalidate", "CDN-Cache-Control": "no-store" },
+      });
+    } catch (rankErr) {
+      console.error("[verify] Rank query failed (DB write succeeded):", rankErr);
+      return NextResponse.json({
+        id: throwId,
+        verifiedHeight,
+        worldRank: 0,
+        countryRank: 0,
+        totalThrows: 0,
+        country,
+        personalBest: verifiedHeight,
+      }, {
+        headers: { "Cache-Control": "no-store, no-cache, must-revalidate", "CDN-Cache-Control": "no-store" },
+      });
+    }
   } catch (err) {
     console.error("[verify] Unhandled error:", err);
     return NextResponse.json(
