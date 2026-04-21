@@ -162,7 +162,7 @@ export function ResultScreen({
         )}
       </div>
 
-      <div className={`flex-1 flex flex-col items-center px-6 py-6 w-full max-w-md relative z-10 overflow-y-auto mx-auto ${rankGlow.cardClass}`}>
+      <div className={`flex-1 flex flex-col items-center px-6 py-6 w-full max-w-md relative z-[60] overflow-y-auto mx-auto ${rankGlow.cardClass}`}>
 
         {/* ---- Height hero ---- */}
         <div className="text-center mt-2 mb-1 animate-fade-in-up relative">
