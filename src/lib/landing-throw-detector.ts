@@ -1,13 +1,16 @@
 // ============================================================
 // Landing page shake detector
 //
-// Detects a vigorous shake gesture and calls onThrow().
-// Simpler and more reliable than full throw detection.
+// Detects repeated vigorous shakes and calls onThrow().
+// Requires 5 distinct shakes within 3 seconds.
+// Each shake must be separated by a cooldown to avoid
+// counting one continuous motion as multiple shakes.
 // ============================================================
 
-const SHAKE_THRESHOLD = 25; // m/s² — total acceleration magnitude to count as a shake
-const SHAKE_COUNT = 3;      // number of threshold crossings needed
-const SHAKE_WINDOW_MS = 800; // all crossings must happen within this window
+const SHAKE_THRESHOLD = 35; // m/s² — strong shake only
+const SHAKE_COUNT = 5;      // number of distinct shakes needed
+const SHAKE_WINDOW_MS = 3000; // all shakes must happen within this window
+const SHAKE_COOLDOWN_MS = 150; // minimum gap between counted shakes
 
 type Options = {
   readonly onThrow: () => void;
@@ -16,6 +19,7 @@ type Options = {
 export class LandingThrowDetector {
   private handler: ((e: DeviceMotionEvent) => void) | null = null;
   private shakeTimestamps: number[] = [];
+  private lastShakeTime = 0;
   private fired = false;
 
   constructor(private readonly options: Options) {}
@@ -29,7 +33,8 @@ export class LandingThrowDetector {
       const mag = Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
       const now = performance.now();
 
-      if (mag > SHAKE_THRESHOLD) {
+      if (mag > SHAKE_THRESHOLD && now - this.lastShakeTime > SHAKE_COOLDOWN_MS) {
+        this.lastShakeTime = now;
         this.shakeTimestamps.push(now);
         // Remove old timestamps outside the window
         this.shakeTimestamps = this.shakeTimestamps.filter(t => now - t < SHAKE_WINDOW_MS);
@@ -49,6 +54,7 @@ export class LandingThrowDetector {
       this.handler = null;
     }
     this.shakeTimestamps = [];
+    this.lastShakeTime = 0;
     this.fired = false;
   }
 }
