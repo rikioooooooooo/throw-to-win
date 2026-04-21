@@ -403,42 +403,7 @@ export function ResultScreen({
           {t("result.tryAgain")}
         </button>
 
-        {/* ---- Rank context — game card ---- */}
-        {rankingData && (
-          <div className="mt-5 w-full max-w-[260px] game-card p-4 animate-fade-in delay-480">
-            <div className={`grid ${rankingData.country && rankingData.country !== "XX" ? "grid-cols-[1fr_auto_1fr]" : "grid-cols-1"} items-center text-[14px]`}>
-              <div className="flex flex-col items-center">
-                <span className="text-[10px] text-muted/60 tracking-[0.15em] uppercase mb-1">WORLD</span>
-                <span
-                  className="height-number text-[22px] text-accent font-semibold"
-                  style={{ animation: "rank-slam 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both" }}
-                >
-                  #{rankingData.worldRank}
-                </span>
-              </div>
-              {rankingData.country && rankingData.country !== "XX" && (
-                <>
-                  <div className="w-px h-8 bg-border-game mx-4" />
-                  <div className="flex flex-col items-center">
-                    <span className="text-[10px] text-muted/60 tracking-[0.15em] uppercase mb-1">{rankingData.country}</span>
-                    <span
-                      className="height-number text-[22px] text-foreground/80 font-semibold"
-                      style={{ animation: "rank-slam 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both" }}
-                    >
-                      #{rankingData.countryRank}
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
-            <button
-              onClick={() => router.push(`/${locale}/ranking`)}
-              className="mt-3 w-full text-center text-accent/50 text-[12px] tracking-[0.1em] hover:text-accent transition-colors"
-            >
-              {t("ranking.viewRanking")} →
-            </button>
-          </div>
-        )}
+        {/* Removed: World/JP rank card — user requested removal */}
 
         {/* Near-miss */}
         {tierInfo?.nearMiss && (
