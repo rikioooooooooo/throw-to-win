@@ -158,7 +158,7 @@ export function Manifesto() {
       const vh = window.innerHeight;
       const idx = Math.min(
         sections.length - 1,
-        Math.max(0, Math.floor(scrollY / vh + 0.3)),
+        Math.max(0, Math.floor(scrollY / (vh * 1.3))), // 1.3 = 1セクションあたり130vh
       );
       setCurrentIndex(idx);
     };
@@ -201,7 +201,7 @@ export function Manifesto() {
       {/* Scroll space: invisible, just adds vertical scroll */}
       <div
         style={{
-          height: `${sections.length * 100}vh`,
+          height: `${sections.length * 130}vh`,
           width: "100%",
           position: "relative",
           zIndex: 0,
