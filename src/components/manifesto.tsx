@@ -43,19 +43,26 @@ function buildSections(): readonly SectionData[] {
 function SectionRenderer({ section }: { section: SectionData }) {
   const [visible, setVisible] = useState(false);
 
+  // 2-frame rAF to ensure initial state is painted before transition starts
   useEffect(() => {
-    const raf = requestAnimationFrame(() => setVisible(true));
-    return () => cancelAnimationFrame(raf);
+    let raf1: number;
+    let raf2: number;
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => setVisible(true));
+    });
+    return () => { cancelAnimationFrame(raf1); cancelAnimationFrame(raf2); };
   }, []);
 
   if (section.type === "climax") {
     return (
       <h1
         style={{
-          fontSize: "clamp(96px, 24vw, 200px)",
+          fontSize: "clamp(72px, 20vw, 160px)",
           fontWeight: 700,
+          color: "#FFFFFF",
           textAlign: "center",
-          letterSpacing: "0.05em",
+          letterSpacing: "0.02em",
+          whiteSpace: "nowrap",
           opacity: visible ? 1 : 0,
           filter: visible ? "blur(0px)" : "blur(24px)",
           transform: visible ? "scale(1)" : "scale(0.9)",
@@ -80,6 +87,7 @@ function SectionRenderer({ section }: { section: SectionData }) {
               color: "#00FA9A",
               letterSpacing: "0.05em",
               marginBottom: "0.4em",
+              fontFamily: line === "Throw to Win." ? "var(--font-outfit), sans-serif" : undefined,
               opacity: visible ? 1 : 0,
               filter: visible ? "blur(0px)" : "blur(16px)",
               transform: visible ? "translateY(0)" : "translateY(24px)",
@@ -94,7 +102,7 @@ function SectionRenderer({ section }: { section: SectionData }) {
   }
 
   return (
-    <div style={{ maxWidth: "680px", width: "100%", textAlign: "center" }}>
+    <div style={{ maxWidth: "680px", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
       {section.lines.map((line, i) => (
         <p
           key={i}
@@ -104,10 +112,11 @@ function SectionRenderer({ section }: { section: SectionData }) {
             transform: visible ? "translateY(0)" : "translateY(24px)",
             transition: `opacity 800ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 180}ms, filter 800ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 180}ms, transform 800ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 180}ms`,
             fontSize: "clamp(20px, 5.5vw, 28px)",
-            lineHeight: 2,
+            lineHeight: 1.8,
             letterSpacing: "0.05em",
             fontWeight: 300,
-            margin: "0.6em 0",
+            margin: "0.3em 0",
+            textAlign: "center",
           }}
         >
           {line}
@@ -124,6 +133,7 @@ export function Manifesto() {
   // Override body height constraints so manifesto can scroll
   useEffect(() => {
     if (typeof window === "undefined") return;
+    window.scrollTo(0, 0);
     const htmlEl = document.documentElement;
     const bodyEl = document.body;
     const origHH = htmlEl.style.height;
@@ -148,7 +158,7 @@ export function Manifesto() {
       const vh = window.innerHeight;
       const idx = Math.min(
         sections.length - 1,
-        Math.max(0, Math.floor((scrollY + vh * 0.5) / vh)),
+        Math.max(0, Math.floor(scrollY / vh + 0.3)),
       );
       setCurrentIndex(idx);
     };
