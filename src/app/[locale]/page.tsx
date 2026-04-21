@@ -108,7 +108,12 @@ export default function LandingPage() {
   const mainRef = useRef<HTMLDivElement>(null);
   const charsRef = useRef<(HTMLSpanElement | null)[]>([]);
   const btnRef = useRef<HTMLButtonElement>(null);
+  // Suppress gyro tilt while any overlay is showing
+  const overlayActiveRef = useRef(false);
+  overlayActiveRef.current = showNameOverlay || showGyroOverlay || showConsent || (isDesktop && !dismissedDesktop);
+
   const handleTilt = useCallback((x: number, y: number) => {
+    if (overlayActiveRef.current) return;
     const el = mainRef.current;
     if (!el) return;
     const moveX = x * 70;
