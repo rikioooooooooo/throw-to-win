@@ -186,6 +186,14 @@
       "seconds": "秒"
     }
   },
+  "tiers": {
+    "title": "段位一览",
+    "viewTiers": "查看段位",
+    "topPercent": "前 {percent}%",
+    "you": "你",
+    "unreached": "未达成",
+    "notEnoughData": "数据收集中"
+  },
   "thread": {
     "voices": "投过的人们的心声",
     "title": "大家的声音",

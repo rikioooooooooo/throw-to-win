@@ -186,6 +186,14 @@
       "seconds": "초"
     }
   },
+  "tiers": {
+    "title": "티어 목록",
+    "viewTiers": "티어 보기",
+    "topPercent": "상위 {percent}%",
+    "you": "나",
+    "unreached": "미도달",
+    "notEnoughData": "데이터 수집 중"
+  },
   "thread": {
     "voices": "던진 사람들의 이야기",
     "title": "모두의 이야기",

@@ -186,6 +186,14 @@
       "seconds": "s"
     }
   },
+  "tiers": {
+    "title": "Stufen",
+    "viewTiers": "Stufen ansehen",
+    "topPercent": "Top {percent}%",
+    "you": "DU",
+    "unreached": "NICHT ERREICHT",
+    "notEnoughData": "Daten werden gesammelt..."
+  },
   "thread": {
     "voices": "Stimmen der Werfer",
     "title": "Stimmen",

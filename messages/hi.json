@@ -186,6 +186,14 @@
       "seconds": "से"
     }
   },
+  "tiers": {
+    "title": "टियर सूची",
+    "viewTiers": "टियर देखें",
+    "topPercent": "शीर्ष {percent}%",
+    "you": "आप",
+    "unreached": "नहीं पहुंचे",
+    "notEnoughData": "डेटा जुटाया जा रहा है..."
+  },
   "thread": {
     "voices": "खिलाड़ियों की आवाज़",
     "title": "आवाज़ें",

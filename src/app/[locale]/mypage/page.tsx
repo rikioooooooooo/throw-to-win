@@ -23,6 +23,7 @@ type WorldCountry = {
 export default function MyPage() {
   const t = useTranslations("mypage");
   const tTier = useTranslations("tier");
+  const tTiers = useTranslations("tiers");
   const router = useRouter();
   const params = useParams();
   const locale = (params.locale as string) ?? "en";
@@ -228,12 +229,22 @@ export default function MyPage() {
         </div>
 
         {/* View Ranking button */}
-        <div className="flex justify-center mb-8 animate-fade-in-up delay-80">
+        <div className="flex justify-center mb-3 animate-fade-in-up delay-80">
           <button
             onClick={() => router.push(`/${locale}/ranking`)}
             className="game-border px-6 py-3 label-text text-[12px] tracking-[0.15em] text-foreground/70 hover:text-accent transition-colors active:scale-[0.97]"
           >
             {t("viewRanking")}
+          </button>
+        </div>
+
+        {/* View Tiers button */}
+        <div className="flex justify-center mb-8 animate-fade-in-up delay-80">
+          <button
+            onClick={() => router.push(`/${locale}/tiers`)}
+            className="game-border px-6 py-3 label-text text-[12px] tracking-[0.15em] text-foreground/70 hover:text-accent transition-colors active:scale-[0.97]"
+          >
+            {tTiers("viewTiers")}
           </button>
         </div>
 

@@ -186,6 +186,14 @@
       "seconds": "s"
     }
   },
+  "tiers": {
+    "title": "Niveis",
+    "viewTiers": "Ver niveis",
+    "topPercent": "Top {percent}%",
+    "you": "VOCE",
+    "unreached": "NAO ALCANCADO",
+    "notEnoughData": "Coletando dados..."
+  },
   "thread": {
     "voices": "Vozes dos arremessadores",
     "title": "Vozes",

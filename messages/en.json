@@ -186,6 +186,14 @@
       "seconds": "s"
     }
   },
+  "tiers": {
+    "title": "Tiers",
+    "viewTiers": "View Tiers",
+    "topPercent": "Top {percent}%",
+    "you": "YOU",
+    "unreached": "UNREACHED",
+    "notEnoughData": "Gathering data..."
+  },
   "thread": {
     "voices": "Voices from throwers",
     "title": "Voices",

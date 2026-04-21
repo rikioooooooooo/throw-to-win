@@ -186,6 +186,14 @@
       "seconds": "ث"
     }
   },
+  "tiers": {
+    "title": "المستويات",
+    "viewTiers": "عرض المستويات",
+    "topPercent": "أفضل {percent}%",
+    "you": "أنت",
+    "unreached": "لم يُصل إليه",
+    "notEnoughData": "جارٍ جمع البيانات..."
+  },
   "thread": {
     "voices": "أصوات اللاعبين",
     "title": "الأصوات",

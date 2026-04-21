@@ -186,6 +186,14 @@
       "seconds": "秒"
     }
   },
+  "tiers": {
+    "title": "ティア一覧",
+    "viewTiers": "ティア一覧",
+    "topPercent": "上位 {percent}%",
+    "you": "あなた",
+    "unreached": "未到達",
+    "notEnoughData": "データ蓄積中"
+  },
   "thread": {
     "voices": "投げ終わった人たちの声",
     "title": "みんなの声",

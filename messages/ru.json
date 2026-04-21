@@ -186,6 +186,14 @@
       "seconds": "с"
     }
   },
+  "tiers": {
+    "title": "Уровни",
+    "viewTiers": "Посмотреть уровни",
+    "topPercent": "Топ {percent}%",
+    "you": "ВЫ",
+    "unreached": "НЕ ДОСТИГНУТО",
+    "notEnoughData": "Сбор данных..."
+  },
   "thread": {
     "voices": "Голоса игроков",
     "title": "Голоса",
