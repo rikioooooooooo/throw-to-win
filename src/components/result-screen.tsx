@@ -83,7 +83,15 @@ export function ResultScreen({
   const [crackerActive, setCrackerActive] = useState(false);
   useEffect(() => {
     if (achievement.crackerLevel === "none") return;
-    const timer = setTimeout(() => setCrackerActive(true), 400);
+    const timer = setTimeout(() => {
+      setCrackerActive(true);
+      // Vibrate on achievement — pattern varies by intensity
+      if (typeof navigator !== "undefined" && navigator.vibrate) {
+        if (achievement.crackerLevel === "legendary") navigator.vibrate([100, 50, 100, 50, 200]); // WR: strong pattern
+        else if (achievement.crackerLevel === "epic") navigator.vibrate([80, 40, 80]); // TOP5/chuuni: medium
+        else navigator.vibrate(50); // PB: short pulse
+      }
+    }, 400);
     return () => clearTimeout(timer);
   }, [achievement.crackerLevel]);
 
