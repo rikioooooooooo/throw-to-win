@@ -144,10 +144,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // TODO: Re-enable DB persistence when ready for production rankings
-    // Skipping DB writes during development — all throws treated as WR
-    const _skipBatch = false; // eslint-disable-line @typescript-eslint/no-unused-vars
-    if (_skipBatch) await env.DB.batch([
+    await env.DB.batch([
       env.DB.prepare(
         `INSERT INTO devices (id, first_seen, last_seen, total_throws, personal_best, country, flagged, display_name)
          VALUES (?, datetime('now'), datetime('now'), 1, ?, ?, 0, ?)
@@ -171,7 +168,7 @@ export async function POST(request: Request) {
       ),
     ]);
 
-    // 7. Fetch updated personal_best + ranks in parallel (skipped during dev)
+    // 7. Fetch updated personal_best + ranks in parallel
     const [updatedDevice, worldRankRow, countryRankRow, totalThrowsRow] =
       await Promise.all([
         env.DB.prepare(
@@ -199,9 +196,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       id: throwId,
       verifiedHeight,
-      // TODO: Remove WR override when ready for production rankings
-      worldRank: 1, // Always WR during development
-      countryRank: 1, // Always country #1 during development
+      worldRank: (worldRankRow?.rank ?? 0) + 1,
+      countryRank: (countryRankRow?.rank ?? 0) + 1,
       totalThrows: totalThrowsRow?.total ?? 0,
       country,
       personalBest: updatedBest,

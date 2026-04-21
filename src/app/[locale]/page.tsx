@@ -30,7 +30,7 @@ export default function LandingPage() {
   // One-time data reset (remove after confirming)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const resetKey = "ttw_reset_v2";
+    const resetKey = "ttw_reset_v3";
     if (!localStorage.getItem(resetKey)) {
       localStorage.removeItem("ttw_data");
       localStorage.removeItem("ttw_consent");
