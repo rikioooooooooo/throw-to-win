@@ -27,19 +27,6 @@ export default function LandingPage() {
   const [showGyroOverlay, setShowGyroOverlay] = useState(false);
   const [showThread, setShowThread] = useState(false);
 
-  // One-time data reset (remove after confirming)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const resetKey = "ttw_reset_v4";
-    if (!localStorage.getItem(resetKey)) {
-      localStorage.removeItem("ttw_data");
-      localStorage.removeItem("ttw_consent");
-      localStorage.removeItem("ttw_processed_msgs");
-      localStorage.removeItem("ttw_device_id");
-      localStorage.setItem(resetKey, "1");
-    }
-  }, []);
-
   useEffect(() => {
     const isMobile = typeof navigator !== "undefined" && (
       navigator.maxTouchPoints > 0 ||

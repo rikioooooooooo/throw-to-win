@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { Outfit } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { DataReset } from "@/components/data-reset";
 import "../globals.css";
 
 const outfit = Outfit({
@@ -75,6 +76,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground safe-top">
         <NextIntlClientProvider messages={messages}>
+          <DataReset />
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
