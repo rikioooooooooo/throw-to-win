@@ -9,7 +9,7 @@ import { useEffect } from "react";
  */
 export function DataReset() {
   useEffect(() => {
-    const resetKey = "ttw_reset_v5";
+    const resetKey = "ttw_reset_v6";
     if (!localStorage.getItem(resetKey)) {
       localStorage.clear();
       localStorage.setItem(resetKey, "1");

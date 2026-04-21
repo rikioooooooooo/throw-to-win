@@ -75,7 +75,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         {/* Pre-React localStorage reset — runs before any component hydration */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var k="ttw_reset_v5";if(!localStorage.getItem(k)){localStorage.clear();localStorage.setItem(k,"1");location.reload();}})();`,
+            __html: `(function(){var k="ttw_reset_v6";if(!localStorage.getItem(k)){localStorage.clear();localStorage.setItem(k,"1");location.reload();}})();`,
           }}
         />
       </head>
