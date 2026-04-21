@@ -59,7 +59,7 @@ export function useRankings(
         if ((worldData.yourCountry ?? "") !== "" && worldData.yourCountry !== "XX") {
           const countryRes = await fetch(
             `/api/ranking?scope=country&country=${worldData.yourCountry}&limit=${limit}&period=${period}${selfParam}&_t=${Date.now()}`,
-            { signal },
+            { signal, cache: "no-store" },
           );
           if (countryRes.ok) {
             const countryData = (await countryRes.json()) as {
