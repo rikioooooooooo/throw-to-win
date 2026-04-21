@@ -122,13 +122,10 @@ export async function POST(request: Request) {
       body.airtimeSeconds,
     );
 
-    // Trust client height for legitimate throws (v₀-based is more accurate than
-    // the server's simplified g*t²/8 recalculation). Only override with server
-    // height when anomaly score suggests potential manipulation.
-    const verifiedHeight =
-      antiCheatResult.anomalyScore >= 0.5 && antiCheatResult.serverHeight > 0
-        ? antiCheatResult.serverHeight
-        : body.heightMeters;
+    // Always trust client's v₀-based height for consistency across video overlay,
+    // result screen, localStorage, and ranking DB. Anti-cheat still rejects
+    // obvious cheating via anomalyScore >= 0.9 below.
+    const verifiedHeight = body.heightMeters;
 
     // Reject outright if anomaly score is too high
     if (antiCheatResult.anomalyScore >= 0.9) {
