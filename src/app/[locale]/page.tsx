@@ -17,21 +17,29 @@ import { LandingThrowDetector } from "@/lib/landing-throw-detector";
 function ScrollTrigger({ onTrigger }: { onTrigger: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const firedRef = useRef(false);
+  const mountTimeRef = useRef(0);
+
   useEffect(() => {
+    mountTimeRef.current = performance.now();
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !firedRef.current) {
+        if (firedRef.current) return;
+        // Guard: suppress within first 500ms (prevents false fire on initial render)
+        if (performance.now() - mountTimeRef.current < 500) return;
+        // Guard: only fire when 90%+ of element is in viewport
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.9) {
           firedRef.current = true;
           onTrigger();
         }
       },
-      { threshold: 0.5 },
+      { threshold: [0, 0.5, 0.9, 1.0], rootMargin: "0px 0px -10% 0px" },
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, [onTrigger]);
+
   return (
     <div
       ref={ref}
