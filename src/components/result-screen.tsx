@@ -473,7 +473,7 @@ export function ResultScreen({
       </div>
 
       <ThreadSheet open={showThread} onClose={() => setShowThread(false)} />
-      <CrackerParticles level={achievement.crackerLevel} active={crackerActive} />
+      <CrackerParticles level={crackerActive ? achievement.crackerLevel : "none"} active={crackerActive} />
     </main>
   );
 }
