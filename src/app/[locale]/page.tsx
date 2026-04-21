@@ -14,49 +14,6 @@ import { ThreadSheet } from "@/components/thread-sheet";
 import { LandingThrowDetector } from "@/lib/landing-throw-detector";
 
 
-function ScrollTrigger({ onTrigger }: { onTrigger: () => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const firedRef = useRef(false);
-  const mountTimeRef = useRef(0);
-
-  useEffect(() => {
-    mountTimeRef.current = performance.now();
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (firedRef.current) return;
-        // Guard: suppress within first 500ms (prevents false fire on initial render)
-        if (performance.now() - mountTimeRef.current < 500) return;
-        // Guard: only fire when 90%+ of element is in viewport
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.9) {
-          firedRef.current = true;
-          onTrigger();
-        }
-      },
-      { threshold: [0, 0.5, 0.9, 1.0], rootMargin: "0px 0px -10% 0px" },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [onTrigger]);
-
-  return (
-    <div
-      ref={ref}
-      style={{
-        height: "60vh",
-        display: "flex",
-        alignItems: "flex-end",
-        justifyContent: "center",
-        paddingBottom: "20vh",
-        pointerEvents: "none",
-      }}
-      aria-hidden="true"
-    >
-      <span style={{ color: "var(--color-foreground)", opacity: 0.1, fontSize: "16px", userSelect: "none" }}>・</span>
-    </div>
-  );
-}
 
 export default function LandingPage() {
   const t = useTranslations();
@@ -219,7 +176,7 @@ export default function LandingPage() {
       {/* Canvas OUTSIDE main — stays fixed to viewport, unaffected by main's 3D transform */}
       <GyroBars className="fixed inset-0 z-0 pointer-events-none" onTilt={handleTilt} />
 
-      <main ref={mainRef} className="relative flex-1 flex flex-col px-6 min-h-dvh" style={{ transformOrigin: "center center" }}>
+      <main ref={mainRef} className="relative flex-1 flex flex-col px-6 h-dvh overflow-hidden" style={{ transformOrigin: "center center" }}>
 
       {/* Top bar */}
       <header className="relative z-10 flex justify-between items-center pt-4">
@@ -366,7 +323,6 @@ export default function LandingPage() {
       {/* Bottom spacer for safe area */}
       <div className="safe-bottom" />
 
-      <ScrollTrigger onTrigger={navigateToManifesto} />
 
       <ThreadSheet open={showThread} onClose={() => setShowThread(false)} />
 
