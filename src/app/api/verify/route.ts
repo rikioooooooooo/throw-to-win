@@ -201,6 +201,8 @@ export async function POST(request: Request) {
       totalThrows: totalThrowsRow?.total ?? 0,
       country,
       personalBest: updatedBest,
+    }, {
+      headers: { "Cache-Control": "no-store, no-cache, must-revalidate", "CDN-Cache-Control": "no-store" },
     });
   } catch {
     return NextResponse.json(

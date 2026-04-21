@@ -124,6 +124,8 @@ export async function GET(request: Request) {
       offset,
       yourCountry,
       selfRank,
+    }, {
+      headers: { "Cache-Control": "no-store, no-cache, must-revalidate", "CDN-Cache-Control": "no-store" },
     });
   } catch {
     return NextResponse.json(

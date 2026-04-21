@@ -43,8 +43,8 @@ export function useRankings(
         const selfParam = `&self=${encodeURIComponent(fingerprint)}`;
 
         const worldRes = await fetch(
-          `/api/ranking?scope=world&limit=${limit}&period=${period}${selfParam}`,
-          { signal },
+          `/api/ranking?scope=world&limit=${limit}&period=${period}${selfParam}&_t=${Date.now()}`,
+          { signal, cache: "no-store" },
         );
         if (!worldRes.ok) return;
 
@@ -58,7 +58,7 @@ export function useRankings(
         let countryRankings: RankEntry[] = [];
         if ((worldData.yourCountry ?? "") !== "" && worldData.yourCountry !== "XX") {
           const countryRes = await fetch(
-            `/api/ranking?scope=country&country=${worldData.yourCountry}&limit=${limit}&period=${period}${selfParam}`,
+            `/api/ranking?scope=country&country=${worldData.yourCountry}&limit=${limit}&period=${period}${selfParam}&_t=${Date.now()}`,
             { signal },
           );
           if (countryRes.ok) {
