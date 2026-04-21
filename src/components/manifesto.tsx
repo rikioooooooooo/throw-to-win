@@ -165,23 +165,40 @@ export function Manifesto() {
         fontFamily: '"Hiragino Sans", "ヒラギノ角ゴシック", "ヒラギノ角ゴ ProN", "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "游ゴシック Medium", YuGothic, sans-serif',
         fontWeight: 300,
       }}
-      className="safe-top safe-bottom"
     >
-      <div style={{ height: `${sections.length * 100}vh`, position: "relative" }}>
-        <div
-          style={{
-            position: "sticky",
-            top: 0,
-            height: "100vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "0 24px",
-          }}
-        >
+      {/* Fixed display layer: always centered in viewport */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "0 24px",
+          pointerEvents: "none",
+          zIndex: 1,
+          background: "#000000",
+        }}
+      >
+        <div style={{ pointerEvents: "auto" }}>
           <SectionRenderer key={currentIndex} section={sections[currentIndex]} />
         </div>
       </div>
+
+      {/* Scroll space: invisible, just adds vertical scroll */}
+      <div
+        style={{
+          height: `${sections.length * 100}vh`,
+          width: "100%",
+          position: "relative",
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+        aria-hidden="true"
+      />
     </main>
   );
 }
