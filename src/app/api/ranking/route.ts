@@ -41,13 +41,13 @@ export async function GET(request: Request) {
       // All-time: query devices table directly (existing behavior)
       if (scope === "country" && country) {
         query =
-          "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices WHERE country = ? AND personal_best > 0 ORDER BY personal_best DESC LIMIT ? OFFSET ?";
+          "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices WHERE country = ? AND personal_best > 0 ORDER BY personal_best DESC, id ASC LIMIT ? OFFSET ?";
         params = [country, limit, offset];
         countQuery = "SELECT COUNT(*) as total FROM devices WHERE country = ? AND personal_best > 0";
         countParams = [country];
       } else {
         query =
-          "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices WHERE personal_best > 0 ORDER BY personal_best DESC LIMIT ? OFFSET ?";
+          "SELECT id, display_name, personal_best, total_throws, country, last_seen FROM devices WHERE personal_best > 0 ORDER BY personal_best DESC, id ASC LIMIT ? OFFSET ?";
         params = [limit, offset];
         countQuery = "SELECT COUNT(*) as total FROM devices WHERE personal_best > 0";
         countParams = [];
@@ -106,14 +106,14 @@ export async function GET(request: Request) {
     let selfRank: number | null = null;
     if (selfFingerprint) {
       if (period === "alltime") {
-        const selfRankResult = await env.DB.prepare(
-          "SELECT COUNT(*) + 1 as rank FROM devices WHERE personal_best > (SELECT COALESCE(personal_best, 0) FROM devices WHERE id = ?) AND personal_best > 0"
-        ).bind(selfFingerprint).first<{ rank: number }>();
         const selfDevice = await env.DB.prepare(
           "SELECT personal_best FROM devices WHERE id = ? AND personal_best > 0"
         ).bind(selfFingerprint).first<{ personal_best: number }>();
-        if (selfDevice && selfRankResult) {
-          selfRank = selfRankResult.rank;
+        if (selfDevice) {
+          const selfRankResult = await env.DB.prepare(
+            "SELECT COUNT(*) as rank FROM devices WHERE personal_best > 0 AND (personal_best > ? OR (personal_best = ? AND id < ?))"
+          ).bind(selfDevice.personal_best, selfDevice.personal_best, selfFingerprint).first<{ rank: number }>();
+          selfRank = (selfRankResult?.rank ?? 0) + 1;
         }
       } else {
         // Monthly: rank based on this month's best throw per device
@@ -122,8 +122,8 @@ export async function GET(request: Request) {
         ).bind(selfFingerprint).first<{ best: number | null }>();
         if (selfMonthlyBest?.best && selfMonthlyBest.best > 0) {
           const selfRankResult = await env.DB.prepare(
-            "SELECT COUNT(*) as rank FROM (SELECT device_id, MAX(height_meters) as best FROM throws WHERE created_at >= datetime('now', '+9 hours', 'start of month', '-9 hours') GROUP BY device_id HAVING best > ?)"
-          ).bind(selfMonthlyBest.best).first<{ rank: number }>();
+            "SELECT COUNT(*) as rank FROM (SELECT device_id, MAX(height_meters) as best FROM throws WHERE created_at >= datetime('now', '+9 hours', 'start of month', '-9 hours') GROUP BY device_id HAVING best > ? OR (best = ? AND device_id < ?))"
+          ).bind(selfMonthlyBest.best, selfMonthlyBest.best, selfFingerprint).first<{ rank: number }>();
           selfRank = (selfRankResult?.rank ?? 0) + 1;
         }
       }
