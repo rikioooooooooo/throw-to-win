@@ -234,9 +234,9 @@ export default function LandingPage() {
         {nameValid && stats.personalBest <= 0 && (
           <button
             onClick={() => setShowNameOverlay(true)}
-            className="mt-5 text-[13px] text-accent/60 hover:text-accent transition-colors tracking-[0.08em] animate-fade-in-up delay-120"
+            className="mt-5 text-[13px] text-accent/60 hover:text-accent transition-colors tracking-[0.05em] animate-fade-in-up delay-120 flex items-center gap-1"
           >
-            {nameInput} ✏️
+            {nameInput} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
           </button>
         )}
 
@@ -246,11 +246,10 @@ export default function LandingPage() {
             ref={btnRef}
             onClick={handleStart}
             disabled={!nameValid}
-            className={`mt-6 w-full max-w-[320px] text-black cta-text text-[18px] tracking-[0.18em] animate-fade-in-up delay-160 transition-all ${nameValid ? "bg-accent neon-glow" : "bg-accent/30 cursor-not-allowed"}`}
+            className={`mt-6 w-full max-w-[300px] text-black cta-text text-[16px] tracking-[0.1em] animate-fade-in-up delay-160 transition-all ${nameValid ? "bg-accent neon-glow" : "bg-accent/30 cursor-not-allowed"}`}
             style={{
               borderRadius: "16px",
-              height: "64px",
-              fontWeight: 800,
+              height: "56px",
               textShadow: nameValid ? "0 1px 0 rgba(0,0,0,0.15)" : "none",
             }}
           >
@@ -285,8 +284,8 @@ export default function LandingPage() {
                 {(stats.streakDays > 1 || stats.todayBest > 0) && (
                   <div className="flex items-center gap-3 mt-1">
                     {stats.streakDays > 1 && (
-                      <span className="text-foreground/30 text-[11px] tracking-[0.05em]">
-                        🔥 {stats.streakDays} {t("landing.streakDays")}
+                      <span className="text-foreground/30 text-[11px] tracking-[0.05em] flex items-center gap-1">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg> {stats.streakDays} {t("landing.streakDays")}
                       </span>
                     )}
                     {stats.todayBest > 0 && (
@@ -308,7 +307,7 @@ export default function LandingPage() {
       {/* Thread button */}
       <button
         onClick={() => setShowThread(true)}
-        className="mt-auto mb-2 text-accent/30 text-[11px] tracking-[0.08em] hover:text-accent/50 active:scale-[0.97] transition-all"
+        className="mt-auto mb-4 w-full max-w-[200px] py-3 text-center text-foreground/60 text-[12px] tracking-[0.05em] hover:text-foreground active:scale-[0.97] transition-all game-border"
       >
         {t("thread.voices")}
       </button>
@@ -397,7 +396,10 @@ export default function LandingPage() {
       {showGyroOverlay && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8" style={{ backgroundColor: "rgba(5, 10, 8, 0.96)" }}>
           <div className="flex flex-col items-center text-center max-w-sm w-full animate-fade-in-up">
-            <div className="text-[48px] mb-4">📱</div>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mb-4 text-foreground/60">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+              <line x1="12" y1="18" x2="12.01" y2="18"></line>
+            </svg>
             <h2 className="text-[20px] font-semibold text-foreground mb-2 tracking-wide">
               センサーとカメラを使います
             </h2>

@@ -249,7 +249,7 @@ export function ThreadSheet({ open, onClose }: ThreadSheetProps) {
               <button
                 onClick={handleSend}
                 disabled={trimmedLength === 0 || trimmedLength > 100 || sending}
-                className="text-accent text-[12px] tracking-wider font-medium shrink-0 disabled:text-muted/30 active:scale-[0.95] transition-all"
+                className="h-[40px] px-4 bg-accent text-black text-[13px] font-semibold rounded-[8px] disabled:opacity-30 active:scale-[0.95] transition-all shrink-0"
               >
                 {t("send")}
               </button>

@@ -334,12 +334,11 @@ export function LoadingScreen({ status, progress, height, onSkip }: LoadingScree
       {/* Status text + progress bar */}
       <div className="flex flex-col items-center gap-4 w-full max-w-xs mt-10 relative">
         <h2
-          className="text-[16px] font-bold tracking-[0.15em] uppercase text-foreground/80 text-center"
-          style={{ textShadow: "0 0 16px rgba(0,250,154,0.25)" }}
+          className="text-[16px] font-semibold tracking-wide text-foreground/90 text-center break-keep"
         >
           {t("heading").replace(/\.+$/, "")}<span style={{ display: "inline-block", width: "1.5em", textAlign: "left" }}>{dots}</span>
         </h2>
-        <p className="text-accent/30 text-[11px] tracking-[0.15em] uppercase text-center">
+        <p className="text-foreground/60 text-[13px] text-center break-keep">
           {t(statusKey(status)).replace(/\.+$/, "")}<span style={{ display: "inline-block", width: "1.5em", textAlign: "left" }}>{dots}</span>
         </p>
 
@@ -363,18 +362,8 @@ export function LoadingScreen({ status, progress, height, onSkip }: LoadingScree
 
         <p
           key={trivia}
-          style={{
-            color: "rgba(237, 237, 237, 0.85)",
-            fontSize: "13px",
-            letterSpacing: "0.03em",
-            textAlign: "center",
-            marginTop: "16px",
-            maxWidth: "90vw",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            animation: "trivia-fade 400ms cubic-bezier(0.16, 1, 0.3, 1)",
-          }}
+          className="text-foreground/70 text-[13px] text-center mt-4 max-w-[280px] break-keep"
+          style={{ animation: "trivia-fade 400ms cubic-bezier(0.16, 1, 0.3, 1)" }}
         >
           {trivia}
         </p>

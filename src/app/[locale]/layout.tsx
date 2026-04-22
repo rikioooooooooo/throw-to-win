@@ -3,17 +3,23 @@ import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Outfit } from "next/font/google";
+import { Inter, Noto_Sans_JP } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { DataReset } from "@/components/data-reset";
 import "../globals.css";
 
-const outfit = Outfit({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "600", "700", "800"],
   display: "swap",
-  variable: "--font-outfit",
+  variable: "--font-inter",
+});
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-noto-sans-jp",
 });
 
 export const metadata: Metadata = {
@@ -68,13 +74,13 @@ export default async function LocaleLayout({ children, params }: Props) {
   const messages = await getMessages();
 
   return (
-    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className={`h-full ${outfit.variable}`}>
+    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className={`h-full ${inter.variable} ${notoSansJP.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground safe-top">
+      <body className="min-h-full flex flex-col bg-background text-foreground safe-top font-sans break-keep">
         <NextIntlClientProvider messages={messages}>
           <DataReset />
           <ErrorBoundary>

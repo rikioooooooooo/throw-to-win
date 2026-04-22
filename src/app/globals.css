@@ -12,7 +12,7 @@
   --color-surface: #0a1410;
   --color-surface-elevated: #0f1f18;
   --color-foreground: #EDEDED;
-  --color-muted: #4a6358;
+  --color-muted: #8a9a92;
 
   /* ── Accent ── */
   --color-accent: #00FA9A;
@@ -25,13 +25,13 @@
   --color-error: #FF4444;
 
   /* ── Border ── */
-  --color-border-subtle: rgba(0, 250, 154, 0.08);
-  --color-border-ghost: rgba(0, 250, 154, 0.12);
-  --color-card-tint: rgba(0, 250, 154, 0.03);
-  --color-border-game: rgba(0, 250, 154, 0.15);
+  --color-border-subtle: rgba(255, 255, 255, 0.1);
+  --color-border-ghost: rgba(255, 255, 255, 0.05);
+  --color-card-tint: rgba(255, 255, 255, 0.02);
+  --color-border-game: rgba(255, 255, 255, 0.12);
 
   /* ── Font ── */
-  --font-sans: var(--font-outfit, "Outfit"), -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans: var(--font-inter), var(--font-noto-sans-jp), sans-serif;
 
   /* ── Animations ── */
   --animate-fade-in-up: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -67,27 +67,27 @@ body {
 /* ---- Typography ---- */
 
 .label-text {
-  font-weight: 600;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
 }
 
 .height-number {
-  font-weight: 300;
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em;
-  line-height: 0.9;
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
 
 .cta-text {
-  font-weight: 700;
-  text-transform: uppercase;
+  font-weight: 600;
 }
 
 /* ---- Neon Glow ---- */
 
 .neon-glow {
-  box-shadow: 0 0 24px rgba(0, 250, 154, 0.3), 0 0 48px rgba(0, 250, 154, 0.1), 0 4px 8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .card-surface {
@@ -99,9 +99,10 @@ body {
 /* ---- Game Card ---- */
 
 .game-card {
-  background: linear-gradient(135deg, rgba(0, 250, 154, 0.04) 0%, transparent 50%) var(--color-surface);
+  background: var(--color-surface);
   border: 1px solid var(--color-border-game);
-  border-radius: 16px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
 }
@@ -120,7 +121,8 @@ body {
 
 .game-border {
   border: 1px solid var(--color-border-game);
-  border-radius: 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 /* ---- Radial Burst (result screen) ---- */

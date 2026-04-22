@@ -212,11 +212,7 @@ export function ResultScreen({
             if (achievement.isWorldRecord) parts.push(t("result.worldRecord"));
             if (achievement.worldTop5Rank !== null) parts.push(`\u{1F30D} #${achievement.worldTop5Rank}`);
             if (achievement.countryTop5Rank !== null) {
-              const cc = (rankingData?.country ?? "").toUpperCase();
-              const flag = cc.length === 2 && cc !== "XX"
-                ? String.fromCodePoint(cc.charCodeAt(0) + 0x1f1a5, cc.charCodeAt(1) + 0x1f1a5)
-                : "\u{1F3F3}\u{FE0F}";
-              parts.push(`${flag} #${achievement.countryTop5Rank}`);
+              parts.push(`🏳️ #${achievement.countryTop5Rank}`);
             }
             if (achievement.isChuuniTier && achievement.chuuniTierId) {
               parts.push(t("result.chuuniTierReached", { tier: t(`tier.${achievement.chuuniTierId}`) }));
@@ -235,7 +231,13 @@ export function ResultScreen({
                     {i > 0 && (
                       <span className="label-text" style={{ fontSize: "11px", color: "rgba(0, 250, 154, 0.3)", fontWeight: 300 }} aria-hidden="true">/</span>
                     )}
-                    <span className="label-text" style={{ fontSize: "12px", letterSpacing: "0.12em", color: "var(--color-accent)", whiteSpace: "nowrap" }}>{part}</span>
+                    <span className="label-text flex items-center gap-1" style={{ fontSize: "12px", letterSpacing: "0.05em", color: "var(--color-accent)", whiteSpace: "nowrap" }}>
+                      {part.includes("\u{1F30D}") ? (
+                        <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> {part.replace("\u{1F30D} ", "")}</>
+                      ) : part.includes("🏳️") ? (
+                        <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg> {part.replace("🏳️ ", "")}</>
+                      ) : part}
+                    </span>
                   </Fragment>
                 ))}
               </div>
@@ -373,16 +375,16 @@ export function ResultScreen({
 
         {/* Video action buttons — secondary style */}
         {resultData.videoBlob && (
-          <div className="grid grid-cols-2 gap-2 mb-5 w-full max-w-[260px] animate-fade-in-up delay-240" style={{ position: "relative", zIndex: 60 }}>
+          <div className="grid grid-cols-2 gap-3 mb-5 w-full max-w-[280px] animate-fade-in-up delay-240" style={{ position: "relative", zIndex: 60 }}>
             <button
               onClick={onSaveVideo}
-              className="py-3 text-foreground/60 text-[12px] tracking-widest uppercase active:scale-[0.97] transition-all hover:text-foreground game-border"
+              className="h-[44px] flex items-center justify-center text-foreground/80 text-[13px] font-medium active:scale-[0.97] transition-all hover:text-foreground game-border rounded-[8px]"
             >
               {t("result.downloadVideo")}
             </button>
             <button
               onClick={onShareVideo}
-              className="py-3 text-foreground/60 text-[12px] tracking-widest uppercase active:scale-[0.97] transition-all hover:text-foreground game-border"
+              className="h-[44px] flex items-center justify-center text-foreground/80 text-[13px] font-medium active:scale-[0.97] transition-all hover:text-foreground game-border rounded-[8px]"
             >
               {t("result.shareOn")}
             </button>
@@ -392,12 +394,12 @@ export function ResultScreen({
         {/* ---- Primary CTA ---- */}
         <button
           onClick={onTryAgain}
-          className="w-full max-w-[260px] bg-accent text-black cta-text text-[15px] tracking-[0.15em] active:scale-[0.97] transition-transform duration-100 animate-fade-in-up delay-320 neon-glow"
+          className="w-full max-w-[300px] bg-accent text-black cta-text text-[16px] tracking-[0.1em] active:scale-[0.97] transition-transform duration-100 animate-fade-in-up delay-320 neon-glow"
           style={{
             position: "relative",
             zIndex: 60,
             borderRadius: "16px",
-            height: "58px",
+            height: "56px",
           }}
         >
           {t("result.tryAgain")}
@@ -444,7 +446,7 @@ export function ResultScreen({
         {/* Ranking button */}
         <button
           onClick={() => router.push(`/${locale}/ranking`)}
-          className="mt-4 w-full max-w-[260px] py-3.5 text-center text-accent/70 text-[12px] tracking-[0.12em] uppercase hover:text-accent active:scale-[0.97] transition-all animate-fade-in delay-560 game-border"
+          className="mt-4 w-full max-w-[200px] h-[44px] flex items-center justify-center text-foreground/70 text-[13px] font-medium hover:text-foreground active:scale-[0.97] transition-all animate-fade-in delay-560 game-border rounded-[8px]"
         >
           {t("mypage.viewRanking")}
         </button>
@@ -452,7 +454,7 @@ export function ResultScreen({
         {/* Thread button */}
         <button
           onClick={() => setShowThread(true)}
-          className="mt-2 w-full max-w-[260px] py-3.5 text-center text-accent/50 text-[12px] tracking-[0.08em] hover:text-accent/70 active:scale-[0.97] transition-all animate-fade-in delay-560 game-border"
+          className="mt-3 w-full max-w-[200px] h-[44px] flex items-center justify-center text-foreground/60 text-[13px] font-medium hover:text-foreground active:scale-[0.97] transition-all animate-fade-in delay-560 game-border rounded-[8px]"
         >
           {t("thread.voices")}
         </button>

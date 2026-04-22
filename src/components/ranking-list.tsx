@@ -4,14 +4,9 @@ import { formatHeight } from "@/lib/physics";
 import { getTierForHeight } from "@/lib/tiers";
 import { TierIcon } from "@/components/tier-icon";
 
-/** Convert ISO 3166-1 alpha-2 country code to flag emoji (e.g. "JP" → "🇯🇵") */
 function countryFlag(code: string): string {
   if (!code || code.length !== 2) return code;
-  const upper = code.toUpperCase();
-  return String.fromCodePoint(
-    upper.charCodeAt(0) + 0x1f1a5,
-    upper.charCodeAt(1) + 0x1f1a5,
-  );
+  return code.toUpperCase();
 }
 
 export type RankEntry = {
@@ -37,11 +32,8 @@ function getRankColor(rank: number): string {
   return "var(--color-muted)";
 }
 
-function getRankMedal(rank: number): string {
-  if (rank === 1) return "🥇";
-  if (rank === 2) return "🥈";
-  if (rank === 3) return "🥉";
-  return "";
+function getRankText(rank: number): string {
+  return `#${rank}`;
 }
 
 export function RankingList({
@@ -82,13 +74,13 @@ export function RankingList({
             >
               {/* Rank number or medal */}
               <span
-                className={`height-number shrink-0 text-center ${isTop3 ? "text-[18px] font-bold" : "text-[14px]"}`}
+                className={`height-number shrink-0 text-center ${isTop3 ? "text-[16px] font-bold" : "text-[14px]"}`}
                 style={{
                   color: getRankColor(entry.rank),
                   width: isTop3 ? "36px" : "32px",
                 }}
               >
-                {isTop3 ? getRankMedal(entry.rank) : entry.rank}
+                {getRankText(entry.rank)}
               </span>
               <TierIcon tierId={getTierForHeight(entry.heightMeters).id} size={isTop3 ? 24 : 20} className="flex-shrink-0 mx-1" />
               <span className={`flex-1 truncate ${isTop3 ? "text-[13px] font-semibold" : "text-[12px]"} ${entry.isSelf && !isTop3 ? "font-semibold" : ""}`} style={{
@@ -98,7 +90,7 @@ export function RankingList({
               }}>
                 {entry.displayName || entry.deviceId}
               </span>
-              <span className="text-[14px] mr-3" aria-label={entry.country}>
+              <span className="text-[12px] text-muted/60 font-medium mr-3" aria-label={entry.country}>
                 {countryFlag(entry.country)}
               </span>
               <span className={`height-number text-foreground ${isTop3 ? "text-[18px] font-semibold" : "text-[16px]"}`} style={{
