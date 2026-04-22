@@ -1,8 +1,6 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { NextResponse } from "next/server";
-
-const MAX_NAME_LENGTH = 20;
-const NAME_PATTERN = /^[\p{L}\p{N}\p{M}\s._-]+$/u;
+import { sanitizeDisplayName, validateDisplayName } from "@/lib/sanitize-name";
 
 type ProfileBody = {
   /** Stable localStorage-based UUID (not a volatile browser fingerprint hash) */
@@ -21,29 +19,48 @@ export async function PUT(request: Request) {
       );
     }
 
-    const name = body.displayName.trim();
-
-    if (name.length === 0 || name.length > MAX_NAME_LENGTH) {
+    const name = sanitizeDisplayName(body.displayName);
+    const validationError = validateDisplayName(name);
+    if (validationError) {
       return NextResponse.json(
-        { error: `Name must be 1-${MAX_NAME_LENGTH} characters` },
-        { status: 400 },
-      );
-    }
-
-    if (!NAME_PATTERN.test(name)) {
-      return NextResponse.json(
-        { error: "Name contains invalid characters" },
+        { error: "Name must be 1-20 characters and contain only allowed characters" },
         { status: 400 },
       );
     }
 
     const { env } = await getCloudflareContext({ async: true });
 
-    const result = await env.DB.prepare(
-      "UPDATE devices SET display_name = ? WHERE id = ? RETURNING id",
+    // Check if the name is already taken by a different device
+    const existing = await env.DB.prepare(
+      "SELECT id FROM devices WHERE display_name = ? AND id != ?",
     )
       .bind(name, body.deviceFingerprint)
       .first<{ id: string }>();
+
+    if (existing) {
+      return NextResponse.json(
+        { error: "Name already taken", code: "name_taken" },
+        { status: 409 },
+      );
+    }
+
+    // Update with try/catch for UNIQUE constraint violation race condition
+    let result: { id: string } | null;
+    try {
+      result = await env.DB.prepare(
+        "UPDATE devices SET display_name = ? WHERE id = ? RETURNING id",
+      )
+        .bind(name, body.deviceFingerprint)
+        .first<{ id: string }>();
+    } catch (dbErr) {
+      if (String(dbErr).includes("UNIQUE")) {
+        return NextResponse.json(
+          { error: "Name already taken", code: "name_taken" },
+          { status: 409 },
+        );
+      }
+      throw dbErr;
+    }
 
     if (!result) {
       return NextResponse.json(

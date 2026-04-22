@@ -122,6 +122,13 @@
     "namePlaceholder": "अपना नाम दर्ज करें",
     "save": "सेव"
   },
+  "name": {
+    "taken": "यह नाम पहले से उपयोग में है",
+    "available": "उपलब्ध है",
+    "checking": "जांच हो रही है...",
+    "required": "कृपया एक नाम दर्ज करें",
+    "invalid": "अनुमत: अक्षर, अंक, . _ - और खाली जगह"
+  },
   "mypage": {
     "heading": "My Throws",
     "personalBest": "पर्सनल बेस्ट",

@@ -122,6 +122,13 @@
     "namePlaceholder": "Votre nom",
     "save": "ENREGISTRER"
   },
+  "name": {
+    "taken": "Ce nom est déjà pris",
+    "available": "Disponible",
+    "checking": "Vérification...",
+    "required": "Veuillez entrer un nom",
+    "invalid": "Autorisé : lettres, chiffres, . _ - et espaces"
+  },
   "mypage": {
     "heading": "My Throws",
     "personalBest": "Meilleur perso",

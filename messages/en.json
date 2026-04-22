@@ -122,6 +122,13 @@
     "namePlaceholder": "Enter your name",
     "save": "SAVE"
   },
+  "name": {
+    "taken": "This name is already taken",
+    "available": "Available",
+    "checking": "Checking...",
+    "required": "Please enter a name",
+    "invalid": "Allowed: letters, numbers, . _ - and spaces"
+  },
   "mypage": {
     "heading": "My Throws",
     "personalBest": "Personal Best",

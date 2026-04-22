@@ -122,6 +122,13 @@
     "namePlaceholder": "Dein Name",
     "save": "SPEICHERN"
   },
+  "name": {
+    "taken": "Dieser Name ist bereits vergeben",
+    "available": "Verfügbar",
+    "checking": "Prüfen...",
+    "required": "Bitte gib einen Namen ein",
+    "invalid": "Erlaubt: Buchstaben, Zahlen, . _ - und Leerzeichen"
+  },
   "mypage": {
     "heading": "My Throws",
     "personalBest": "Persönliche Bestleistung",

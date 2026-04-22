@@ -58,3 +58,4 @@ data/model-stderr.log
 
 # Asset generation raw candidates
 assets-raw/
+ttw-*.txt

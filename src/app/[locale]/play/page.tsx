@@ -65,6 +65,7 @@ export default function PlayPage() {
 
   const fingerprintRef = useRef<string | null>(null);
   const turnstileTokenRef = useRef<string | null>(null);
+  const cancelledRef = useRef(false);
 
   const {
     phase,
@@ -462,6 +463,7 @@ export default function PlayPage() {
 
   const handleThrowComplete = useCallback(
     async (throwResult: ThrowResult) => {
+      cancelledRef.current = false;
       setGameState("processing");
 
       wakeLockRef.current?.release().catch(() => {});
@@ -497,6 +499,7 @@ export default function PlayPage() {
           sensorSamples,
           displayName: loadData().displayName,
           onSuccess: (verifyResult) => {
+            if (cancelledRef.current) return;
             console.log("[throw] submit success:", verifyResult);
             setRankingData(verifyResult);
           },
@@ -554,23 +557,25 @@ export default function PlayPage() {
           return { t: s.t - throwResult.freefallStartTime, h };
         });
 
-      setResultData({
-        height: unifiedHeight,
-        airtime: throwResult.airtimeSeconds,
-        isPersonalBest: isPB,
-        videoBlob: processedBlob,
-        peakOffset,
-        ffmpegProcessed,
-        samples: throwSamples,
-        previousBest: pbBeforeAdd,
-      });
+      if (!cancelledRef.current) {
+        setResultData({
+          height: unifiedHeight,
+          airtime: throwResult.airtimeSeconds,
+          isPersonalBest: isPB,
+          videoBlob: processedBlob,
+          peakOffset,
+          ffmpegProcessed,
+          samples: throwSamples,
+          previousBest: pbBeforeAdd,
+        });
+      }
 
       // Signal 100% to loading screen, then wait for completion burst
-      setProcessingProgress(100);
+      if (!cancelledRef.current) setProcessingProgress(100);
       stopPreview();
       resetDetection();
       await new Promise(r => setTimeout(r, 1000));
-      setGameState("done");
+      if (!cancelledRef.current) setGameState("done");
     },
     [stopRecording, stopPreview, resetDetection, getRecordingStartTime, getSamples],
   );
@@ -587,6 +592,7 @@ export default function PlayPage() {
   }, [stopPreview, router, locale]);
 
   const handleTryAgain = useCallback(async () => {
+    cancelledRef.current = true;
     wakeLockRef.current?.release().catch(() => {});
     wakeLockRef.current = null;
     if (finishTimeoutRef.current) {

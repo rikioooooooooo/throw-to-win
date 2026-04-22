@@ -122,6 +122,13 @@
     "namePlaceholder": "أدخل اسمك",
     "save": "حفظ"
   },
+  "name": {
+    "taken": "هذا الاسم مستخدم بالفعل",
+    "available": "هذا الاسم متاح",
+    "checking": "جارٍ التحقق...",
+    "required": "الرجاء إدخال اسم",
+    "invalid": "المسموح به: أحرف، أرقام، . _ - ومسافات"
+  },
   "mypage": {
     "heading": "My Throws",
     "personalBest": "أفضل نتيجة شخصية",

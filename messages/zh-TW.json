@@ -122,6 +122,13 @@
     "namePlaceholder": "輸入名稱",
     "save": "儲存"
   },
+  "name": {
+    "taken": "此名稱已被使用",
+    "available": "可以使用",
+    "checking": "確認中...",
+    "required": "請輸入名稱",
+    "invalid": "允許: 字母、數字、. _ - 和空格"
+  },
   "mypage": {
     "heading": "My Throws",
     "personalBest": "個人最佳",

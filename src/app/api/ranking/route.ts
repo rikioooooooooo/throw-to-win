@@ -56,15 +56,15 @@ export async function GET(request: Request) {
       // Monthly: query throws table for this month's best per device
       if (scope === "country" && country) {
         query =
-          "SELECT t.device_id as id, d.display_name, MAX(t.height_meters) as personal_best, COUNT(*) as total_throws, d.country, d.last_seen FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', 'start of month') AND d.country = ? GROUP BY t.device_id ORDER BY personal_best DESC LIMIT ? OFFSET ?";
+          "SELECT t.device_id as id, d.display_name, MAX(t.height_meters) as personal_best, COUNT(*) as total_throws, d.country, d.last_seen FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', '+9 hours', 'start of month', '-9 hours') AND d.country = ? GROUP BY t.device_id ORDER BY personal_best DESC, t.device_id ASC LIMIT ? OFFSET ?";
         params = [country, limit, offset];
-        countQuery = "SELECT COUNT(DISTINCT t.device_id) as total FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', 'start of month') AND d.country = ?";
+        countQuery = "SELECT COUNT(DISTINCT t.device_id) as total FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', '+9 hours', 'start of month', '-9 hours') AND d.country = ?";
         countParams = [country];
       } else {
         query =
-          "SELECT t.device_id as id, d.display_name, MAX(t.height_meters) as personal_best, COUNT(*) as total_throws, d.country, d.last_seen FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', 'start of month') GROUP BY t.device_id ORDER BY personal_best DESC LIMIT ? OFFSET ?";
+          "SELECT t.device_id as id, d.display_name, MAX(t.height_meters) as personal_best, COUNT(*) as total_throws, d.country, d.last_seen FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', '+9 hours', 'start of month', '-9 hours') GROUP BY t.device_id ORDER BY personal_best DESC, t.device_id ASC LIMIT ? OFFSET ?";
         params = [limit, offset];
-        countQuery = "SELECT COUNT(DISTINCT device_id) as total FROM throws WHERE created_at >= datetime('now', 'start of month')";
+        countQuery = "SELECT COUNT(DISTINCT device_id) as total FROM throws WHERE created_at >= datetime('now', '+9 hours', 'start of month', '-9 hours')";
         countParams = [];
       }
     }
@@ -118,11 +118,11 @@ export async function GET(request: Request) {
       } else {
         // Monthly: rank based on this month's best throw per device
         const selfMonthlyBest = await env.DB.prepare(
-          "SELECT MAX(height_meters) as best FROM throws WHERE device_id = ? AND created_at >= datetime('now', 'start of month')"
+          "SELECT MAX(height_meters) as best FROM throws WHERE device_id = ? AND created_at >= datetime('now', '+9 hours', 'start of month', '-9 hours')"
         ).bind(selfFingerprint).first<{ best: number | null }>();
         if (selfMonthlyBest?.best && selfMonthlyBest.best > 0) {
           const selfRankResult = await env.DB.prepare(
-            "SELECT COUNT(*) as rank FROM (SELECT device_id, MAX(height_meters) as best FROM throws WHERE created_at >= datetime('now', 'start of month') GROUP BY device_id HAVING best > ?)"
+            "SELECT COUNT(*) as rank FROM (SELECT device_id, MAX(height_meters) as best FROM throws WHERE created_at >= datetime('now', '+9 hours', 'start of month', '-9 hours') GROUP BY device_id HAVING best > ?)"
           ).bind(selfMonthlyBest.best).first<{ rank: number }>();
           selfRank = (selfRankResult?.rank ?? 0) + 1;
         }

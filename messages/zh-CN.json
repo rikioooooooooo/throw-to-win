@@ -122,6 +122,13 @@
     "namePlaceholder": "输入名称",
     "save": "保存"
   },
+  "name": {
+    "taken": "该名称已被使用",
+    "available": "可以使用",
+    "checking": "检查中...",
+    "required": "请输入名称",
+    "invalid": "允许: 字母、数字、. _ - 和空格"
+  },
   "mypage": {
     "heading": "My Throws",
     "personalBest": "个人最佳",

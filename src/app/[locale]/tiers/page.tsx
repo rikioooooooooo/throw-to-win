@@ -179,7 +179,7 @@ export default function TiersPage() {
                       </span>
                       {isUserTier && (
                         <span
-                          className="label-text text-[9px] tracking-[0.2em] font-bold px-2 py-0.5"
+                          className="label-text text-[11px] tracking-[0.2em] font-bold px-2 py-0.5"
                           style={{
                             backgroundColor: `${tier.color}30`,
                             color: tier.color,

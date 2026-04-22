@@ -45,6 +45,7 @@ const RETRIABLE_ERRORS = new Set([
   "nonce_expired",
   "nonce_used",
   "server_error",
+  "timestamp_skew",
 ]);
 
 export function submitWithRetry(args: SubmitArgs): void {

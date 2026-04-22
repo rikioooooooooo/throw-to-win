@@ -52,7 +52,7 @@ export function RankingList({
 }: RankingListProps) {
   return (
     <div className="mb-6">
-      <h2 className="label-text text-[10px] tracking-[0.2em] text-muted/60 mb-3 uppercase">
+      <h2 className="label-text text-[11px] tracking-[0.2em] text-muted/60 mb-3 uppercase">
         {title}
       </h2>
       <div className="game-card overflow-hidden">

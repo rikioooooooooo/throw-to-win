@@ -162,10 +162,9 @@ export function ThreadSheet({ open, onClose }: ThreadSheetProps) {
         ref={sheetRef}
         className="absolute bottom-0 left-0 right-0 bg-background flex flex-col"
         style={{
-          maxHeight: "70vh",
+          maxHeight: "70dvh",
           borderRadius: "16px 16px 0 0",
           animation: "slide-up-sheet 0.3s cubic-bezier(0.16, 1, 0.3, 1) both",
-          touchAction: "none",
         }}
         onClick={(e) => e.stopPropagation()}
         onPointerDown={handlePointerDown}
@@ -173,7 +172,7 @@ export function ThreadSheet({ open, onClose }: ThreadSheetProps) {
         onPointerUp={handlePointerUp}
       >
         {/* Drag handle */}
-        <div data-drag-handle className="flex justify-center pt-3 pb-2 cursor-grab">
+        <div data-drag-handle className="flex justify-center pt-3 pb-2 cursor-grab" style={{ touchAction: "none" }}>
           <div className="w-10 h-1 rounded-full bg-muted/30" />
         </div>
 
@@ -184,7 +183,7 @@ export function ThreadSheet({ open, onClose }: ThreadSheetProps) {
         </div>
 
         {/* Post list */}
-        <div className="flex-1 overflow-y-auto" style={{ borderTop: "1px solid var(--color-border-subtle)" }}>
+        <div className="flex-1 overflow-y-auto" style={{ borderTop: "1px solid var(--color-border-subtle)", touchAction: "pan-y" }}>
           {posts.length === 0 && !loading ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <p className="text-muted/50 text-[14px]">{t("empty")}</p>

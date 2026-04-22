@@ -2,6 +2,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { NextResponse } from "next/server";
 import { verifyHmacSignature } from "@/lib/server-utils";
 import { validateSensorData } from "@/lib/anti-cheat";
+import { sanitizeDisplayName, validateDisplayName } from "@/lib/sanitize-name";
 import type { AccelSample } from "@/lib/types";
 
 /** Physical limits — anything beyond these is fabricated */
@@ -68,7 +69,21 @@ export async function POST(request: Request) {
 
     // Turnstile already verified at /api/challenge — nonce issuance proves bot check passed.
 
-    // 1. Atomically claim challenge nonce (prevents TOCTOU race)
+    // 1. HMAC signature verification FIRST (before touching DB state)
+    const signatureValid = await verifyHmacSignature(
+      `${body.nonce}:${body.timestamp}`,
+      body.signature,
+      env.SERVER_SECRET,
+    );
+
+    if (!signatureValid) {
+      return NextResponse.json(
+        { error: "Invalid signature" },
+        { status: 400 },
+      );
+    }
+
+    // 2. Atomically claim challenge nonce (prevents TOCTOU race)
     const claimResult = await env.DB.prepare(
       "UPDATE challenges SET used = 1 WHERE nonce = ? AND used = 0 RETURNING nonce, device_id, expires_at",
     )
@@ -101,20 +116,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. HMAC signature verification
-    const signatureValid = await verifyHmacSignature(
-      `${body.nonce}:${body.timestamp}`,
-      body.signature,
-      env.SERVER_SECRET,
-    );
-
-    if (!signatureValid) {
-      return NextResponse.json(
-        { error: "Invalid signature" },
-        { status: 400 },
-      );
-    }
-
     // 4. Anti-cheat sensor validation
     const antiCheatResult = validateSensorData(
       body.sensorData,
@@ -122,10 +123,11 @@ export async function POST(request: Request) {
       body.airtimeSeconds,
     );
 
-    // Always trust client's v₀-based height for consistency across video overlay,
-    // result screen, localStorage, and ranking DB. Anti-cheat still rejects
-    // obvious cheating via anomalyScore >= 0.9 below.
-    const verifiedHeight = body.heightMeters;
+    // Use server-recalculated height for DB/ranking integrity.
+    // Fall back to client height only when server can't recalculate.
+    const verifiedHeight = antiCheatResult.serverHeight > 0
+      ? antiCheatResult.serverHeight
+      : body.heightMeters;
 
     // Reject outright if anomaly score is too high
     if (antiCheatResult.anomalyScore >= 0.9) {
@@ -144,14 +146,33 @@ export async function POST(request: Request) {
     const throwId = crypto.randomUUID();
 
     // Sanitize displayName (same rules as profile endpoint)
-    const MAX_NAME_LENGTH = 20;
-    const NAME_PATTERN = /^[\p{L}\p{N}\p{M}\s._-]+$/u;
-    let sanitizedName = "";
-    if (typeof body.displayName === "string") {
-      const trimmed = body.displayName.trim().slice(0, MAX_NAME_LENGTH);
-      if (trimmed.length > 0 && NAME_PATTERN.test(trimmed)) {
-        sanitizedName = trimmed;
+    const rawDisplayName = typeof body.displayName === "string" ? body.displayName : "";
+    const sanitizedName = sanitizeDisplayName(rawDisplayName);
+    const nameValid = sanitizedName.length > 0 && !validateDisplayName(sanitizedName);
+
+    // Determine final name: check for conflicts and generate fallback if needed
+    let finalName = sanitizedName;
+    if (nameValid) {
+      const nameTaken = await env.DB.prepare(
+        "SELECT 1 as t FROM devices WHERE display_name = ? AND id != ? LIMIT 1",
+      ).bind(sanitizedName, body.deviceFingerprint).first<{ t: number }>();
+      if (nameTaken) {
+        // Generate fallback name
+        const cleanId = body.deviceFingerprint.replace(/-/g, "");
+        finalName = "";
+        for (const len of [4, 6, 8, 12]) {
+          const candidate = `名無し#${cleanId.slice(0, len)}`;
+          const taken = await env.DB.prepare(
+            "SELECT 1 as t FROM devices WHERE display_name = ? LIMIT 1",
+          ).bind(candidate).first<{ t: number }>();
+          if (!taken) { finalName = candidate; break; }
+        }
+        if (!finalName) finalName = `名無し#${cleanId.slice(0, 12)}`;
       }
+    } else if (!sanitizedName) {
+      // No name provided - auto generate
+      const cleanId = body.deviceFingerprint.replace(/-/g, "");
+      finalName = `名無し#${cleanId.slice(0, 4)}`;
     }
 
     try {
@@ -163,9 +184,8 @@ export async function POST(request: Request) {
              last_seen = datetime('now'),
              total_throws = total_throws + 1,
              personal_best = MAX(personal_best, excluded.personal_best),
-             country = excluded.country,
-             display_name = CASE WHEN excluded.display_name != '' THEN excluded.display_name ELSE devices.display_name END`,
-        ).bind(body.deviceFingerprint, verifiedHeight, country, sanitizedName),
+             country = excluded.country`,
+        ).bind(body.deviceFingerprint, verifiedHeight, country, finalName),
         env.DB.prepare(
           "INSERT INTO throws (id, device_id, height_meters, airtime_seconds, country, challenge_nonce, anomaly_score) VALUES (?, ?, ?, ?, ?, ?, ?)",
         ).bind(
@@ -198,12 +218,12 @@ export async function POST(request: Request) {
             .bind(body.deviceFingerprint)
             .first<{ personal_best: number }>(),
           env.DB.prepare(
-            "SELECT COUNT(*) as rank FROM (SELECT device_id, MAX(height_meters) as best FROM throws WHERE created_at >= datetime('now', 'start of month') GROUP BY device_id HAVING best > ?)",
+            "SELECT COUNT(*) as rank FROM (SELECT device_id, MAX(height_meters) as best FROM throws WHERE created_at >= datetime('now', '+9 hours', 'start of month', '-9 hours') GROUP BY device_id HAVING best > ?)",
           )
             .bind(rankHeight)
             .first<{ rank: number }>(),
           env.DB.prepare(
-            "SELECT COUNT(*) as rank FROM (SELECT t.device_id, MAX(t.height_meters) as best FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', 'start of month') AND d.country = ? GROUP BY t.device_id HAVING best > ?)",
+            "SELECT COUNT(*) as rank FROM (SELECT t.device_id, MAX(t.height_meters) as best FROM throws t JOIN devices d ON t.device_id = d.id WHERE t.created_at >= datetime('now', '+9 hours', 'start of month', '-9 hours') AND d.country = ? GROUP BY t.device_id HAVING best > ?)",
           )
             .bind(country, rankHeight)
             .first<{ rank: number }>(),
@@ -217,6 +237,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         id: throwId,
         verifiedHeight,
+        clientHeight: body.heightMeters,
         worldRank: (worldRankRow?.rank ?? 0) + 1,
         countryRank: (countryRankRow?.rank ?? 0) + 1,
         totalThrows: totalThrowsRow?.total ?? 0,
@@ -230,6 +251,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         id: throwId,
         verifiedHeight,
+        clientHeight: body.heightMeters,
         worldRank: 0,
         countryRank: 0,
         totalThrows: 0,

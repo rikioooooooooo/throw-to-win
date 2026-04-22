@@ -122,6 +122,13 @@
     "namePlaceholder": "Tu nombre",
     "save": "GUARDAR"
   },
+  "name": {
+    "taken": "Este nombre ya está en uso",
+    "available": "Disponible",
+    "checking": "Verificando...",
+    "required": "Por favor ingresa un nombre",
+    "invalid": "Permitido: letras, números, . _ - y espacios"
+  },
   "mypage": {
     "heading": "My Throws",
     "personalBest": "Mejor marca personal",

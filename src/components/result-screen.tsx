@@ -467,7 +467,7 @@ export function ResultScreen({
 
         {/* Merch link */}
         <a href="https://kosukuma-official-shop.pages.dev/" target="_blank" rel="noopener noreferrer"
-           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
+           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 min-h-[44px] flex items-center active:scale-[0.97] game-border">
           グッズ
         </a>
       </div>

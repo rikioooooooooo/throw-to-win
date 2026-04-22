@@ -122,6 +122,13 @@
     "namePlaceholder": "Введите имя",
     "save": "СОХРАНИТЬ"
   },
+  "name": {
+    "taken": "Это имя уже занято",
+    "available": "Доступно",
+    "checking": "Проверка...",
+    "required": "Пожалуйста, введите имя",
+    "invalid": "Допустимо: буквы, цифры, . _ - и пробелы"
+  },
   "mypage": {
     "heading": "My Throws",
     "personalBest": "Личный рекорд",

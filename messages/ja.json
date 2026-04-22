@@ -122,6 +122,13 @@
     "namePlaceholder": "名前を入力",
     "save": "保存"
   },
+  "name": {
+    "taken": "この名前は既に使われています",
+    "available": "この名前は使えます",
+    "checking": "確認中...",
+    "required": "名前を入力してください",
+    "invalid": "使える文字は: 文字、数字、ピリオド、ハイフン、アンダースコア、空白"
+  },
   "mypage": {
     "heading": "My Throws",
     "personalBest": "自己ベスト",

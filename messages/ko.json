@@ -122,6 +122,13 @@
     "namePlaceholder": "이름을 입력",
     "save": "저장"
   },
+  "name": {
+    "taken": "이미 사용 중인 이름입니다",
+    "available": "사용 가능합니다",
+    "checking": "확인 중...",
+    "required": "이름을 입력해 주세요",
+    "invalid": "허용: 문자, 숫자, . _ - 및 공백"
+  },
   "mypage": {
     "heading": "My Throws",
     "personalBest": "개인 최고",
