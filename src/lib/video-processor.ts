@@ -235,7 +235,9 @@ async function processWithSlowMo(
       "-f", "concat",
       "-safe", "0",
       "-i", "list.txt",
-      "-c", "copy",
+      "-c:v", "copy",
+      "-c:a", "aac",
+      "-b:a", "128k",
       "-movflags", "+faststart",
       "-y", "output.mp4",
     ]);
