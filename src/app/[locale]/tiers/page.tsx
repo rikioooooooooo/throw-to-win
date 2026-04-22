@@ -46,9 +46,9 @@ export default function TiersPage() {
   }, []);
 
   // --- Progressive unlock logic ---
-  // Legend (index 9) is always visible to all users.
-  // Chuunibyou tiers (mythic+, index 10-18) unlock progressively.
-  const LEGEND_INDEX = 9;
+  // Overlord (index 14) is the last reachable-by-arm tier.
+  // Chuunibyou tiers (mythic+, index 15-23) unlock progressively.
+  const LEGEND_INDEX = 14;
 
   const myTierIndex = personalBest > 0
     ? TIERS.findIndex((t) => t.id === userTier.id)

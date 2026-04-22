@@ -106,7 +106,12 @@
     "nebula": "Nebula",
     "void": "Void",
     "karman": "Karman",
-    "omega": "Omega"
+    "omega": "Omega",
+    "grandmaster": "Grandmaster",
+    "titan": "Titan",
+    "apex": "Apex",
+    "phantom": "Phantom",
+    "overlord": "Overlord"
   },
   "ranking": {
     "heading": "Classement",

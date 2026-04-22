@@ -106,7 +106,12 @@
     "nebula": "네뷸라",
     "void": "보이드",
     "karman": "카르만",
-    "omega": "오메가"
+    "omega": "오메가",
+    "grandmaster": "Grandmaster",
+    "titan": "Titan",
+    "apex": "Apex",
+    "phantom": "Phantom",
+    "overlord": "Overlord"
   },
   "ranking": {
     "heading": "랭킹",

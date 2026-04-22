@@ -26,7 +26,12 @@ const TIERS: readonly TierDef[] = [
   { id: "emerald",   minHeight: 3.5,     color: "#50C878" },
   { id: "diamond",   minHeight: 5.0,     color: "#B9F2FF" },
   { id: "master",    minHeight: 7.0,     color: "#9B59B6" },
-  { id: "legend",    minHeight: 10.0,    color: "#FF2D2D" },
+  { id: "legend",      minHeight: 10.0,    color: "#FF2D2D" },
+  { id: "grandmaster", minHeight: 13.0,   color: "#E04040" },
+  { id: "titan",       minHeight: 16.0,   color: "#D4523A" },
+  { id: "apex",        minHeight: 19.0,   color: "#C44D2B" },
+  { id: "phantom",     minHeight: 23.0,   color: "#A33DC0" },
+  { id: "overlord",    minHeight: 27.0,   color: "#7B2FBE" },
   // --- Chuunibyou tiers (beyond human arm) ---
   { id: "mythic",    minHeight: 30,      color: "#F5DEB3" },
   { id: "stellar",   minHeight: 50,      color: "#FFD700" },

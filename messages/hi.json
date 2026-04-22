@@ -106,7 +106,12 @@
     "nebula": "नेबुला",
     "void": "वॉइड",
     "karman": "कार्मन",
-    "omega": "ओमेगा"
+    "omega": "ओमेगा",
+    "grandmaster": "Grandmaster",
+    "titan": "Titan",
+    "apex": "Apex",
+    "phantom": "Phantom",
+    "overlord": "Overlord"
   },
   "ranking": {
     "heading": "रैंकिंग",

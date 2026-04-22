@@ -106,7 +106,12 @@
     "nebula": "نيبولا",
     "void": "فويد",
     "karman": "كارمان",
-    "omega": "أوميغا"
+    "omega": "أوميغا",
+    "grandmaster": "Grandmaster",
+    "titan": "Titan",
+    "apex": "Apex",
+    "phantom": "Phantom",
+    "overlord": "Overlord"
   },
   "ranking": {
     "heading": "التصنيف",

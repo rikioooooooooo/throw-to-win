@@ -106,7 +106,12 @@
     "nebula": "星云",
     "void": "虚空",
     "karman": "卡门线",
-    "omega": "终极"
+    "omega": "终极",
+    "grandmaster": "Grandmaster",
+    "titan": "Titan",
+    "apex": "Apex",
+    "phantom": "Phantom",
+    "overlord": "Overlord"
   },
   "ranking": {
     "heading": "排名",
