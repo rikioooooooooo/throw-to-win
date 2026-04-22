@@ -184,12 +184,11 @@ export async function POST(request: Request) {
     }
 
     // 7. Fetch updated personal_best + ranks in parallel
-    // Use device's monthly best (not just current throw) for accurate rank
+    // Rank THIS specific throw (not device's monthly best) so WR badge
+    // only shows when this throw itself is the highest, not when a
+    // previous throw by the same device was the highest.
     try {
-      const deviceMonthlyBest = await env.DB.prepare(
-        "SELECT MAX(height_meters) as best FROM throws WHERE device_id = ? AND created_at >= datetime('now', 'start of month')"
-      ).bind(body.deviceFingerprint).first<{ best: number | null }>();
-      const rankHeight = Math.max(deviceMonthlyBest?.best ?? 0, verifiedHeight);
+      const rankHeight = verifiedHeight;
 
       const [updatedDevice, worldRankRow, countryRankRow, totalThrowsRow] =
         await Promise.all([

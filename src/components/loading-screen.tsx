@@ -8,6 +8,7 @@ type LoadingScreenProps = {
   status: VideoProcessingStatus;
   progress?: number;
   height?: number;
+  onSkip?: () => void;
 };
 
 function useAnimatedDots(intervalMs = 500): string {
@@ -200,7 +201,7 @@ const TRIVIA = [
   "このゲームを遊んでいる間、スマホを「使って」はいない",
 ];
 
-export function LoadingScreen({ status, progress, height }: LoadingScreenProps) {
+export function LoadingScreen({ status, progress, height, onSkip }: LoadingScreenProps) {
   const t = useTranslations("processing");
   const dots = useAnimatedDots();
   const refs = useSyntheticProgress(progress ?? 0);
@@ -377,6 +378,24 @@ export function LoadingScreen({ status, progress, height }: LoadingScreenProps) 
         >
           {trivia}
         </p>
+
+        {onSkip && (
+          <button
+            onClick={onSkip}
+            style={{
+              marginTop: "24px",
+              color: "rgba(237, 237, 237, 0.4)",
+              fontSize: "12px",
+              letterSpacing: "0.1em",
+              background: "none",
+              border: "none",
+              padding: "8px 16px",
+              cursor: "pointer",
+            }}
+          >
+            スキップ →
+          </button>
+        )}
       </div>
     </div>
   );

@@ -101,6 +101,8 @@ export default function PlayPage() {
   const unifiedHeightRef = useRef(0);
   /** Track PB before this throw for tier breakthrough detection */
   const prevBestRef = useRef(0);
+  /** Skip video processing — go straight to result */
+  const skipVideoRef = useRef(false);
   const overlayStateRef = useRef<{
     mode: "idle" | "countdown" | "height";
     countdownText: string;
@@ -518,20 +520,25 @@ export default function PlayPage() {
 
       let processedBlob: Blob | null = null;
       let ffmpegProcessed = false;
-      if (videoBlob) {
+      if (videoBlob && !skipVideoRef.current) {
         try {
           processedBlob = await processVideo(videoBlob, {
             peakTimeOffset: peakOffset,
             onStatus: (status, progress) => {
+              if (skipVideoRef.current) return;
               setProcessingStatus(status);
               if (progress !== undefined) setProcessingProgress(progress);
             },
           });
-          ffmpegProcessed =
-            processedBlob !== videoBlob &&
-            processedBlob.type.includes("mp4");
+          if (!skipVideoRef.current) {
+            ffmpegProcessed =
+              processedBlob !== videoBlob &&
+              processedBlob.type.includes("mp4");
+          } else {
+            processedBlob = null;
+          }
         } catch {
-          processedBlob = videoBlob;
+          processedBlob = skipVideoRef.current ? null : videoBlob;
         }
       }
 
@@ -568,6 +575,10 @@ export default function PlayPage() {
     [stopRecording, stopPreview, resetDetection, getRecordingStartTime, getSamples],
   );
 
+  const handleSkipVideo = useCallback(() => {
+    skipVideoRef.current = true;
+  }, []);
+
   const handleGoHome = useCallback(() => {
     wakeLockRef.current?.release().catch(() => {});
     wakeLockRef.current = null;
@@ -586,6 +597,7 @@ export default function PlayPage() {
     startingRef.current = false;
     v0PeakRef.current = 0;
     unifiedHeightRef.current = 0;
+    skipVideoRef.current = false;
     turnstileTokenRef.current = null;
     // Reset throw detection state (clears stale result that would re-trigger the landing useEffect)
     resetDetection();
@@ -873,7 +885,7 @@ export default function PlayPage() {
     return (
       <>
         {turnstileWidget}
-        <LoadingScreen status={processingStatus} progress={processingProgress} height={unifiedHeightRef.current} />
+        <LoadingScreen status={processingStatus} progress={processingProgress} height={unifiedHeightRef.current} onSkip={handleSkipVideo} />
       </>
     );
   }
