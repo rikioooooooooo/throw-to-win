@@ -83,9 +83,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Atomically claim challenge nonce (prevents TOCTOU race)
+    // 2. Atomically claim challenge nonce — includes expiry check in SQL
+    //    so expired nonces are never marked used (audit integrity)
     const claimResult = await env.DB.prepare(
-      "UPDATE challenges SET used = 1 WHERE nonce = ? AND used = 0 RETURNING nonce, device_id, expires_at",
+      "UPDATE challenges SET used = 1 WHERE nonce = ? AND used = 0 AND expires_at > datetime('now') RETURNING nonce, device_id, expires_at",
     )
       .bind(body.nonce)
       .first<{
@@ -95,16 +96,8 @@ export async function POST(request: Request) {
       }>();
 
     if (!claimResult) {
-      // Either nonce doesn't exist, or it was already used
       return NextResponse.json(
-        { error: "Challenge nonce not found or already used" },
-        { status: 400 },
-      );
-    }
-
-    if (new Date(claimResult.expires_at) < new Date()) {
-      return NextResponse.json(
-        { error: "Challenge nonce expired" },
+        { error: "Challenge nonce not found, already used, or expired" },
         { status: 400 },
       );
     }
@@ -167,7 +160,7 @@ export async function POST(request: Request) {
           ).bind(candidate).first<{ t: number }>();
           if (!taken) { finalName = candidate; break; }
         }
-        if (!finalName) finalName = `名無し#${cleanId.slice(0, 12)}`;
+        if (!finalName) finalName = `名無し#${cleanId.slice(0, 8)}${Math.floor(Math.random() * 10000).toString().padStart(4, "0")}`;
       }
     } else if (!sanitizedName) {
       // No name provided - auto generate
