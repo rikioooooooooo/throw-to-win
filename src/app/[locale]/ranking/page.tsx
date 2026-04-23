@@ -45,7 +45,7 @@ export default function RankingPage() {
             </h1>
           </div>
           <a href="https://kosukuma-official-shop.pages.dev/" target="_blank" rel="noopener noreferrer"
-             className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
+             className="label-text text-[11px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]">
             グッズ
           </a>
         </header>
@@ -54,13 +54,15 @@ export default function RankingPage() {
         <div className="flex mb-4 gap-2">
           <button
             onClick={() => setPeriod("monthly")}
-            className={`flex-1 py-3 text-center label-text text-[12px] tracking-[0.12em] transition-all game-border ${period === "monthly" ? "bg-accent text-black font-extrabold" : "text-muted"}`}
+            className={`text-center label-text text-[12px] tracking-[0.12em] transition-all game-border ${period === "monthly" ? "bg-accent text-black font-extrabold" : "text-muted"}`}
+            style={{ padding: "10px 16px" }}
           >
             {t("ranking.monthly")}
           </button>
           <button
             onClick={() => setPeriod("alltime")}
-            className={`flex-1 py-3 text-center label-text text-[12px] tracking-[0.12em] transition-all game-border ${period === "alltime" ? "bg-accent text-black font-extrabold" : "text-muted"}`}
+            className={`text-center label-text text-[12px] tracking-[0.12em] transition-all game-border ${period === "alltime" ? "bg-accent text-black font-extrabold" : "text-muted"}`}
+            style={{ padding: "10px 16px" }}
           >
             {t("ranking.alltime")}
           </button>
@@ -68,13 +70,13 @@ export default function RankingPage() {
 
         {/* Tabs — game-card style */}
         <div
-          className="flex mb-6 overflow-hidden game-card"
-          style={{ padding: 0 }}
+          className="inline-flex gap-2 mb-6"
         >
           <button
             onClick={() => setTab("world")}
-            className="flex-1 py-3.5 text-center label-text text-[11px] tracking-[0.15em] transition-all"
+            className="py-3.5 text-center label-text text-[11px] tracking-[0.15em] transition-all game-border"
             style={{
+              padding: "12px 18px",
               backgroundColor: tab === "world" ? "var(--color-accent)" : "transparent",
               color: tab === "world" ? "#000000" : "var(--color-muted)",
               fontWeight: tab === "world" ? 800 : 600,
@@ -84,8 +86,9 @@ export default function RankingPage() {
           </button>
           <button
             onClick={() => setTab("country")}
-            className="flex-1 py-3.5 text-center label-text text-[11px] tracking-[0.15em] transition-all"
+            className="py-3.5 text-center label-text text-[11px] tracking-[0.15em] transition-all game-border"
             style={{
+              padding: "12px 18px",
               backgroundColor: tab === "country" ? "var(--color-accent)" : "transparent",
               color: tab === "country" ? "#000000" : "var(--color-muted)",
               fontWeight: tab === "country" ? 800 : 600,

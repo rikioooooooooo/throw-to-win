@@ -106,7 +106,7 @@ export default function MyPage() {
           </h1>
         </div>
         <a href="https://kosukuma-official-shop.pages.dev/" target="_blank" rel="noopener noreferrer"
-           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97] game-border">
+           className="label-text text-[11px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 active:scale-[0.97]">
           グッズ
         </a>
       </header>
@@ -189,11 +189,11 @@ export default function MyPage() {
           </div>
 
           <div className="game-card p-4">
-            <p className="label-text text-[11px] tracking-[0.15em] text-accent/50 mb-2">
+            <p className="label-text text-[10px] tracking-[0.15em] text-accent/50 mb-2">
               {t("totalAirtime")}
             </p>
             <div className="flex items-end">
-              <span className="height-number text-[28px] text-foreground leading-none">
+              <span className="height-number text-[24px] text-foreground leading-none">
                 {formatAirtime(stats.totalAirtimeSeconds)}
               </span>
               <span className="text-[12px] text-muted/60 ml-1">{t("seconds")}</span>
@@ -205,7 +205,7 @@ export default function MyPage() {
               {t("totalHeight")}
             </p>
             <div className="flex items-end">
-              <span className="height-number text-[28px] text-foreground leading-none">
+              <span className="height-number text-[32px] text-foreground leading-none">
                 {stats.totalHeightMeters.toFixed(1)}
               </span>
               <span className="text-[12px] text-muted/60 ml-1">{t("meters")}</span>
@@ -214,9 +214,9 @@ export default function MyPage() {
 
           {stats.streakDays > 0 && (
             <div className="game-card col-span-2 p-4 flex items-center gap-3">
-              <span className="text-[28px]">🔥</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF8A3D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
               <div>
-                <p className="label-text text-[11px] tracking-[0.15em] text-accent/50 mb-0.5">
+                <p className="label-text text-[10px] tracking-[0.15em] text-accent/50 mb-0.5">
                   {t("streak")}
                 </p>
                 <span className="height-number text-[24px] text-foreground leading-none">

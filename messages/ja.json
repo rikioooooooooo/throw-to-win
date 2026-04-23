@@ -10,7 +10,7 @@
     "totalThrows": "Total Throws",
     "streakDays": "日連続",
     "start": "はじめる",
-    "myPage": "My Page",
+    "myPage": "マイページ",
     "worldRanking": "世界ランキング",
     "countryRanking": "国内ランキング",
     "noRankings": "まだデータがありません",
@@ -31,18 +31,18 @@
     "disagree": "同意しない"
   },
   "permissions": {
-    "heading": "許可が必要です。",
+    "heading": "許可が必要です",
     "motionSensor": "モーションセンサー — 投擲の高さを計測します",
     "camera": "カメラ — 飛行中を撮影します",
     "grantButton": "許可する",
-    "denied": "許可がないと遊べません。",
+    "denied": "センサーの許可が必要です",
     "cameraFailed": "カメラを起動できませんでした。設定からカメラの許可を確認してください。",
     "retryButton": "もう一度",
     "unsupported": "お使いの端末はセンサーに対応していません。",
     "unsupportedDetail": "Throw To Win にはモーションセンサーとカメラが必要です。"
   },
   "prepare": {
-    "heading": "準備はいい？",
+    "heading": "準備完了",
     "cameraLabel": "カメラ",
     "rearCamera": "背面",
     "frontCamera": "前面",
@@ -56,22 +56,22 @@
     "landed": "キャッチ！"
   },
   "processing": {
-    "heading": "動画を生成中...",
-    "loadingFfmpeg": "動画エンジン読み込み中...",
-    "applyingSlowmo": "スローモーション作成中...",
-    "addingOverlay": "高度オーバーレイ追加中...",
-    "encoding": "エンコード中...",
-    "almostDone": "もうすぐ...",
-    "analyzing": "軌道データを解析中...",
-    "calculating": "滞空時間を計算中...",
-    "processing": "データ処理中...",
-    "almostThere": "もうすぐ完成...",
-    "finalizing": "最高の瞬間を生成中!"
+    "heading": "動画を生成しています",
+    "loadingFfmpeg": "動画エンジンを読み込んでいます",
+    "applyingSlowmo": "スローモーションを作成しています",
+    "addingOverlay": "高度表示を追加しています",
+    "encoding": "動画を書き出しています",
+    "almostDone": "まもなく完了します",
+    "analyzing": "軌道データを解析しています",
+    "calculating": "滞空時間を計算しています",
+    "processing": "データを処理しています",
+    "almostThere": "もうすぐ完了します",
+    "finalizing": "動画を仕上げています"
   },
   "result": {
     "height": "高度",
     "airtime": "滞空時間",
-    "newRecord": "自己ベスト更新！",
+    "newRecord": "自己ベスト更新",
     "downloadVideo": "動画を保存",
     "tryAgain": "もう一度投げる",
     "shareOn": "シェア",
@@ -128,20 +128,20 @@
     "save": "保存"
   },
   "name": {
-    "taken": "この名前は既に使われています",
-    "available": "この名前は使えます",
-    "checking": "確認中...",
+    "taken": "この名前は使用できません",
+    "available": "使用できます",
+    "checking": "確認しています",
     "required": "名前を入力してください",
     "invalid": "使える文字は: 文字、数字、ピリオド、ハイフン、アンダースコア、空白"
   },
   "mypage": {
-    "heading": "My Throws",
+    "heading": "記録",
     "personalBest": "自己ベスト",
     "totalThrows": "累計投擲回数",
     "totalAirtime": "累計滞空時間",
     "sortByDate": "日付順",
     "sortByHeight": "高度順",
-    "noThrows": "まだ記録がありません。投げに行こう！",
+    "noThrows": "まだ記録がありません",
     "back": "戻る",
     "meters": "m",
     "seconds": "秒",
@@ -190,9 +190,9 @@
   },
   "common": {
     "loading": "読み込み中...",
-    "error": "今のは練習。もう一度！",
+    "error": "記録できませんでした。再試行してください。",
     "retry": "もう一度",
-    "practice": "今のは練習。もう一度！",
+    "practice": "記録できませんでした。再試行してください。",
     "unit": {
       "meters": "m",
       "seconds": "秒"
@@ -207,16 +207,16 @@
     "reachedTop": "あなたは頂点に立った"
   },
   "thread": {
-    "voices": "投げ終わった人たちの声",
+    "voices": "プレイヤーの投稿",
     "title": "みんなの声",
     "placeholder": "感想を書こう...",
     "send": "送信",
     "empty": "まだ声がありません",
-    "emptyHint": "最初の一声を投稿しよう！",
+    "emptyHint": "まだ投稿がありません",
     "mustThrow": "投げてから書き込めます",
     "loadMore": "もっと見る",
     "charCount": "{count}/100",
     "rateLimited": "投稿は1時間に5回までです",
-    "posted": "投稿しました！"
+    "posted": "投稿しました"
   }
 }

@@ -3,23 +3,24 @@ import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Inter, Noto_Sans_JP } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Sans_JP } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { DataReset } from "@/components/data-reset";
 import "../globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-});
-
-const notoSansJP = Noto_Sans_JP({
+const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
-  variable: "--font-noto-sans-jp",
+  variable: "--font-ibm-plex-sans",
+});
+
+const ibmPlexSansJP = IBM_Plex_Sans_JP({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-ibm-plex-sans-jp",
 });
 
 export const metadata: Metadata = {
@@ -74,7 +75,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   const messages = await getMessages();
 
   return (
-    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className={`h-full ${inter.variable} ${notoSansJP.variable}`}>
+    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className={`h-full ${ibmPlexSans.variable} ${ibmPlexSansJP.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

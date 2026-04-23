@@ -56,7 +56,7 @@ export function ConsentModal({ onAgree, onDisagree }: ConsentModalProps) {
         <div className="p-5 flex flex-col items-center gap-3 bg-white/5 border-t border-white/10">
           <button
             onClick={onAgree}
-            className="w-full max-w-[280px] h-[56px] bg-accent text-black cta-text text-[16px] rounded-[16px] active:scale-[0.97] transition-transform neon-glow"
+            className="w-full max-w-[280px] h-[52px] bg-accent text-black cta-text text-[16px] rounded-[14px] active:scale-[0.97] transition-transform"
           >
             {t("agree")}
           </button>

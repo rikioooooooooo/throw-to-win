@@ -382,7 +382,7 @@ export function LoadingScreen({ status, progress, height, onSkip }: LoadingScree
               cursor: "pointer",
             }}
           >
-            スキップ →
+            スキップ
           </button>
         )}
       </div>

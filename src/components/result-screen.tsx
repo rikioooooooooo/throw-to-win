@@ -140,8 +140,8 @@ export function ResultScreen({
               style={{
                 top: "10%",
                 left: "50%",
-                width: "150vw",
-                height: "80vh",
+                width: "120vw",
+                height: "60vh",
                 transform: "translateX(-50%)",
                 background: `radial-gradient(ellipse at 50% 30%, ${tierInfo?.current.color ?? "var(--color-accent)"}18 0%, ${tierInfo?.current.color ?? "var(--color-accent)"}06 35%, transparent 65%)`,
                 animation: "result-glow 3s ease-in-out infinite",
@@ -281,7 +281,7 @@ export function ResultScreen({
               className={`height-number leading-none ${rankGlow.heightClass}`}
               style={{
                 color: tierColor,
-                fontSize: "clamp(5.5rem, 30vw, 10rem)",
+                fontSize: "clamp(4.8rem, 26vw, 8.2rem)",
                 ...(!rankGlow.heightClass ? { textShadow: resultData.isPersonalBest || tierInfo?.isBreakthrough ? "0 0 40px currentColor, 0 0 80px currentColor" : "0 0 30px currentColor" } : {}),
               }}
             />
@@ -375,16 +375,16 @@ export function ResultScreen({
 
         {/* Video action buttons — secondary style */}
         {resultData.videoBlob && (
-          <div className="grid grid-cols-2 gap-3 mb-5 w-full max-w-[280px] animate-fade-in-up delay-240" style={{ position: "relative", zIndex: 60 }}>
+          <div className="grid gap-3 mb-5 w-full max-w-[280px] animate-fade-in-up delay-240" style={{ position: "relative", zIndex: 60, gridTemplateColumns: "1.3fr 1fr" }}>
             <button
               onClick={onSaveVideo}
-              className="h-[44px] flex items-center justify-center text-foreground/80 text-[13px] font-medium active:scale-[0.97] transition-all hover:text-foreground game-border rounded-[8px]"
+              className="h-[46px] flex items-center justify-center text-foreground/80 text-[13px] font-medium active:scale-[0.97] transition-all hover:text-foreground game-border rounded-[12px]"
             >
               {t("result.downloadVideo")}
             </button>
             <button
               onClick={onShareVideo}
-              className="h-[44px] flex items-center justify-center text-foreground/80 text-[13px] font-medium active:scale-[0.97] transition-all hover:text-foreground game-border rounded-[8px]"
+              className="h-[42px] flex items-center justify-center text-foreground/80 text-[13px] font-medium active:scale-[0.97] transition-all hover:text-foreground game-border rounded-[10px]"
             >
               {t("result.shareOn")}
             </button>
@@ -398,8 +398,8 @@ export function ResultScreen({
           style={{
             position: "relative",
             zIndex: 60,
-            borderRadius: "16px",
-            height: "56px",
+            borderRadius: "12px",
+            height: "52px",
           }}
         >
           {t("result.tryAgain")}
@@ -446,7 +446,7 @@ export function ResultScreen({
         {/* Ranking button */}
         <button
           onClick={() => router.push(`/${locale}/ranking`)}
-          className="mt-4 w-full max-w-[200px] h-[44px] flex items-center justify-center text-foreground/70 text-[13px] font-medium hover:text-foreground active:scale-[0.97] transition-all animate-fade-in delay-560 game-border rounded-[8px]"
+          className="mt-4 w-full max-w-[200px] h-[40px] flex items-center justify-center text-foreground/70 text-[13px] font-medium hover:text-foreground active:scale-[0.97] transition-all animate-fade-in delay-560 game-border rounded-[8px]"
         >
           {t("mypage.viewRanking")}
         </button>
@@ -454,7 +454,7 @@ export function ResultScreen({
         {/* Thread button */}
         <button
           onClick={() => setShowThread(true)}
-          className="mt-3 w-full max-w-[200px] h-[44px] flex items-center justify-center text-foreground/60 text-[13px] font-medium hover:text-foreground active:scale-[0.97] transition-all animate-fade-in delay-560 game-border rounded-[8px]"
+          className="mt-3 w-full max-w-[200px] h-[38px] flex items-center justify-center text-foreground/60 text-[13px] font-medium hover:text-foreground active:scale-[0.97] transition-all animate-fade-in delay-560 game-border rounded-[8px]"
         >
           {t("thread.voices")}
         </button>

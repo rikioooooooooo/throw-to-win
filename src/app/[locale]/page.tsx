@@ -174,7 +174,7 @@ export default function LandingPage() {
       {/* Top bar */}
       <header className="relative z-10 flex justify-between items-center pt-4">
         <a href="https://kosukuma-official-shop.pages.dev/" target="_blank" rel="noopener noreferrer"
-           className="label-text text-[12px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 min-h-[44px] flex items-center active:scale-[0.97] game-border">
+           className="label-text text-[11px] text-foreground/40 hover:text-foreground transition-colors px-3 py-1.5 min-h-[44px] flex items-center active:scale-[0.97]">
           グッズ
         </a>
         <button
@@ -193,8 +193,8 @@ export default function LandingPage() {
           <div
             className="absolute inset-0 rounded-full"
             style={{
-              background: "radial-gradient(circle, rgba(0, 250, 154, 0.12) 0%, rgba(0, 250, 154, 0.04) 30%, transparent 60%)",
-              transform: "scale(2.2)",
+              background: "radial-gradient(circle, rgba(0, 226, 140, 0.08) 0%, rgba(0, 226, 140, 0.03) 30%, transparent 60%)",
+              transform: "scale(1.7)",
             }}
             aria-hidden="true"
           />
@@ -215,7 +215,7 @@ export default function LandingPage() {
 
         <h1
           className="animate-fade-in-up text-center text-foreground uppercase"
-          style={{ fontSize: "clamp(3.4rem, 16vw, 7rem)", fontWeight: 800, lineHeight: 0.82, letterSpacing: "0.1em", textShadow: "0 0 48px rgba(0,250,154,0.25), 0 0 96px rgba(0,250,154,0.08)", transformStyle: "preserve-3d" }}
+          style={{ fontSize: "clamp(3.4rem, 16vw, 7rem)", fontWeight: 800, lineHeight: 0.82, letterSpacing: "0.1em", textShadow: "0 4px 20px rgba(0,0,0,0.3)", transformStyle: "preserve-3d" }}
         >
           {"THROW".split("").map((ch, i) => (
             <span key={`t${i}`} ref={el => { charsRef.current[i] = el; }} style={{ display: "inline-block" }}>{ch}</span>
@@ -248,8 +248,8 @@ export default function LandingPage() {
             disabled={!nameValid}
             className={`mt-6 w-full max-w-[300px] text-black cta-text text-[16px] tracking-[0.1em] animate-fade-in-up delay-160 transition-all ${nameValid ? "bg-accent neon-glow" : "bg-accent/30 cursor-not-allowed"}`}
             style={{
-              borderRadius: "16px",
-              height: "56px",
+              borderRadius: "14px",
+              height: "58px",
               textShadow: nameValid ? "0 1px 0 rgba(0,0,0,0.15)" : "none",
             }}
           >
@@ -307,7 +307,7 @@ export default function LandingPage() {
       {/* Thread button */}
       <button
         onClick={() => setShowThread(true)}
-        className="mt-auto mb-4 w-full max-w-[200px] py-3 text-center text-foreground/60 text-[12px] tracking-[0.05em] hover:text-foreground active:scale-[0.97] transition-all game-border"
+        className="mt-auto mb-4 w-full max-w-[180px] py-3 text-center text-foreground/60 text-[12px] tracking-[0.05em] hover:text-foreground active:scale-[0.97] transition-all game-border"
       >
         {t("thread.voices")}
       </button>
@@ -370,7 +370,7 @@ export default function LandingPage() {
               autoCapitalize="off"
               spellCheck={false}
               data-form-type="other"
-              className="w-full px-5 py-4 bg-white/8 border-2 border-accent/30 rounded-2xl text-foreground text-center text-[20px] font-semibold placeholder:text-white/30 focus:outline-none focus:border-accent/60 focus:bg-white/10 transition-all mb-6"
+              className="w-full px-5 py-4 bg-white/8 border-2 border-accent/30 rounded-xl text-foreground text-center text-[20px] font-semibold placeholder:text-white/30 focus:outline-none focus:border-accent/60 focus:bg-white/10 transition-all mb-6"
             />
             <button
               onClick={() => {
@@ -384,7 +384,7 @@ export default function LandingPage() {
                 }
               }}
               disabled={!nameInput.trim()}
-              className={`w-full py-4 rounded-2xl text-[16px] font-bold tracking-[0.1em] transition-all ${nameInput.trim() ? "bg-accent text-black neon-glow" : "bg-accent/20 text-foreground/30 cursor-not-allowed"}`}
+              className={`w-full py-4 rounded-[10px] text-[16px] font-bold tracking-[0.1em] transition-all ${nameInput.trim() ? "bg-accent text-black neon-glow" : "bg-accent/20 text-foreground/30 cursor-not-allowed"}`}
             >
               OK
             </button>
@@ -427,7 +427,7 @@ export default function LandingPage() {
                 } catch { /* user denied or no camera */ }
                 setShowGyroOverlay(false);
               }}
-              className="w-full py-4 rounded-2xl text-[16px] font-bold tracking-[0.1em] bg-accent text-black neon-glow"
+              className="w-full py-4 rounded-[10px] text-[16px] font-bold tracking-[0.1em] bg-accent text-black neon-glow"
             >
               OK
             </button>
