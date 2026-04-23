@@ -521,6 +521,33 @@ export default function PlayPage() {
       const peakOffset =
         (throwResult.peakTime - getRecordingStartTime()) / 1000;
 
+      // Compute height trajectory samples before video processing
+      // so they're available for skip
+      const throwSamples = sensorSamples
+        .filter(s => s.t >= throwResult.freefallStartTime && s.t <= throwResult.landingTime)
+        .map(s => {
+          const elapsed = (s.t - throwResult.freefallStartTime) / 1000;
+          const v0 = throwResult.estimatedV0;
+          const h = v0 > 0
+            ? Math.max(0, v0 * elapsed - (9.81 * elapsed * elapsed) / 2)
+            : (9.81 * elapsed * elapsed) / 8;
+          return { t: s.t - throwResult.freefallStartTime, h };
+        });
+
+      // Set resultData early (without video) so skip can immediately show results
+      if (!cancelledRef.current) {
+        setResultData({
+          height: unifiedHeight,
+          airtime: throwResult.airtimeSeconds,
+          isPersonalBest: isPB,
+          videoBlob: null,
+          peakOffset,
+          ffmpegProcessed: false,
+          samples: throwSamples,
+          previousBest: pbBeforeAdd,
+        });
+      }
+
       let processedBlob: Blob | null = null;
       let ffmpegProcessed = false;
       if (videoBlob && !skipVideoRef.current) {
@@ -545,19 +572,8 @@ export default function PlayPage() {
         }
       }
 
-      // Compute height trajectory samples for CountUpHeight replay
-      const throwSamples = sensorSamples
-        .filter(s => s.t >= throwResult.freefallStartTime && s.t <= throwResult.landingTime)
-        .map(s => {
-          const elapsed = (s.t - throwResult.freefallStartTime) / 1000;
-          const v0 = throwResult.estimatedV0;
-          const h = v0 > 0
-            ? Math.max(0, v0 * elapsed - (9.81 * elapsed * elapsed) / 2)
-            : (9.81 * elapsed * elapsed) / 8;
-          return { t: s.t - throwResult.freefallStartTime, h };
-        });
-
-      if (!cancelledRef.current) {
+      // Update resultData with processed video (if not skipped)
+      if (!cancelledRef.current && !skipVideoRef.current) {
         setResultData({
           height: unifiedHeight,
           airtime: throwResult.airtimeSeconds,
@@ -582,7 +598,12 @@ export default function PlayPage() {
 
   const handleSkipVideo = useCallback(() => {
     skipVideoRef.current = true;
-  }, []);
+    // Immediately transition to result screen without waiting for video processing
+    setProcessingProgress(100);
+    stopPreview();
+    resetDetection();
+    setGameState("done");
+  }, [stopPreview, resetDetection]);
 
   const handleGoHome = useCallback(() => {
     wakeLockRef.current?.release().catch(() => {});

@@ -54,15 +54,15 @@ export default function RankingPage() {
         <div className="flex mb-4 gap-2">
           <button
             onClick={() => setPeriod("monthly")}
-            className={`text-center label-text text-[12px] tracking-[0.12em] transition-all game-border ${period === "monthly" ? "bg-accent text-black font-extrabold" : "text-muted"}`}
-            style={{ padding: "10px 16px" }}
+            className={`text-center label-text text-[12px] tracking-[0.12em] transition-all ${period === "monthly" ? "bg-accent text-black font-extrabold" : "text-muted/50 bg-white/[0.03]"}`}
+            style={{ padding: "10px 20px", borderRadius: "10px", border: period === "monthly" ? "1px solid var(--color-accent)" : "1px solid var(--color-border-ghost)" }}
           >
             {t("ranking.monthly")}
           </button>
           <button
             onClick={() => setPeriod("alltime")}
-            className={`text-center label-text text-[12px] tracking-[0.12em] transition-all game-border ${period === "alltime" ? "bg-accent text-black font-extrabold" : "text-muted"}`}
-            style={{ padding: "10px 16px" }}
+            className={`text-center label-text text-[12px] tracking-[0.12em] transition-all ${period === "alltime" ? "bg-accent text-black font-extrabold" : "text-muted/50 bg-white/[0.03]"}`}
+            style={{ padding: "10px 20px", borderRadius: "10px", border: period === "alltime" ? "1px solid var(--color-accent)" : "1px solid var(--color-border-ghost)" }}
           >
             {t("ranking.alltime")}
           </button>
@@ -95,9 +95,6 @@ export default function RankingPage() {
             }}
           >
             {t("ranking.country")}
-            {rankings.yourCountry && rankings.yourCountry !== "XX" && (
-              <span className="ml-1 text-[11px] opacity-70">({rankings.yourCountry})</span>
-            )}
           </button>
         </div>
 
